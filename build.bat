@@ -32,7 +32,7 @@ cl %compile_options% ..\src\win32_main.c /link %link_options% /pdb:holo.pdb /out
 goto end
 
 :invalid_arguments
-echo Invalid arguments^. Usage: build ^[build^|release^]
+echo Invalid arguments^. Usage: build ^[debug^|release^]
 goto end
 
 :end
