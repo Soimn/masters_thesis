@@ -1,5 +1,7 @@
 // Attributions
-// the Media Foundation API usage example by Mārtiņš Možeiko was used to supplement msdocs, https://gist.github.com/mmozeiko/a5adab1ad11ea6d0643ceb67bb8e3e19
+// Media Foundation API usage example by Mārtiņš Možeiko (https://gist.github.com/mmozeiko/a5adab1ad11ea6d0643ceb67bb8e3e19) and
+// mediafoundationsamples by Aaron Clauson (https://github.com/sipsorcery/mediafoundationsamples/tree/master)
+// were used to supplement the msdoc documentation
 
 #define COBJMACROS
 #define UNICODE
@@ -216,7 +218,7 @@ GetVideoCaptureDeviceNames(Arena* arena, u32* names_len, wchar_t*** friendly_nam
 }
 
 bool
-CreateVideoCaptureDevice(wchar_t* symbolic_name, IMFMediaSource** device)
+CreateVideoCaptureDevice(wchar_t* symbolic_name, IMFSourceReader** device)
 {
 	bool succeeded = false;
 
@@ -224,11 +226,15 @@ CreateVideoCaptureDevice(wchar_t* symbolic_name, IMFMediaSource** device)
 
 	if (SUCCEEDED(MFCreateAttributes(&attr, 1)))
 	{
+		IMFMediaSource* media_source;
 		if (SUCCEEDED(IMFAttributes_SetGUID(attr, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID)) &&
 				SUCCEEDED(IMFAttributes_SetString(attr, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, symbolic_name))            &&
-				SUCCEEDED(MFCreateDeviceSource(attr, device)))
+				SUCCEEDED(MFCreateDeviceSource(attr, &media_source)))
 		{
-			succeeded = true;
+			if (!SUCCEEDED(MFCreateSourceReaderFromMediaSource(media_source, 0, device))) *device = 0;
+			IMFMediaSource_Release(media_source);
+
+			succeeded = (*device != 0);
 		}
 
 		IMFAttributes_Release(attr);
@@ -238,9 +244,11 @@ CreateVideoCaptureDevice(wchar_t* symbolic_name, IMFMediaSource** device)
 }
 
 int
-WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int show_cmd)
+wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_cmd)
 {
 	Arena arena = Arena_Create(1 << 30);
+
+	u32* test = 0;
 
 	HRESULT com_init = CoInitializeEx(0, COINIT_MULTITHREADED);
 	if (!SUCCEEDED(com_init)) WideFatalError(L"Failed to initialize COM\n%s", WideErrorMessageFromHRESULT(com_init));
@@ -254,51 +262,61 @@ WinMain(HINSTANCE instance, HINSTANCE prev_instance, LPSTR cmd_line, int show_cm
 				u32 names_len            = 0;
 				wchar_t** friendly_names = 0;
 				wchar_t** symbolic_names = 0;
-				IMFMediaSource* device   = 0;
+				IMFSourceReader* device  = 0;
 				if      (!GetVideoCaptureDeviceNames(&arena, &names_len, &friendly_names, &symbolic_names)) FatalError("Failed to get names");
 				else if (names_len < 1)                                                                     FatalError("No video capture devices connected");
 				else if (!CreateVideoCaptureDevice(symbolic_names[0], &device))                             WideFatalError(L"Failed to create logical device for %s", friendly_names[0]);
 				else
 				{
-					IMFSourceReader* cam_reader = 0;
-					if (!SUCCEEDED(MFCreateSourceReaderFromMediaSource(device, 0, &cam_reader))) cam_reader = 0;
-					IMFMediaSource_Release(device);
-
-					if (cam_reader != 0)
+					if (device != 0)
 					{
-						for (u32 i = 0; i < U32_MAX; ++i)
+						IMFMediaType* mjpg_type;
+						if (SUCCEEDED(MFCreateMediaType(&mjpg_type))                                              &&
+								SUCCEEDED(IMFMediaType_SetGUID(mjpg_type, &MF_MT_MAJOR_TYPE, &MFMediaType_Video))     &&
+								SUCCEEDED(IMFMediaType_SetGUID(mjpg_type, &MF_MT_SUBTYPE, &MFVideoFormat_MJPG))       &&
+								SUCCEEDED(IMFMediaType_SetUINT64(mjpg_type, &MF_MT_FRAME_SIZE, 1920ULL << 32 | 1080)) && // TODO: Get maximum/preferred frame size
+								SUCCEEDED(IMFSourceReader_SetCurrentMediaType(device, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, mjpg_type)))
 						{
-							IMFMediaType* media_type = 0;
-							HRESULT result = IMFSourceReader_GetNativeMediaType(cam_reader, MF_SOURCE_READER_FIRST_VIDEO_STREAM, i, &media_type);
-							if      (result == MF_E_NO_MORE_TYPES) break;
-							else if (!SUCCEEDED(result)) WideFatalError(L"Failed to query video capture device media format.\n%s", WideErrorMessageFromHRESULT(result));
-							else
+							for (;;)
 							{
-								GUID major_type;
-								IMFMediaType_GetMajorType(media_type, &major_type);
+								IMFSample* sample;
+								u32 stream_idx;
+								u32 stream_flags;
+								s64 timestamp;
 
-								if (!IsEqualGUID(&major_type, &MFMediaType_Video)) FatalError("Media type at index %u: non video type", i);
+								// TODO: Consider async read
+								if (!SUCCEEDED(IMFSourceReader_ReadSample(device, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &stream_idx, &stream_flags, &timestamp, &sample))) break;
 								else
 								{
-									GUID sub_type;
-									HRESULT result = IMFMediaType_GetGUID(media_type, &MF_MT_SUBTYPE, &sub_type);
-									if (!SUCCEEDED(result)) WideFatalError(L"Failed to get sub type.\n%s", WideErrorMessageFromHRESULT(result));
+									if (stream_flags & MF_SOURCE_READERF_STREAMTICK) continue; // TODO: Can STREAMTICK overlap with any other flag, and is it a problem to skip processing those?
 									else
 									{
-										wchar_t buffer[1024];
-										StringFromGUID2(&sub_type, (LPOLESTR)buffer, ARRAY_SIZE(buffer));
-										buffer[ARRAY_SIZE(buffer)-1] = 0;
+										IMFMediaBuffer* buffer;
+										if (SUCCEEDED(IMFSample_ConvertToContiguousBuffer(sample, &buffer)))
+										{
+											BYTE* data;
+											u32 data_len;
+											if (SUCCEEDED(IMFMediaBuffer_Lock(buffer, &data, 0, &data_len)))
+											{
+												test = VirtualAlloc(0, data_len, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+												Copy(test, data, data_len);
 
-										printf("Media type at index %u: %.*s", i, 4, (char*)&sub_type.Data1);
-										wprintf(L"%s\n", buffer);
+												IMFMediaBuffer_Unlock(buffer);
+											}
+
+											IMFMediaBuffer_Release(buffer);
+										}
 									}
-								}
 
-								IMFMediaType_Release(media_type);
+									IMFSample_Release(sample);
+									break;
+								}
 							}
 						}
 
-						IMFSourceReader_Release(cam_reader);
+						if (mjpg_type != 0) IMFMediaType_Release(mjpg_type);
+
+						IMFSourceReader_Release(device);
 					}
 				}
 			}
