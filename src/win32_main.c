@@ -74,7 +74,7 @@ WideFatalError(wchar_t* format, ...)
 	va_start(args, format);
 
 	wchar_t buffer[1024];
-	_vsnwprintf_s(buffer, ARRAY_SIZE(buffer), _TRUNCATE, format, args);
+	_vsnwprintf_s(buffer, ARRAY_LEN(buffer), _TRUNCATE, format, args);
 
 	va_end(args);
 
@@ -218,7 +218,7 @@ GetVideoCaptureDeviceNames(Arena* arena, u32* names_len, wchar_t*** friendly_nam
 }
 
 bool
-CreateVideoCaptureDevice(wchar_t* symbolic_name, IMFSourceReader** device)
+CreateVideoCaptureDevice(wchar_t* symbolic_name, GUID format, u32 width, u32 height, IMFSourceReader** device)
 {
 	bool succeeded = false;
 
@@ -234,10 +234,73 @@ CreateVideoCaptureDevice(wchar_t* symbolic_name, IMFSourceReader** device)
 			if (!SUCCEEDED(MFCreateSourceReaderFromMediaSource(media_source, 0, device))) *device = 0;
 			IMFMediaSource_Release(media_source);
 
-			succeeded = (*device != 0);
+			if (*device != 0)
+			{
+				IMFMediaType* media_type;
+				if (SUCCEEDED(MFCreateMediaType(&media_type))                                                   &&
+						SUCCEEDED(IMFMediaType_SetGUID(media_type, &MF_MT_MAJOR_TYPE, &MFMediaType_Video))          &&
+						SUCCEEDED(IMFMediaType_SetGUID(media_type, &MF_MT_SUBTYPE, &format))                        &&
+						SUCCEEDED(IMFMediaType_SetUINT64(media_type, &MF_MT_FRAME_SIZE, (u64)width << 32 | height)) &&
+						SUCCEEDED(IMFSourceReader_SetCurrentMediaType(*device, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, media_type)))
+				{
+					succeeded = true;
+				}
+
+				if (media_type != 0) IMFMediaType_Release(media_type);
+			}
 		}
 
 		IMFAttributes_Release(attr);
+	}
+
+	if (!succeeded && *device != 0)
+	{
+		IMFSourceReader_Release(*device);
+		*device = 0;
+	}
+
+	return succeeded;
+}
+
+bool
+GrabFrameBlocking(IMFSourceReader* device, u8* frame)
+{
+	bool succeeded = false;
+
+	for (;;)
+	{
+		IMFSample* sample;
+		u32 stream_idx;
+		u32 stream_flags;
+		s64 timestamp;
+
+		if (!SUCCEEDED(IMFSourceReader_ReadSample(device, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &stream_idx, &stream_flags, &timestamp, &sample))) break;
+		else
+		{
+			if (stream_flags & MF_SOURCE_READERF_STREAMTICK) continue; // TODO: Can STREAMTICK overlap with any other flag, and is it a problem to skip processing those?
+			else
+			{
+				IMFMediaBuffer* buffer;
+				if (SUCCEEDED(IMFSample_ConvertToContiguousBuffer(sample, &buffer)))
+				{
+					BYTE* data;
+					u32 data_len;
+					if (SUCCEEDED(IMFMediaBuffer_Lock(buffer, &data, 0, &data_len)))
+					{
+						Copy(frame, data, data_len);
+						succeeded = true;
+
+						IMFMediaBuffer_Unlock(buffer);
+					}
+
+					IMFMediaBuffer_Release(buffer);
+				}
+			}
+
+			IMFSample_Release(sample);
+
+			break;
+		}
 	}
 
 	return succeeded;
@@ -248,7 +311,7 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 {
 	Arena arena = Arena_Create(1 << 30);
 
-	u32* test = 0;
+	u32* test = VirtualAlloc(0, 1920*1080*2, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
 	HRESULT com_init = CoInitializeEx(0, COINIT_MULTITHREADED);
 	if (!SUCCEEDED(com_init)) WideFatalError(L"Failed to initialize COM\n%s", WideErrorMessageFromHRESULT(com_init));
@@ -258,67 +321,33 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 		if (!SUCCEEDED(mf_init)) WideFatalError(L"Failed to initialize Media Foundation\n%s", WideErrorMessageFromHRESULT(mf_init));
 		else
 		{
+			IMFSourceReader* physical_device = 0;
 			ARENA_SCOPED_TEMP(&arena) {
 				u32 names_len            = 0;
 				wchar_t** friendly_names = 0;
 				wchar_t** symbolic_names = 0;
-				IMFSourceReader* device  = 0;
-				if      (!GetVideoCaptureDeviceNames(&arena, &names_len, &friendly_names, &symbolic_names)) FatalError("Failed to get names");
-				else if (names_len < 1)                                                                     FatalError("No video capture devices connected");
-				else if (!CreateVideoCaptureDevice(symbolic_names[0], &device))                             WideFatalError(L"Failed to create logical device for %s", friendly_names[0]);
-				else
+				if      (!GetVideoCaptureDeviceNames(&arena, &names_len, &friendly_names, &symbolic_names))              FatalError("Failed to get names");
+				else if (names_len < 1)                                                                                  FatalError("No video capture devices connected");
+				else if (!CreateVideoCaptureDevice(symbolic_names[0], MFVideoFormat_YUY2, 1920, 1080, &physical_device)) WideFatalError(L"Failed to create logical device for %s", friendly_names[0]);
+			}
+
+			if (physical_device != 0)
+			{
+				IMFVirtualCamera* virtual_camera;
+				
+				GUID virtual_camera_guid;
+				CoCreateGuid(&virtual_camera_guid);
+
+				wchar_t virtual_camera_guid_string[128];
+				StringFromGUID2(&virtual_camera_guid, virtual_camera_guid_string, ARRAY_LEN(virtual_camera_guid_string));
+
+				if (SUCCEEDED(MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, L"HOLO Virtual Camera", virtual_camera_guid_string, 0, 0, &virtual_camera)))
 				{
-					if (device != 0)
-					{
-						IMFMediaType* mjpg_type;
-						if (SUCCEEDED(MFCreateMediaType(&mjpg_type))                                              &&
-								SUCCEEDED(IMFMediaType_SetGUID(mjpg_type, &MF_MT_MAJOR_TYPE, &MFMediaType_Video))     &&
-								SUCCEEDED(IMFMediaType_SetGUID(mjpg_type, &MF_MT_SUBTYPE, &MFVideoFormat_MJPG))       &&
-								SUCCEEDED(IMFMediaType_SetUINT64(mjpg_type, &MF_MT_FRAME_SIZE, 1920ULL << 32 | 1080)) && // TODO: Get maximum/preferred frame size
-								SUCCEEDED(IMFSourceReader_SetCurrentMediaType(device, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, mjpg_type)))
-						{
-							for (;;)
-							{
-								IMFSample* sample;
-								u32 stream_idx;
-								u32 stream_flags;
-								s64 timestamp;
-
-								// TODO: Consider async read
-								if (!SUCCEEDED(IMFSourceReader_ReadSample(device, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &stream_idx, &stream_flags, &timestamp, &sample))) break;
-								else
-								{
-									if (stream_flags & MF_SOURCE_READERF_STREAMTICK) continue; // TODO: Can STREAMTICK overlap with any other flag, and is it a problem to skip processing those?
-									else
-									{
-										IMFMediaBuffer* buffer;
-										if (SUCCEEDED(IMFSample_ConvertToContiguousBuffer(sample, &buffer)))
-										{
-											BYTE* data;
-											u32 data_len;
-											if (SUCCEEDED(IMFMediaBuffer_Lock(buffer, &data, 0, &data_len)))
-											{
-												test = VirtualAlloc(0, data_len, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-												Copy(test, data, data_len);
-
-												IMFMediaBuffer_Unlock(buffer);
-											}
-
-											IMFMediaBuffer_Release(buffer);
-										}
-									}
-
-									IMFSample_Release(sample);
-									break;
-								}
-							}
-						}
-
-						if (mjpg_type != 0) IMFMediaType_Release(mjpg_type);
-
-						IMFSourceReader_Release(device);
-					}
+					IMFVirtualCamera_Start(virtual_camera, 0);
+					FatalError("HHELSDFØLK");
 				}
+
+				IMFSourceReader_Release(physical_device);
 			}
 
 			MFShutdown();

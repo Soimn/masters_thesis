@@ -42,7 +42,7 @@ void AssertHandler(const char* file, int line, const char* ex);
 #define ASSERT(EX) ((EX) ? 1 : ((IsRunInDebugger() ? *(volatile int*)0 = 0 : AssertHandler(__FILE__, __LINE__, #EX)), 0))
 #define NOT_IMPLEMENTED ASSERT(!"NOT_IMPLEMENTED")
 
-#define ARRAY_SIZE(A) (sizeof(A)/sizeof(0[A]))
+#define ARRAY_LEN(A) (sizeof(A)/sizeof(0[A]))
 
 #ifdef _MSC_VER
 #  define ALIGNOF(T) _alignof(T)
