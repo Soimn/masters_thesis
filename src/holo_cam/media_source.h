@@ -43,7 +43,14 @@ IHoloCamMediaSource__QueryInterface(IHoloCamMediaSource* this, REFIID riid, void
 	{
 		*handle = 0;
 
-		if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IHoloCamMediaSource)) result = CLASS_E_CLASSNOTAVAILABLE;
+		if (!IsEqualIID(riid, &IID_IUnknown)               &&
+				!IsEqualIID(riid, &IID_IMFMediaEventGenerator) &&
+				!IsEqualIID(riid, &IID_IMFMediaSource)         &&
+				!IsEqualIID(riid, &IID_IMFMediaSourceEx)       &&
+				!IsEqualIID(riid, &IID_IHoloCamMediaSource))
+		{
+			result = E_NOINTERFACE;
+		}
 		else
 		{
 			*handle = this;
@@ -73,6 +80,8 @@ HRESULT
 IHoloCamMediaSource__BeginGetEvent(IHoloCamMediaSource* this, IMFAsyncCallback* pCallback, IUnknown* punkState)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -80,6 +89,8 @@ HRESULT
 IHoloCamMediaSource__EndGetEvent(IHoloCamMediaSource* this, IMFAsyncResult* pResult, IMFMediaEvent** ppEvent)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -87,6 +98,8 @@ HRESULT
 IHoloCamMediaSource__GetEvent(IHoloCamMediaSource* this, DWORD dwFlags, IMFMediaEvent** ppEvent)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -94,6 +107,8 @@ HRESULT
 IHoloCamMediaSource__QueueEvent(IHoloCamMediaSource* this, MediaEventType met, REFGUID guidExtendedType, HRESULT hrStatus, const PROPVARIANT* pvValue)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -101,6 +116,8 @@ HRESULT
 IHoloCamMediaSource__CreatePresentationDescriptor(IHoloCamMediaSource* this, IMFPresentationDescriptor** ppPresentationDescriptor)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -108,6 +125,8 @@ HRESULT
 IHoloCamMediaSource__GetCharacteristics(IHoloCamMediaSource* this, DWORD* pdwCharacteristics)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -115,6 +134,8 @@ HRESULT
 IHoloCamMediaSource__Pause(IHoloCamMediaSource* this)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -122,6 +143,8 @@ HRESULT
 IHoloCamMediaSource__Shutdown(IHoloCamMediaSource* this)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -129,6 +152,8 @@ HRESULT
 IHoloCamMediaSource__Start(IHoloCamMediaSource* this, IMFPresentationDescriptor* pPresentationDescriptor, const GUID* pguidTimeFormat, const PROPVARIANT* pvarStartPosition)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -136,6 +161,8 @@ HRESULT
 IHoloCamMediaSource__Stop(IHoloCamMediaSource* this)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -143,6 +170,8 @@ HRESULT
 IHoloCamMediaSource__GetSourceAttributes(IHoloCamMediaSource* this, IMFAttributes** ppAttributes)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -150,6 +179,8 @@ HRESULT
 IHoloCamMediaSource__GetStreamAttributes(IHoloCamMediaSource* this, DWORD dwStreamIdentifier, IMFAttributes** ppAttributes)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -157,6 +188,8 @@ HRESULT
 IHoloCamMediaSource__SetD3DManager(IHoloCamMediaSource* this, IUnknown* pManager)
 {
 	// TODO
+	OutputDebugStringA(__FUNCTION__);
+	OutputDebugStringA("\n");
 	return E_NOTIMPL;
 }
 
@@ -187,15 +220,12 @@ IHoloCamMediaSource__Init(IHoloCamMediaSource* this, IMFAttributes* attributes)
 	if (this->ref_count != 1) result = E_FAIL;
 	else
 	{
-		*this = (IHoloCamMediaSource){
-			.lpVtbl    = &IHoloCamMediaSource_Vtbl,
-			.ref_count = 1,
-		};
-
 		if (!SUCCEEDED(MFCreateAttributes(&this->attributes, 1)) || !SUCCEEDED(IMFAttributes_CopyAllItems(attributes, this->attributes))) result = E_FAIL;
 		else
 		{
+			// TODO
 			NOT_IMPLEMENTED;
+			result = S_OK;
 		}
 	}
 
@@ -208,7 +238,7 @@ IHoloCamMediaSourceFactory__QueryInterface(IClassFactory* this, REFIID riid, voi
 	HRESULT result;
 
 	if (handle == 0) result = E_POINTER;
-	else if (!IsEqualIID(riid, &IID_IHoloCamMediaSourceFactory) && !IsEqualIID(riid, &IID_IUnknown))
+	else if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IClassFactory) && !IsEqualIID(riid, &IID_IHoloCamMediaSourceFactory))
 	{
 		*handle = 0;
 		result  = E_NOINTERFACE;
@@ -259,6 +289,11 @@ IHoloCamMediaSourceFactory__CreateInstance(IClassFactory* this, IUnknown* outer,
 			else
 			{
 				IHoloCamMediaSource* src = &VirtualCameraMediaSources[i];
+				*src = (IHoloCamMediaSource){
+					.lpVtbl    = &IHoloCamMediaSource_Vtbl,
+					.ref_count = 1,
+				};
+
 				result = src->lpVtbl->QueryInterface(src, id, handle);
 				src->lpVtbl->Release(src);
 			}

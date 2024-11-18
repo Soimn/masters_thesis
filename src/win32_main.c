@@ -188,6 +188,11 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 		if (!SUCCEEDED(mf_init)) WideFatalError(L"Failed to initialize Media Foundation\n%s", WideErrorMessageFromHRESULT(mf_init));
 		else
 		{
+			IMFVirtualCamera* cam;
+			HRESULT result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, L"Holo Cam", CLSID_IHOLOCAMACTIVATE_STRING, 0, 0, &cam);
+
+			result = IMFVirtualCamera_Start(cam, 0);
+
 			MFShutdown();
 		}
 

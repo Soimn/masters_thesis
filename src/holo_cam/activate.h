@@ -58,7 +58,7 @@ IHoloCamActivate__QueryInterface(IHoloCamActivate* this, REFIID riid, void** han
 	HRESULT result;
 
 	if (handle == 0) result = E_POINTER;
-	else if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IHoloCamActivate))
+	else if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IMFActivate) && !IsEqualIID(riid, &IID_IHoloCamActivate))
 	{
 		*handle = 0;
 		result = E_NOINTERFACE;
@@ -270,22 +270,37 @@ IHoloCamActivate__CopyAllItems(IHoloCamActivate* this, IMFAttributes* pDest)
 HRESULT
 IHoloCamActivate__ActivateObject(IHoloCamActivate* this, REFIID riid, void** ppv)
 {
-	// TODO
-	return E_NOTIMPL;
+	HRESULT result;
+
+	if (ppv == 0) result = E_POINTER;
+	else
+	{
+		*ppv = 0;
+
+		// TODO
+		if      (!SUCCEEDED(IHoloCamMediaSourceFactoryVtbl.CreateInstance(&HoloCamMediaSourceFactory, 0, &IID_IHoloCamMediaSource, &this->media_source))) result = E_FAIL;
+		else if (!SUCCEEDED(IHoloCamMediaSource__Init(this->media_source, this->attributes)))                                                             result = E_FAIL;
+		else
+		{
+			*ppv = this->media_source;
+			result = S_OK;
+		}
+	}
+
+	return result;
 }
 
 HRESULT
 IHoloCamActivate__ShutdownObject(IHoloCamActivate* this)
 {
-	// TODO
-	return E_NOTIMPL;
+	return S_OK;
 }
 
 HRESULT
 IHoloCamActivate__DetachObject(IHoloCamActivate* this)
 {
-	// TODO
-	return E_NOTIMPL;
+	this->media_source = 0;
+	return S_OK;
 }
 
 IHoloCamActivateVtbl IHoloCamActivate_Vtbl = {
@@ -345,12 +360,7 @@ IHoloCamActivate__Init(IHoloCamActivate* this)
 			.ref_count = 1,
 		};
 
-		if (!SUCCEEDED(MFCreateAttributes(&this->attributes, 1))) result = E_FAIL;
-		else
-		{
-			// TODO: Create instance of IHoloCamActivateMediaSource and call __Init with attributes passed
-			NOT_IMPLEMENTED;
-		}
+		result = MFCreateAttributes(&this->attributes, 1);
 	}
 
 	return result;
@@ -362,7 +372,7 @@ IHoloCamActivateFactory__QueryInterface(IClassFactory* this, REFIID riid, void**
 	HRESULT result;
 
 	if (handle == 0) result = E_POINTER;
-	else if (!IsEqualIID(riid, &IID_IHoloCamActivateFactory) && !IsEqualIID(riid, &IID_IUnknown))
+	else if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IClassFactory) && !IsEqualIID(riid, &IID_IHoloCamActivateFactory))
 	{
 		*handle = 0;
 		result  = E_NOINTERFACE;
