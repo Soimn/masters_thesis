@@ -83,7 +83,24 @@ IHoloCamActivate__AddRef(IHoloCamActivate* this)
 ULONG
 IHoloCamActivate__Release(IHoloCamActivate* this)
 {
-	if (this->ref_count != 0) this->ref_count -= 1;
+	if (this->ref_count > 1) this->ref_count -= 1;
+	else
+	{
+		if (this->attributes != 0)
+		{
+			IMFAttributes_Release(this->attributes);
+			this->attributes = 0;
+		}
+
+		if (this->media_source != 0)
+		{
+			IHoloCamMediaSource_Vtbl.Release(this->media_source);
+			this->media_source = 0;
+		}
+
+		this->ref_count = 0;
+	}
+
 	return this->ref_count;
 }
 
@@ -267,6 +284,8 @@ IHoloCamActivate__CopyAllItems(IHoloCamActivate* this, IMFAttributes* pDest)
 	return IMFAttributes_CopyAllItems(this->attributes, pDest);
 }
 
+IHoloCamMediaSource HoloCamMediaSourcePool[HOLO_MAX_CAMERA_COUNT] = {0};
+
 HRESULT
 IHoloCamActivate__ActivateObject(IHoloCamActivate* this, REFIID riid, void** ppv)
 {
@@ -277,13 +296,28 @@ IHoloCamActivate__ActivateObject(IHoloCamActivate* this, REFIID riid, void** ppv
 	{
 		*ppv = 0;
 
-		// TODO
-		if      (!SUCCEEDED(IHoloCamMediaSourceFactoryVtbl.CreateInstance(&HoloCamMediaSourceFactory, 0, &IID_IHoloCamMediaSource, &this->media_source))) result = E_FAIL;
-		else if (!SUCCEEDED(IHoloCamMediaSource__Init(this->media_source, this->attributes)))                                                             result = E_FAIL;
+		s32 idx = -1;
+		for (u32 i = 0; idx == -1 && i < ARRAY_LEN(HoloCamMediaSourcePool); ++i)
+		{
+			AcquireSRWLockExclusive(&HoloCamMediaSourcePool[i].lock);
+
+			if (HoloCamMediaSourcePool[i].ref_count == 0)
+			{
+				idx = (s32)i;
+			}
+
+			ReleaseSRWLockExclusive(&HoloCamMediaSourcePool[i].lock);
+		}
+
+		if (idx == -1) result = E_FAIL;
 		else
 		{
-			*ppv = this->media_source;
-			result = S_OK;
+			this->media_source = &HoloCamMediaSourcePool[idx];
+
+			result = IHoloCamMediaSource__Init(this->media_source, this->attributes);
+
+			if (result == S_OK) *ppv = this->media_source;
+			else                IHoloCamMediaSource_Vtbl.Release(this->media_source);
 		}
 	}
 
@@ -348,25 +382,6 @@ IHoloCamActivateVtbl IHoloCamActivate_Vtbl = {
 };
 
 HRESULT
-IHoloCamActivate__Init(IHoloCamActivate* this)
-{
-	HRESULT result;
-
-	if (this->ref_count != 1) result = E_FAIL;
-	else
-	{
-		*this = (IHoloCamActivate){
-			.lpVtbl    = &IHoloCamActivate_Vtbl,
-			.ref_count = 1,
-		};
-
-		result = MFCreateAttributes(&this->attributes, 1);
-	}
-
-	return result;
-}
-
-HRESULT
 IHoloCamActivateFactory__QueryInterface(IClassFactory* this, REFIID riid, void** handle)
 {
 	HRESULT result;
@@ -399,7 +414,7 @@ IHoloCamActivateFactory__Release(IClassFactory* this)
 	return 1;
 }
 
-IHoloCamActivate VirtualCameras[HOLO_MAX_CAMERA_COUNT];
+IHoloCamActivate HoloCamActivatePool[HOLO_MAX_CAMERA_COUNT];
 
 HRESULT
 IHoloCamActivateFactory__CreateInstance(IClassFactory* this, IUnknown* outer, REFIID id, void** handle)
@@ -414,20 +429,22 @@ IHoloCamActivateFactory__CreateInstance(IClassFactory* this, IUnknown* outer, RE
 		else
 		{
 			u32 i = 0;
-			for (; i < HOLO_MAX_CAMERA_COUNT; ++i)
+			for (; i < ARRAY_LEN(HoloCamActivatePool); ++i)
 			{
-				if (InterlockedCompareExchange(&VirtualCameras[i].ref_count, 1, 0) == 0) break;
+				if (InterlockedCompareExchange(&HoloCamActivatePool[i].ref_count, 1, 0) == 0) break;
 			}
 
-			if (i >= HOLO_MAX_CAMERA_COUNT) result = E_OUTOFMEMORY;
+			if (i >= ARRAY_LEN(HoloCamActivatePool)) result = E_FAIL;
 			else
 			{
-				IHoloCamActivate* cam = &VirtualCameras[i];
-				if (!SUCCEEDED(IHoloCamActivate__Init(cam))) result = E_FAIL;
+				IHoloCamActivate* activate = &HoloCamActivatePool[i];
+				activate->lpVtbl = &IHoloCamActivate_Vtbl;
+
+				if (!SUCCEEDED(MFCreateAttributes(&activate->attributes, 1))) result = E_FAIL;
 				else
 				{
-					result = cam->lpVtbl->QueryInterface(cam, id, handle);
-					cam->lpVtbl->Release(cam);
+					result = activate->lpVtbl->QueryInterface(activate, id, handle);
+					activate->lpVtbl->Release(activate);
 				}
 			}
 		}

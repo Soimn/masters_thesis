@@ -2,6 +2,7 @@
 
 #define NOT_IMPLEMENTED
 
+#include "media_stream.h"
 #include "media_source.h"
 #include "activate.h"
 
@@ -12,6 +13,14 @@ DllMain(HINSTANCE module, DWORD reason, LPVOID _)
 {
 	if (reason == DLL_PROCESS_ATTACH)
 	{
+		for (u32 i = 0; i < ARRAY_LEN(HoloCamMediaSourcePool); ++i)
+		{
+			HoloCamMediaSourcePool[i] = (IHoloCamMediaSource){
+				.ref_count = 0,
+				.lock      = SRWLOCK_INIT,
+			};
+		}
+
 		Module = module;
 		DisableThreadLibraryCalls(module);
 	}

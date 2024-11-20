@@ -7,11 +7,16 @@
 #define WIN32_MEAN_AND_LEAN
 #define VC_EXTRALEAN
 #include <windows.h>
+#include <initguid.h>
 #include <mfapi.h>
 #include <mfidl.h>
 #include <mfreadwrite.h>
 #include <mfvirtualcamera.h>
 #include <mferror.h>
+#include <ks.h>
+#include <ksguid.h>
+#include <ksproxy.h>
+#include <ksmedia.h>
 #undef COBJMACROS
 #undef UNICODE
 #undef NOMINMAX
@@ -100,8 +105,6 @@ Zero(void* ptr, u64 size)
 
 #define HOLO_MAX_CAMERA_COUNT 256
 
-#include <initguid.h>
-
 // {AAEB72CB-0C36-4633-BB16-EC69B3F32365}
 DEFINE_GUID(IID_IHoloCamActivateFactory, 0xaaeb72cb, 0xc36, 0x4633, 0xbb, 0x16, 0xec, 0x69, 0xb3, 0xf3, 0x23, 0x65);
 
@@ -117,3 +120,5 @@ DEFINE_GUID(IID_IHoloCamMediaSourceFactory, 0x488e69da, 0xf89b, 0x43f9, 0x83, 0x
 
 // {0E7FE760-A1C9-4793-A237-F951743F994D}
 DEFINE_GUID(IID_IHoloCamMediaSource, 0xe7fe760, 0xa1c9, 0x4793, 0xa2, 0x37, 0xf9, 0x51, 0x74, 0x3f, 0x99, 0x4d);
+
+#define RET_IF_FAIL(E) do { HRESULT RET_result = (E); if (FAILED(RET_result)) return RET_result; } while (0);
