@@ -28,10 +28,9 @@ typedef struct IHoloCamMediaSourceVtbl
 
 typedef enum IHoloCamMediaSource_State
 {
-	IHoloCamMediaSourceState_Invalid  = 0,
-	IHoloCamMediaSourceState_Shutdown = 1,
-	IHoloCamMediaSourceState_Stopped  = 2,
-	IHoloCamMediaSourceState_Started  = 3,
+	IHoloCamMediaSourceState_Shutdown = 0,
+	IHoloCamMediaSourceState_Stopped  = 1,
+	IHoloCamMediaSourceState_Started  = 2,
 } IHoloCamMediaSource_State;
 
 typedef struct IHoloCamMediaSource
@@ -164,15 +163,15 @@ IHoloCamMediaSource__GetEvent(IHoloCamMediaSource* this, DWORD dwFlags, IMFMedia
 	AcquireSRWLockExclusive(&this->lock);
 
 	if (this->state == IHoloCamMediaSourceState_Shutdown) result = MF_E_SHUTDOWN;
-	else
-	{
-		queue = this->event_queue;
-		result = S_OK;
-	}
+	else                                                  result = IMFMediaEventQueue_QueryInterface(this->event_queue, &IID_IMFMediaEventQueue, &queue);
 
 	ReleaseSRWLockExclusive(&this->lock);
 
-	if (result == S_OK) result = IMFMediaEventQueue_GetEvent(queue, dwFlags, ppEvent);
+	if (result == S_OK)
+	{
+		result = IMFMediaEventQueue_GetEvent(queue, dwFlags, ppEvent);
+		IMFMediaEventQueue_Release(queue);
+	}
 
 	return result;
 }
@@ -267,8 +266,7 @@ IHoloCamMediaSource__Start(IHoloCamMediaSource* this, IMFPresentationDescriptor*
 	{
 		AcquireSRWLockExclusive(&this->lock);
 
-		if      (this->state == IHoloCamMediaSourceState_Invalid)  result = MF_E_INVALID_STATE_TRANSITION;
-		else if (this->state == IHoloCamMediaSourceState_Shutdown) result = MF_E_SHUTDOWN;
+		if (this->state == IHoloCamMediaSourceState_Shutdown) result = MF_E_SHUTDOWN;
 		else
 		{
 			u32 stream_count;
@@ -477,7 +475,7 @@ IHoloCamMediaSource__Init(IHoloCamMediaSource* this, IMFAttributes* attributes)
 		.lpVtbl       = &IHoloCamMediaSource_Vtbl,
 		.ref_count    = 1,
 		.lock         = SRWLOCK_INIT,
-		.state        = IHoloCamMediaSourceState_Stopped,
+		.state        = IHoloCamMediaSourceState_Shutdown,
 	};
 
 	{ // Attributes
@@ -509,7 +507,7 @@ IHoloCamMediaSource__Init(IHoloCamMediaSource* this, IMFAttributes* attributes)
 	IMFStreamDescriptor* stream_descriptors[ARRAY_LEN(this->media_streams)];
 	for (u32 i = 0; i < ARRAY_LEN(this->media_streams); ++i)
 	{
-		RET_IF_FAIL(IHoloCamMediaStream__Init(&this->media_streams[i], 0));
+		RET_IF_FAIL(IHoloCamMediaStream__Init(&this->media_streams[i], 0, this));
 
 		RET_IF_FAIL(this->media_streams[i].lpVtbl->GetStreamDescriptor(&this->media_streams[i], &stream_descriptors[i]));
 
@@ -517,6 +515,8 @@ IHoloCamMediaSource__Init(IHoloCamMediaSource* this, IMFAttributes* attributes)
 
 	RET_IF_FAIL(MFCreatePresentationDescriptor(ARRAY_LEN(stream_descriptors), stream_descriptors, &this->presentation_descriptor));
 	for (u32 i = 0; i < ARRAY_LEN(stream_descriptors); ++i) IMFStreamDescriptor_Release(stream_descriptors[i]);
+
+	this->state = IHoloCamMediaSourceState_Stopped;
 
 	return S_OK;
 }
