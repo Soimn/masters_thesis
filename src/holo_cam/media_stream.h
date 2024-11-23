@@ -28,13 +28,14 @@ typedef struct IHoloCamMediaStream
 	u32 ref_count;
 	SRWLOCK lock;
 	u32 stream_id;
+	u32 queue_id;
 	bool has_shutdown;
 	MF_STREAM_STATE state;
-	struct IHoloCamMediaSource* parent;
-	IMFAttributes* attributes;
-	IMFMediaType* media_types[2];
+	IMFMediaSource* parent;
+	IMFMediaStream* stream;
 	IMFMediaEventQueue* event_queue;
 	IMFStreamDescriptor* stream_descriptor;
+	IHoloCamCallback callback;
 } IHoloCamMediaStream;
 
 HRESULT
@@ -47,19 +48,16 @@ IHoloCamMediaStream__QueryInterface(IHoloCamMediaStream* this, REFIID riid, void
 	{
 		*ppvObject = 0;
 
-		if (!IsEqualIID(riid, &IID_IUnknown)               &&
-				!IsEqualIID(riid, &IID_IMFMediaEventGenerator) &&
-				!IsEqualIID(riid, &IID_IMFMediaStream)         &&
-				!IsEqualIID(riid, &IID_IMFMediaStream2))
-		{
-			result = E_NOINTERFACE;
-		}
-		else
+		if (IsEqualIID(riid, &IID_IUnknown)               ||
+				IsEqualIID(riid, &IID_IMFMediaEventGenerator) ||
+				IsEqualIID(riid, &IID_IMFMediaStream)         ||
+				IsEqualIID(riid, &IID_IMFMediaStream2))
 		{
 			*ppvObject = this;
 			this->lpVtbl->AddRef(this);
 			result = S_OK;
 		}
+		else result = E_NOINTERFACE;
 	}
 
 	return result;
@@ -80,19 +78,10 @@ IHoloCamMediaStream__AddRef(IHoloCamMediaStream* this)
 void
 IHoloCamMediaStream__ReleaseChildren(IHoloCamMediaStream* this)
 {
-	if (this->attributes != 0)
+	if (this->stream != 0)
 	{
-		IMFAttributes_Release(this->attributes);
-		this->attributes = 0;
-	}
-
-	for (u32 i = 0; i < ARRAY_LEN(this->media_types); ++i)
-	{
-		if (this->media_types[i] != 0)
-		{
-			IMFMediaType_Release(this->media_types[i]);
-			this->media_types[i] = 0;
-		}
+		IMFMediaStream_Release(this->stream);
+		this->stream = 0;
 	}
 
 	if (this->event_queue != 0)
@@ -200,7 +189,7 @@ IHoloCamMediaStream__GetMediaSource(IHoloCamMediaStream* this, IMFMediaSource** 
 	AcquireSRWLockExclusive(&this->lock);
 
 	if (this->has_shutdown) result = MF_E_SHUTDOWN;
-	else                    result = IUnknown_QueryInterface((IUnknown*)this->parent, &IID_IHoloCamMediaSource, ppMediaSource);
+	else                    result = IMFMediaSource_QueryInterface(this->parent, &IID_IMFMediaSource, ppMediaSource);
 
 	ReleaseSRWLockExclusive(&this->lock);
 
@@ -231,9 +220,16 @@ IHoloCamMediaStream__GetStreamDescriptor(IHoloCamMediaStream* this, IMFStreamDes
 HRESULT
 IHoloCamMediaStream__RequestSample(IHoloCamMediaStream* this, IUnknown* pToken)
 {
-	// TODO
-	OutputDebugStringA("IHoloCamMediaStream__RequestSample\n");
-	return E_NOTIMPL;
+	HRESULT result;
+
+	AcquireSRWLockExclusive(&this->lock);
+
+	if (this->has_shutdown) result = MF_E_SHUTDOWN;
+	else                    result = IMFMediaStream_RequestSample(this->stream, pToken);
+
+	ReleaseSRWLockExclusive(&this->lock);
+
+	return result;
 }
 
 HRESULT
@@ -246,25 +242,13 @@ IHoloCamMediaStream__SetStreamState(IHoloCamMediaStream* this, MF_STREAM_STATE v
 	if (this->has_shutdown) result = MF_E_SHUTDOWN;
 	else
 	{
-		if (this->state == value) result = S_OK;
-		else if (value == MF_STREAM_STATE_STOPPED)
+		IMFMediaStream2* media_stream_2;
+		result = IMFMediaStream_QueryInterface(this->stream, &IID_IMFMediaStream2, &media_stream_2);
+		if (SUCCEEDED(result))
 		{
-			result = IHoloCamMediaStream_Stop();
+			result = IMFMediaStream2_SetStreamState(media_stream_2, value);
+			IMFMediaStream2_Release(media_stream_2);
 		}
-		else if (value == MF_STREAM_STATE_PAUSED)
-		{
-			if (value != MF_STREAM_STATE_RUNNING) result = MF_E_INVALID_STATE_TRANSITION;
-			else
-			{
-				this->state = MF_STREAM_STATE_PAUSED;
-				result = S_OK;
-			}
-		}
-		else if (value == MF_STREAM_STATE_RUNNING)
-		{
-			result = IHoloCamMediaStream_Start();
-		}
-		else result = MF_E_INVALID_STATE_TRANSITION;
 	}
 
 	ReleaseSRWLockExclusive(&this->lock);
@@ -277,20 +261,21 @@ IHoloCamMediaStream__GetStreamState(IHoloCamMediaStream* this, MF_STREAM_STATE* 
 {
 	HRESULT result;
 
-	if (value == 0) result = E_INVALIDARG;
+	AcquireSRWLockExclusive(&this->lock);
+
+	if (this->has_shutdown) result = MF_E_SHUTDOWN;
 	else
 	{
-		AcquireSRWLockExclusive(&this->lock);
-
-		if (this->has_shutdown) result = MF_E_SHUTDOWN;
-		else
+		IMFMediaStream2* media_stream_2;
+		result = IMFMediaStream_QueryInterface(this->stream, &IID_IMFMediaStream2, &media_stream_2);
+		if (SUCCEEDED(result))
 		{
-			*value = this->state;
-			result = S_OK;
+			result = IMFMediaStream2_GetStreamState(media_stream_2, value);
+			IMFMediaStream2_Release(media_stream_2);
 		}
-
-		ReleaseSRWLockExclusive(&this->lock);
 	}
+
+	ReleaseSRWLockExclusive(&this->lock);
 
 	return result;
 }
@@ -310,90 +295,150 @@ static IHoloCamMediaStreamVtbl IHoloCamMediaStream_Vtbl = {
 	.GetStreamState      = IHoloCamMediaStream__GetStreamState,
 };
 
-// TODO: Should the parent pointers reference count be increased?
-//       It shouldn't matter since the stream is always destroyed before the source, but still.
-//       The problem is if this causes a ref count deadlock somehow.
-HRESULT
-IHoloCamMediaStream__Init(IHoloCamMediaStream* this, u32 stream_id, struct IHoloCamMediaSource* parent)
+HRESULT IHoloCamMediaStream__ProcessSample(IHoloCamMediaStream* this, IMFSample* sample);
+
+void
+IHoloCamMediaStream__OnMediaStreamEvent(IHoloCamMediaStream* this, IMFAsyncResult* pAsyncResult)
 {
-	*this = (IHoloCamMediaStream){
-		.lpVtbl       = &IHoloCamMediaStream_Vtbl,
-		.ref_count    = 1,
-		.lock         = (SRWLOCK)SRWLOCK_INIT,
-		.stream_id    = stream_id,
-		.has_shutdown = false,
-		.state        = MF_STREAM_STATE_STOPPED,
-		.parent       = parent,
-	};
+	IMFMediaEvent* event         = 0;
+	IMFMediaStream* media_stream = 0;
 
-	// TODO: Make dynamic
-	u32 width  = 1920;
-	u32 height = 1080;
-	u32 fps    = 30;
+	bool should_forward = true;
 
-	RET_IF_FAIL(MFCreateMediaType(&this->media_types[0]));
-	RET_IF_FAIL(IMFMediaType_SetGUID(this->media_types[0], &MF_MT_MAJOR_TYPE, &MFMediaType_Video));
-	RET_IF_FAIL(IMFMediaType_SetGUID(this->media_types[0], &MF_MT_SUBTYPE, &MFVideoFormat_YUY2));
-	RET_IF_FAIL(IMFMediaType_SetUINT32(this->media_types[0], &MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive));
-	RET_IF_FAIL(IMFMediaType_SetUINT32(this->media_types[0], &MF_MT_ALL_SAMPLES_INDEPENDENT, TRUE));
-	RET_IF_FAIL(IMFMediaType_SetUINT64(this->media_types[0], &MF_MT_FRAME_SIZE, ((u64)width << 32) | height));
-	RET_IF_FAIL(IMFMediaType_SetUINT64(this->media_types[0], &MF_MT_FRAME_RATE, ((u64)fps << 32) | 1));
-	RET_IF_FAIL(IMFMediaType_SetUINT32(this->media_types[0], &MF_MT_AVG_BITRATE, width*height*fps*16)); // NOTE: YUY2 is 16bpp
-	RET_IF_FAIL(IMFMediaType_SetUINT64(this->media_types[0], &MF_MT_PIXEL_ASPECT_RATIO, ((u64)1 << 32) | 1));
+	IUnknown* unknown_result;
+	HRESULT result = IMFAsyncResult_GetState(pAsyncResult, &unknown_result);
+	if (SUCCEEDED(result))
+	{
+		result = IUnknown_QueryInterface(unknown_result, &IID_IMFMediaStream, &media_stream);
+		IUnknown_Release(unknown_result);
 
-	RET_IF_FAIL(MFCreateMediaType(&this->media_types[1]));
-	RET_IF_FAIL(IMFMediaType_SetGUID(this->media_types[1], &MF_MT_MAJOR_TYPE, &MFMediaType_Video));
-	RET_IF_FAIL(IMFMediaType_SetGUID(this->media_types[1], &MF_MT_SUBTYPE, &MFVideoFormat_RGB32));
-	RET_IF_FAIL(IMFMediaType_SetUINT32(this->media_types[1], &MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive));
-	RET_IF_FAIL(IMFMediaType_SetUINT32(this->media_types[1], &MF_MT_ALL_SAMPLES_INDEPENDENT, TRUE));
-	RET_IF_FAIL(IMFMediaType_SetUINT64(this->media_types[1], &MF_MT_FRAME_SIZE, ((u64)width << 32) | height));
-	RET_IF_FAIL(IMFMediaType_SetUINT64(this->media_types[1], &MF_MT_FRAME_RATE, ((u64)fps << 32) |1));
-	RET_IF_FAIL(IMFMediaType_SetUINT32(this->media_types[1], &MF_MT_AVG_BITRATE, width*height*fps*32)); // NOTE: RGB32 is 32bpp
-	RET_IF_FAIL(IMFMediaType_SetUINT64(this->media_types[1], &MF_MT_PIXEL_ASPECT_RATIO, ((u64)1 << 32) | 1));
+		if (SUCCEEDED(result)) result = IMFMediaStream_EndGetEvent(media_stream, pAsyncResult, &event);
+		if (SUCCEEDED(result))
+		{
+			MediaEventType event_type = MEUnknown;
+			result = IMFMediaEvent_GetType(event, &event_type);
+			if (SUCCEEDED(result))
+			{
+				if (event_type == MEMediaSample)
+				{
+					PROPVARIANT prop_var = {0};
+					result = IMFMediaEvent_GetValue(event, &prop_var);
+					if (SUCCEEDED(result))
+					{
+						if (prop_var.vt != VT_UNKNOWN) result = MF_E_UNEXPECTED;
+						else
+						{
+							IMFSample* sample;
+							result = IUnknown_QueryInterface(prop_var.punkVal, &IID_IMFSample, &sample);
+							if (SUCCEEDED(result))
+							{
+								result = IHoloCamMediaStream__ProcessSample(this, sample);
+								should_forward = false;
+								IMFSample_Release(sample);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-	RET_IF_FAIL(MFCreateAttributes(&this->attributes, 10));
-	RET_IF_FAIL(IMFAttributes_SetGUID(this->attributes, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
-	RET_IF_FAIL(IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_STREAM_ID, this->stream_id));
-	RET_IF_FAIL(IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_FRAMESERVER_SHARED, 1));
-	RET_IF_FAIL(IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_ATTRIBUTE_FRAMESOURCE_TYPES, MFFrameSourceTypes_Color));
-
-	RET_IF_FAIL(MFCreateEventQueue(&this->event_queue));
-
-	RET_IF_FAIL(MFCreateStreamDescriptor(this->stream_id, ARRAY_LEN(this->media_types), this->media_types, &this->stream_descriptor));
+	AcquireSRWLockExclusive(&this->lock);
 	
-	IMFMediaTypeHandler* media_type_handler;
-	RET_IF_FAIL(IMFStreamDescriptor_GetMediaTypeHandler(this->stream_descriptor, &media_type_handler));
-	RET_IF_FAIL(IMFMediaTypeHandler_SetCurrentMediaType(media_type_handler, this->media_types[0]));
-	IMFMediaTypeHandler_Release(media_type_handler);
+	if (SUCCEEDED(result) && !this->has_shutdown)
+	{
+		if (should_forward) IMFMediaEventQueue_QueueEvent(this->event_queue, event);
+		IMFMediaStream_BeginGetEvent(media_stream, (IMFAsyncCallback*)&this->callback, (IUnknown*)this->stream);
+	}
 
-	RET_IF_FAIL(IMFStreamDescriptor_SetGUID(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
-	RET_IF_FAIL(IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_ID, this->stream_id));
-	RET_IF_FAIL(IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_FRAMESERVER_SHARED, 1));
-	RET_IF_FAIL(IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_ATTRIBUTE_FRAMESOURCE_TYPES, MFFrameSourceTypes_Color));
+	// TODO: consider propagating error
 
-	return S_OK;
+	ReleaseSRWLockExclusive(&this->lock);
+
+	if (event != 0) IMFMediaEvent_Release(event);
 }
 
 HRESULT
-IHoloCamMediaStream_Start(IHoloCamMediaStream* this, IMFMediaType* media_type)
+IHoloCamMediaStream__ProcessSample(IHoloCamMediaStream* this, IMFSample* sample)
 {
-	// TODO
-	OutputDebugStringA("IHoloCamMediaStream_Stop\n");
-	return E_NOTIMPL;
-}
+	HRESULT result;
 
-HRESULT
-IHoloCamMediaStream_Stop(IHoloCamMediaStream* this)
-{
-	// TODO
-	OutputDebugStringA("IHoloCamMediaStream_Stop\n");
-	return E_NOTIMPL;
+	AcquireSRWLockExclusive(&this->lock);
+
+	if (!this->has_shutdown)
+	{
+		// TODO: processing
+
+		result = IMFMediaEventQueue_QueueEventParamUnk(this->event_queue, MEMediaSample, &GUID_NULL, S_OK, (IUnknown*)sample);
+	}
+
+	ReleaseSRWLockExclusive(&this->lock);
+
+	return result;
 }
 
 HRESULT
 IHoloCamMediaStream_Shutdown(IHoloCamMediaStream* this)
 {
-	// TODO
-	OutputDebugStringA("IHoloCamMediaStream_Stop\n");
-	return E_NOTIMPL;
+	AcquireSRWLockExclusive(&this->lock);
+
+	this->has_shutdown = true;
+
+	IMFMediaEventQueue_Shutdown(this->event_queue);
+
+	IHoloCamMediaStream__ReleaseChildren(this);
+
+	ReleaseSRWLockExclusive(&this->lock);
+
+	return S_OK;
+}
+
+HRESULT
+IHoloCamMediaStream_SetMediaStream(IHoloCamMediaStream* this, IMFMediaStream* stream)
+{
+	HRESULT result;
+
+	if (stream == 0) result = E_POINTER;
+	else
+	{
+		AcquireSRWLockExclusive(&this->lock);
+
+		if (this->has_shutdown) result = MF_E_SHUTDOWN;
+		else
+		{
+			IMFMediaStream_Release(this->stream);
+
+			result = IMFMediaStream_QueryInterface(stream, &IID_IMFMediaStream, &this->stream);
+			if (SUCCEEDED(result)) result = IMFMediaStream_BeginGetEvent(this->stream, (IMFAsyncCallback*)&this->callback, (IUnknown*)this->stream);
+		}
+
+		ReleaseSRWLockExclusive(&this->lock);
+	}
+
+	return result;
+}
+
+// TODO: Should the parent pointers reference count be increased?
+//       It shouldn't matter since the stream is always destroyed before the source, but still.
+//       The problem is if this causes a ref count deadlock somehow.
+HRESULT
+IHoloCamMediaStream__Init(IHoloCamMediaStream* this, IMFMediaSource* parent, IMFStreamDescriptor* stream_descriptor, u32 queue_id)
+{
+	*this = (IHoloCamMediaStream){
+		.lpVtbl       = &IHoloCamMediaStream_Vtbl,
+		.ref_count    = 1,
+		.lock         = (SRWLOCK)SRWLOCK_INIT,
+		.queue_id     = queue_id,
+		.has_shutdown = false,
+		.state        = MF_STREAM_STATE_STOPPED,
+		.parent       = parent,
+	};
+
+	RET_IF_FAIL(MFCreateEventQueue(&this->event_queue));
+	RET_IF_FAIL(IMFStreamDescriptor_QueryInterface(stream_descriptor, &IID_IMFStreamDescriptor, &this->stream_descriptor));
+	RET_IF_FAIL(IMFStreamDescriptor_GetStreamIdentifier(this->stream_descriptor, &this->stream_id));
+
+	IHoloCamCallback__Init(&this->callback, this, (void (*)(void*, IMFAsyncResult*))&IHoloCamMediaStream__OnMediaStreamEvent, queue_id);
+
+	return S_OK;
 }

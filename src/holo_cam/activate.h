@@ -314,10 +314,21 @@ IHoloCamActivate__ActivateObject(IHoloCamActivate* this, REFIID riid, void** ppv
 		{
 			this->media_source = &HoloCamMediaSourcePool[idx];
 
-			result = IHoloCamMediaSource__Init(this->media_source, this->attributes);
+			IMFAttributes* device_attributes;
+			LPWSTR symlink;
+			RET_IF_FAIL(MFCreateAttributes(&device_attributes, 2));
+			RET_IF_FAIL(IMFAttributes_GetAllocatedString(this->attributes, &HOLO_CAM_PHYSICAL_DEVICE_SYMLINK, &symlink, &(u32){0}));
+			result = IMFAttributes_SetGUID(device_attributes, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
+			if (SUCCEEDED(result)) result = IMFAttributes_SetString(device_attributes, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, symlink);
+			CoTaskMemFree(symlink);
+			if (!SUCCEEDED(result)) return result;
 
-			if (result == S_OK) *ppv = this->media_source;
-			else                IHoloCamMediaSource_Vtbl.Release(this->media_source);
+			
+			IMFMediaSource* device_media_source;
+			RET_IF_FAIL(MFCreateDeviceSource(device_attributes, &device_media_source));
+
+			RET_IF_FAIL(IHoloCamMediaSource__Init(this->media_source, this->attributes, device_media_source));
+			result = this->media_source->lpVtbl->QueryInterface(this->media_source, riid, ppv);
 		}
 	}
 
@@ -333,6 +344,7 @@ IHoloCamActivate__ShutdownObject(IHoloCamActivate* this)
 HRESULT
 IHoloCamActivate__DetachObject(IHoloCamActivate* this)
 {
+	this->media_source->lpVtbl->Release(this->media_source);
 	this->media_source = 0;
 	return S_OK;
 }
