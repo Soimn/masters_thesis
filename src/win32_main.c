@@ -175,6 +175,62 @@ Arena_PopToMarker(Arena* arena, Arena_Marker marker)
 
 #define ARENA_SCOPED_TEMP(ARENA) for (Arena_Marker arena__scoped_temp_marker = Arena_GetMarker(ARENA); arena__scoped_temp_marker._value != -1; Arena_PopToMarker((ARENA), arena__scoped_temp_marker), arena__scoped_temp_marker._value = -1)
 
+static bool
+GetVideoCaptureDeviceNames(Arena* arena, u32* names_len, wchar_t*** friendly_names, wchar_t*** symbolic_names)
+{
+	bool succeeded = false;
+
+	Arena_Marker marker = Arena_GetMarker(arena);
+
+	IMFAttributes* attr   = 0;
+	IMFActivate** devices = 0;
+	u32 devices_len       = 0;
+	if (SUCCEEDED(MFCreateAttributes(&attr, 1))                                                                                      &&
+			SUCCEEDED(IMFAttributes_SetGUID(attr, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID)) &&
+			SUCCEEDED(MFEnumDeviceSources(attr, &devices, &devices_len)))
+	{
+		*names_len      = devices_len;
+		*friendly_names = Arena_PushArray(arena, wchar_t*, *names_len);
+		*symbolic_names = Arena_PushArray(arena, wchar_t*, *names_len);
+
+		u32 successful_runs = 0;
+		for (u32 i = 0; i < devices_len; ++i)
+		{
+			u32 friendly_name_cap = 0;
+			u32 symbolic_name_cap = 0;
+			if (SUCCEEDED(IMFActivate_GetStringLength(devices[i], &MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME, &friendly_name_cap)) &&
+			    SUCCEEDED(IMFActivate_GetStringLength(devices[i], &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, &symbolic_name_cap)))
+			{
+				friendly_name_cap += 1;
+				symbolic_name_cap += 1;
+
+				(*friendly_names)[i] = Arena_PushArray(arena, wchar_t, friendly_name_cap);
+				(*symbolic_names)[i] = Arena_PushArray(arena, wchar_t, symbolic_name_cap);
+
+				if (SUCCEEDED(IMFActivate_GetString(devices[i], &MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME, (*friendly_names)[i], friendly_name_cap, &(u32){0})) &&
+						SUCCEEDED(IMFActivate_GetString(devices[i], &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, (*symbolic_names)[i], symbolic_name_cap, &(u32){0})))
+				{
+					successful_runs += 1;
+				}
+			}
+
+			IMFActivate_Release(devices[i]);
+		}
+
+		if (successful_runs == devices_len)
+		{
+			succeeded = true;
+		}
+
+		CoTaskMemFree(devices);
+	}
+
+	if (attr != 0) IMFAttributes_Release(attr);
+
+	if (!succeeded) Arena_PopToMarker(arena, marker);
+	return succeeded;
+}
+
 int
 wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_cmd)
 {
@@ -188,10 +244,18 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 		if (!SUCCEEDED(mf_init)) WideFatalError(L"Failed to initialize Media Foundation\n%s", WideErrorMessageFromHRESULT(mf_init));
 		else
 		{
-			IMFVirtualCamera* cam;
-			HRESULT result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, L"Holo Cam", CLSID_IHOLOCAMACTIVATE_STRING, 0, 0, &cam);
+			u32 names_len            = 0;
+			wchar_t** friendly_names = 0;
+			wchar_t** symbolic_names = 0;
+			if (GetVideoCaptureDeviceNames(&arena, &names_len, &friendly_names, &symbolic_names))
+			{
+				IMFVirtualCamera* cam;
+				HRESULT result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, L"Holo Cam", CLSID_IHOLOCAMACTIVATE_STRING, 0, 0, &cam);
 
-			result = IMFVirtualCamera_Start(cam, 0);
+				result = IMFVirtualCamera_SetString(cam, &HOLO_CAM_PHYSICAL_DEVICE_SYMLINK, symbolic_names[0]);
+
+				result = IMFVirtualCamera_Start(cam, 0);
+			}
 
 			MFShutdown();
 		}

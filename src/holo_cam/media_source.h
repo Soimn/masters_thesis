@@ -371,6 +371,12 @@ IHoloCamMediaSource__Shutdown(IHoloCamMediaSource* this)
 
 		IHoloCamMediaSource__ReleaseChildren(this);
 
+		if (this->queue_id != 0)
+		{
+			MFUnlockWorkQueue(this->queue_id);
+			this->queue_id = 0;
+		}
+
 		this->state = IHoloCamMediaSourceState_Shutdown;
 	}
 
@@ -565,10 +571,10 @@ IHoloCamMediaSource_SampleAllocatorControl__SetDefaultAllocator(void* raw_this, 
 	return result;
 }
 
-NTSTATUS
+HRESULT
 IHoloCamMediaSource_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength, void* EventData, ULONG DataLength, ULONG* BytesReturned)
 {
-	NTSTATUS result;
+	HRESULT result;
 	IHoloCamMediaSource* this = IHOLOCAMMEDIASOURCE_ADJ_THIS(raw_this, KsControl);
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -576,6 +582,7 @@ IHoloCamMediaSource_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG Eve
 	if (this->state == IHoloCamMediaSourceState_Shutdown) result = MF_E_SHUTDOWN;
 	else
 	{
+		/*
 		IKsControl* ks_control;
 		if (!SUCCEEDED(IMFMediaSource_QueryInterface(this->device_media_source, &IID_IKsControl, &ks_control))) result = HRESULT_FROM_WIN32(ERROR_SET_NOT_FOUND);
 		else
@@ -583,6 +590,8 @@ IHoloCamMediaSource_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG Eve
 			result = ks_control->lpVtbl->KsEvent(ks_control, Event, EventLength, EventData, DataLength, BytesReturned);
 			ks_control->lpVtbl->Release(ks_control);
 		}
+		*/
+		result = HRESULT_FROM_WIN32(ERROR_SET_NOT_FOUND);
 	}
 
 	ReleaseSRWLockExclusive(&this->lock);
@@ -590,10 +599,10 @@ IHoloCamMediaSource_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG Eve
 	return result;
 }
 
-NTSTATUS
+HRESULT
 IHoloCamMediaSource_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLength, void* MethodData, ULONG DataLength, ULONG* BytesReturned)
 {
-	NTSTATUS result;
+	HRESULT result;
 	IHoloCamMediaSource* this = IHOLOCAMMEDIASOURCE_ADJ_THIS(raw_this, KsControl);
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -601,6 +610,7 @@ IHoloCamMediaSource_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG 
 	if (this->state == IHoloCamMediaSourceState_Shutdown) result = MF_E_SHUTDOWN;
 	else
 	{
+		/*
 		IKsControl* ks_control;
 		if (!SUCCEEDED(IMFMediaSource_QueryInterface(this->device_media_source, &IID_IKsControl, &ks_control))) result = HRESULT_FROM_WIN32(ERROR_SET_NOT_FOUND);
 		else
@@ -608,6 +618,8 @@ IHoloCamMediaSource_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG 
 			result = ks_control->lpVtbl->KsMethod(ks_control, Method, MethodLength, MethodData, DataLength, BytesReturned);
 			ks_control->lpVtbl->Release(ks_control);
 		}
+		*/
+		result = HRESULT_FROM_WIN32(ERROR_SET_NOT_FOUND);
 	}
 
 	ReleaseSRWLockExclusive(&this->lock);
@@ -615,10 +627,10 @@ IHoloCamMediaSource_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG 
 	return result;
 }
 
-NTSTATUS
+HRESULT
 IHoloCamMediaSource_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG PropertyLength, void* PropertyData, ULONG DataLength, ULONG* BytesReturned)
 {
-	NTSTATUS result;
+	HRESULT result;
 	IHoloCamMediaSource* this = IHOLOCAMMEDIASOURCE_ADJ_THIS(raw_this, KsControl);
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -626,13 +638,15 @@ IHoloCamMediaSource_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, 
 	if (this->state == IHoloCamMediaSourceState_Shutdown) result = MF_E_SHUTDOWN;
 	else
 	{
-		IKsControl* ks_control;
+		/*IKsControl* ks_control;
 		if (!SUCCEEDED(IMFMediaSource_QueryInterface(this->device_media_source, &IID_IKsControl, &ks_control))) result = HRESULT_FROM_WIN32(ERROR_SET_NOT_FOUND);
 		else
 		{
 			result = ks_control->lpVtbl->KsProperty(ks_control, Property, PropertyLength, PropertyData, DataLength, BytesReturned);
 			ks_control->lpVtbl->Release(ks_control);
-		}
+		}*/
+
+		result = HRESULT_FROM_WIN32(ERROR_SET_NOT_FOUND);
 	}
 
 	ReleaseSRWLockExclusive(&this->lock);
@@ -845,15 +859,15 @@ IHoloCamMediaSource__Init(IHoloCamMediaSource* this, IMFAttributes* attributes, 
 			}
 		}
 
-		IMFPresentationDescriptor_Release(presentation_descriptor);
-		if (!SUCCEEDED(result)) return result;
-	}
-
-	RET_IF_FAIL(MFCreateEventQueue(&this->event_queue));
-
 	RET_IF_FAIL(MFAllocateSerialWorkQueue(MFASYNC_CALLBACK_QUEUE_MULTITHREADED, &this->queue_id));
 	IHoloCamCallback__Init(&this->callback, this, (void (*)(void*, IMFAsyncResult*))IHoloCamMediaSource__OnMediaSourceEvent, this->queue_id);
 	RET_IF_FAIL(IMFMediaSource_BeginGetEvent(this->device_media_source, (IMFAsyncCallback*)&this->callback, (IUnknown*)this->device_media_source));
+
+		IMFPresentationDescriptor_Release(presentation_descriptor);
+		if (!SUCCEEDED(result)) return result;
+	}
+	
+	RET_IF_FAIL(MFCreateEventQueue(&this->event_queue));
 
 	return S_OK;
 }
