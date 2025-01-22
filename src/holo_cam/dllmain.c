@@ -1,13 +1,17 @@
-#include "../common.h"
-
-#define NOT_IMPLEMENTED
-
 #define COBJMACROS
 #define UNICODE
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_MEAN_AND_LEAN
 #define VC_EXTRALEAN
+#include <windows.h>
+#include <initguid.h>
+#include <propvarutil.h>
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
+#include <mfvirtualcamera.h>
+#include <mferror.h>
 #include <ks.h>
 
 // NOTE: ksproxy.h for C is broken, this (definition from devicetopology.h) needs to be defined first to override the broken definition
@@ -39,8 +43,54 @@ struct IKsControl
 #undef WIN32_MEAN_AND_LEAN
 #undef VC_EXTRALEAN
 
-#include "callback.h"
-#include "media_stream.h"
+#include <stdio.h>
+
+typedef signed __int8  s8;
+typedef signed __int16 s16;
+typedef signed __int32 s32;
+typedef signed __int64 s64;
+
+#define S8_MIN  ((s8)(1U << 7))
+#define S16_MIN ((s16)(1U << 15))
+#define S32_MIN ((s32)(1UL << 31))
+#define S64_MIN ((s64)(1ULL << 63))
+
+#define S8_MAX  ((s8)(~(u8)S8_MIN))
+#define S16_MAX ((s16)(~(u16)S16_MIN))
+#define S32_MAX ((s32)(~(u32)S32_MIN))
+#define S64_MAX ((s64)(~(u64)S64_MIN))
+
+typedef unsigned __int8  u8;
+typedef unsigned __int16 u16;
+typedef unsigned __int32 u32;
+typedef unsigned __int64 u64;
+
+#define U8_MAX  (~(u8)0)
+#define U16_MAX (~(u16)0)
+#define U32_MAX (~(u32)0)
+#define U64_MAX (~(u64)0)
+
+typedef s64 smm;
+typedef u64 umm;
+
+typedef float f32;
+typedef double f64;
+
+typedef u8 bool;
+#define true 1
+#define false 0
+
+#define ARRAY_LEN(A) (sizeof(A)/sizeof(0[A]))
+
+#ifdef _MSC_VER
+#  define ALIGNOF(T) _alignof(T)
+#else
+#  error NOT IMPLEMENTED
+#endif
+
+#define ALIGN(N, A) (((umm)(N) + ((umm)(A) + 1)) & (umm)-(smm)(A))
+
+#include "../holo_cam.h"
 #include "media_source.h"
 #include "activate.h"
 
@@ -51,16 +101,19 @@ DllMain(HINSTANCE module, DWORD reason, LPVOID _)
 {
 	if (reason == DLL_PROCESS_ATTACH)
 	{
-		for (u32 i = 0; i < ARRAY_LEN(HoloCamMediaSourcePool); ++i)
+		Module = module;
+		DisableThreadLibraryCalls(module);
+
+		for (umm i = 0; i < ARRAY_LEN(MediaSourcePool); ++i)
 		{
-			HoloCamMediaSourcePool[i] = (IHoloCamMediaSource){
+			MediaSourcePool[i] = (MediaSource){
 				.ref_count = 0,
 				.lock      = SRWLOCK_INIT,
 			};
 		}
 
-		Module = module;
-		DisableThreadLibraryCalls(module);
+		MediaSourcePoolOccupancy = 0;
+		ActivatePoolOccupancy    = 0;
 	}
 
 	return TRUE;
@@ -72,9 +125,8 @@ DllGetClassObject(REFCLSID clsid, REFIID riid, void** factory_handle)
 	HRESULT result;
 	*factory_handle = 0;
 
-	OutputDebugStringA("DllGetClassObject\n");
-	if (!IsEqualCLSID(clsid, &CLSID_IHoloCamActivate)) result = CLASS_E_CLASSNOTAVAILABLE;
-	else                                               result = IHoloCamActivateFactoryVtbl.QueryInterface(&HoloCamActivateFactory, riid, factory_handle);
+	if (!IsEqualCLSID(clsid, &CLSID_HOLOCAM)) result = CLASS_E_CLASSNOTAVAILABLE;
+	else                                      result = ActivateFactoryVtbl.QueryInterface(&ActivateFactory, riid, factory_handle);
 	
 	return result;
 }
@@ -82,9 +134,10 @@ DllGetClassObject(REFCLSID clsid, REFIID riid, void** factory_handle)
 HRESULT
 DllCanUnloadNow()
 {
-	// TODO
-	return S_OK;
+	return (MediaSourcePoolOccupancy > 0 || ActivatePoolOccupancy > 0 ? S_FALSE : S_OK);
 }
+
+#define REGISTRY_PATH L"Software\\Classes\\CLSID\\" CLSID_HOLOCAM_STRING
 
 HRESULT
 DllRegisterServer()
@@ -97,9 +150,9 @@ DllRegisterServer()
 	if (dll_path_len != 0)
 	{
 		HKEY key;
-		if (RegCreateKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Classes\\CLSID\\" CLSID_IHOLOCAMACTIVATE_STRING L"\\InProcServer32", 0, 0, 0, KEY_WRITE, 0, &key, 0) == ERROR_SUCCESS &&
-				RegSetValueExW(key, 0, 0, REG_SZ, (BYTE*)dll_path, (dll_path_len + 1)*sizeof(WCHAR)) == ERROR_SUCCESS &&
-				RegSetValueExW(key, L"ThreadingModel", 0, REG_SZ, (BYTE*)L"Both", sizeof(L"Both")) == ERROR_SUCCESS)
+		if (RegCreateKeyExW(HKEY_LOCAL_MACHINE, REGISTRY_PATH L"\\InProcServer32", 0, 0, 0, KEY_WRITE, 0, &key, 0) == ERROR_SUCCESS &&
+				RegSetValueExW(key, 0, 0, REG_SZ, (BYTE*)dll_path, (dll_path_len + 1)*sizeof(WCHAR))                   == ERROR_SUCCESS &&
+				RegSetValueExW(key, L"ThreadingModel", 0, REG_SZ, (BYTE*)L"Both", sizeof(L"Both"))                     == ERROR_SUCCESS)
 		{
 			result = S_OK;
 		}
@@ -111,5 +164,5 @@ DllRegisterServer()
 HRESULT
 DllUnregisterServer()
 {
-	return (RegDeleteTreeW(HKEY_LOCAL_MACHINE, L"Software\\Classes\\CLSID\\" CLSID_IHOLOCAMACTIVATE_STRING) == ERROR_SUCCESS ? S_OK : E_FAIL);
+	return RegDeleteTreeW(HKEY_LOCAL_MACHINE, REGISTRY_PATH);
 }

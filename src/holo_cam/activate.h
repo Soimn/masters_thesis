@@ -1,293 +1,305 @@
-typedef struct IHoloCamActivate IHoloCamActivate;
-typedef struct IHoloCamActivateVtbl
+// {F01E07F0-A701-42EF-BB88-953281685411}
+DEFINE_GUID(IID_Activate, 0xf01e07f0, 0xa701, 0x42ef, 0xbb, 0x88, 0x95, 0x32, 0x81, 0x68, 0x54, 0x11);
+
+// {03DBA7DB-F24C-4379-AA8F-79117D1AC20E}
+DEFINE_GUID(IID_ActivateFactory, 0x3dba7db, 0xf24c, 0x4379, 0xaa, 0x8f, 0x79, 0x11, 0x7d, 0x1a, 0xc2, 0xe);
+
+typedef struct Activate Activate;
+typedef struct ActivateVtbl
 {
 	// IUknown
-	HRESULT (*QueryInterface) (IHoloCamActivate* this, REFIID riid, void** pp);
-	ULONG   (*AddRef)         (IHoloCamActivate* this);
-	ULONG   (*Release)        (IHoloCamActivate* this);
+	HRESULT (*QueryInterface) (Activate* this, REFIID riid, void** pp);
+	ULONG   (*AddRef)         (Activate* this);
+	ULONG   (*Release)        (Activate* this);
 
 	// IMFAttributes
-	HRESULT (*GetItem)            (IHoloCamActivate* this, REFGUID guidKey, PROPVARIANT* pValue);
-	HRESULT (*GetItemType)        (IHoloCamActivate* this, REFGUID guidKey, MF_ATTRIBUTE_TYPE* pType);
-	HRESULT (*CompareItem)        (IHoloCamActivate* this, REFGUID guidKey, REFPROPVARIANT Value, BOOL* pbResult);
-	HRESULT (*Compare)            (IHoloCamActivate* this, IMFAttributes* pTheirs, MF_ATTRIBUTES_MATCH_TYPE MatchType, BOOL* pbResult);
-	HRESULT (*GetUINT32)          (IHoloCamActivate* this, REFGUID guidKey, UINT32* punValue);
-	HRESULT (*GetUINT64)          (IHoloCamActivate* this, REFGUID guidKey, UINT64* punValue);
-	HRESULT (*GetDouble)          (IHoloCamActivate* this, REFGUID guidKey, double* pfValue);
-	HRESULT (*GetGUID)            (IHoloCamActivate* this, REFGUID guidKey, GUID* pguidValue);
-	HRESULT (*GetStringLength)    (IHoloCamActivate* this, REFGUID guidKey, UINT32* pcchLength);
-	HRESULT (*GetString)          (IHoloCamActivate* this, REFGUID guidKey, LPWSTR pwszValue, UINT32 cchBufSize, UINT32* pcchLength);
-	HRESULT (*GetAllocatedString) (IHoloCamActivate* this, REFGUID guidKey, LPWSTR* ppwszValue, UINT32* pcchLength);
-	HRESULT (*GetBlobSize)        (IHoloCamActivate* this, REFGUID guidKey, UINT32* pcbBlobSize);
-	HRESULT (*GetBlob)            (IHoloCamActivate* this, REFGUID guidKey, UINT8* pBuf, UINT32 cbBufSize, UINT32* pcbBlobSize);
-	HRESULT (*GetAllocatedBlob)   (IHoloCamActivate* this, REFGUID guidKey, UINT8** ppBuf, UINT32* pcbSize);
-	HRESULT (*GetUnknown)         (IHoloCamActivate* this, REFGUID guidKey, REFIID riid, LPVOID* ppv);
-	HRESULT (*SetItem)            (IHoloCamActivate* this, REFGUID guidKey, REFPROPVARIANT Value);
-	HRESULT (*DeleteItem)         (IHoloCamActivate* this, REFGUID guid);
-	HRESULT (*DeleteAllItems)     (IHoloCamActivate* this);
-	HRESULT (*SetUINT32)          (IHoloCamActivate* this, REFGUID guidKey, UINT32  unValue);
-	HRESULT (*SetUINT64)          (IHoloCamActivate* this, REFGUID guidKey, UINT64  unValue);
-	HRESULT (*SetDouble)          (IHoloCamActivate* this, REFGUID guidKey, double  fValue);
-	HRESULT (*SetGUID)            (IHoloCamActivate* this, REFGUID guidKey, REFGUID guidValue);
-	HRESULT (*SetString)          (IHoloCamActivate* this, REFGUID guidKey, LPCWSTR wszValue);
-	HRESULT (*SetBlob)            (IHoloCamActivate* this, REFGUID guidKey, const UINT8* pBuf, UINT32 cbBufSize);
-	HRESULT (*SetUnknown)         (IHoloCamActivate* this, REFGUID guidKey, IUnknown* pUnknown);
-	HRESULT (*LockStore)          (IHoloCamActivate* this);
-	HRESULT (*UnlockStore)        (IHoloCamActivate* this);
-	HRESULT (*GetCount)           (IHoloCamActivate* this, UINT32* pcItems);
-	HRESULT (*GetItemByIndex)     (IHoloCamActivate* this, INT32 unIndex, GUID* pGuidKey, PROPVARIANT* pValue);
-	HRESULT (*CopyAllItems)       (IHoloCamActivate* this, IMFAttributes* pDest);
+	HRESULT (*GetItem)            (Activate* this, REFGUID guidKey, PROPVARIANT* pValue);
+	HRESULT (*GetItemType)        (Activate* this, REFGUID guidKey, MF_ATTRIBUTE_TYPE* pType);
+	HRESULT (*CompareItem)        (Activate* this, REFGUID guidKey, REFPROPVARIANT Value, BOOL* pbResult);
+	HRESULT (*Compare)            (Activate* this, IMFAttributes* pTheirs, MF_ATTRIBUTES_MATCH_TYPE MatchType, BOOL* pbResult);
+	HRESULT (*GetUINT32)          (Activate* this, REFGUID guidKey, UINT32* punValue);
+	HRESULT (*GetUINT64)          (Activate* this, REFGUID guidKey, UINT64* punValue);
+	HRESULT (*GetDouble)          (Activate* this, REFGUID guidKey, double* pfValue);
+	HRESULT (*GetGUID)            (Activate* this, REFGUID guidKey, GUID* pguidValue);
+	HRESULT (*GetStringLength)    (Activate* this, REFGUID guidKey, UINT32* pcchLength);
+	HRESULT (*GetString)          (Activate* this, REFGUID guidKey, LPWSTR pwszValue, UINT32 cchBufSize, UINT32* pcchLength);
+	HRESULT (*GetAllocatedString) (Activate* this, REFGUID guidKey, LPWSTR* ppwszValue, UINT32* pcchLength);
+	HRESULT (*GetBlobSize)        (Activate* this, REFGUID guidKey, UINT32* pcbBlobSize);
+	HRESULT (*GetBlob)            (Activate* this, REFGUID guidKey, UINT8* pBuf, UINT32 cbBufSize, UINT32* pcbBlobSize);
+	HRESULT (*GetAllocatedBlob)   (Activate* this, REFGUID guidKey, UINT8** ppBuf, UINT32* pcbSize);
+	HRESULT (*GetUnknown)         (Activate* this, REFGUID guidKey, REFIID riid, LPVOID* ppv);
+	HRESULT (*SetItem)            (Activate* this, REFGUID guidKey, REFPROPVARIANT Value);
+	HRESULT (*DeleteItem)         (Activate* this, REFGUID guid);
+	HRESULT (*DeleteAllItems)     (Activate* this);
+	HRESULT (*SetUINT32)          (Activate* this, REFGUID guidKey, UINT32  unValue);
+	HRESULT (*SetUINT64)          (Activate* this, REFGUID guidKey, UINT64  unValue);
+	HRESULT (*SetDouble)          (Activate* this, REFGUID guidKey, double  fValue);
+	HRESULT (*SetGUID)            (Activate* this, REFGUID guidKey, REFGUID guidValue);
+	HRESULT (*SetString)          (Activate* this, REFGUID guidKey, LPCWSTR wszValue);
+	HRESULT (*SetBlob)            (Activate* this, REFGUID guidKey, const UINT8* pBuf, UINT32 cbBufSize);
+	HRESULT (*SetUnknown)         (Activate* this, REFGUID guidKey, IUnknown* pUnknown);
+	HRESULT (*LockStore)          (Activate* this);
+	HRESULT (*UnlockStore)        (Activate* this);
+	HRESULT (*GetCount)           (Activate* this, UINT32* pcItems);
+	HRESULT (*GetItemByIndex)     (Activate* this, INT32 unIndex, GUID* pGuidKey, PROPVARIANT* pValue);
+	HRESULT (*CopyAllItems)       (Activate* this, IMFAttributes* pDest);
 
 	// IMFActivate
-	HRESULT (*ActivateObject) (IHoloCamActivate* this, REFIID riid, void** ppv);
-	HRESULT (*ShutdownObject) (IHoloCamActivate* this);
-	HRESULT (*DetachObject)   (IHoloCamActivate* this);
-} IHoloCamActivateVtbl;
+	HRESULT (*ActivateObject) (Activate* this, REFIID riid, void** ppv);
+	HRESULT (*ShutdownObject) (Activate* this);
+	HRESULT (*DetachObject)   (Activate* this);
+} ActivateVtbl;
 
-typedef struct IHoloCamActivate
+typedef struct Activate
 {
-	IHoloCamActivateVtbl* lpVtbl;
+	ActivateVtbl* lpVtbl;
 	u32 ref_count;
 	IMFAttributes* attributes;
-	IHoloCamMediaSource* media_source;
-} IHoloCamActivate;
+	MediaSource* media_source;
+} Activate;
+
+static Activate ActivatePool[HOLOCAM_MAX_CAMERA_COUNT] = {0};
+static s32 ActivatePoolOccupancy = 0;
 
 HRESULT
-IHoloCamActivate__QueryInterface(IHoloCamActivate* this, REFIID riid, void** handle)
+Activate__QueryInterface(Activate* this, REFIID riid, void** handle)
 {
 	HRESULT result;
 
 	if (handle == 0) result = E_POINTER;
-	else if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IMFActivate) && !IsEqualIID(riid, &IID_IHoloCamActivate))
-	{
-		*handle = 0;
-		result = E_NOINTERFACE;
-	}
 	else
 	{
-		*handle = this;
-		this->lpVtbl->AddRef(this);
-		result = S_OK;
+		*handle = 0;
+
+		if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IMFActivate) && !IsEqualIID(riid, &IID_Activate)) result = E_NOINTERFACE;
+		else
+		{
+			*handle = this;
+			this->lpVtbl->AddRef(this);
+			result = S_OK;
+		}
 	}
 
 	return result;
 }
 
 ULONG
-IHoloCamActivate__AddRef(IHoloCamActivate* this)
+Activate__AddRef(Activate* this)
 {
 	this->ref_count += 1;
 	return this->ref_count;
 }
 
 ULONG
-IHoloCamActivate__Release(IHoloCamActivate* this)
+Activate__Release(Activate* this)
 {
-	if (this->ref_count > 1) this->ref_count -= 1;
-	else
+	if (this->ref_count > 0)
 	{
-		if (this->attributes != 0)
-		{
-			IMFAttributes_Release(this->attributes);
-			this->attributes = 0;
-		}
+		this->ref_count -= 1;
 
-		if (this->media_source != 0)
+		if (this->ref_count == 0)
 		{
-			IHoloCamMediaSource_Vtbl.Release(this->media_source);
-			this->media_source = 0;
-		}
+			if (this->attributes != 0)
+			{
+				IMFAttributes_Release(this->attributes);
+				this->attributes = 0;
+			}
 
-		this->ref_count = 0;
+			if (this->media_source != 0)
+			{
+				this->media_source->lpVtbl->Release(this->media_source);
+				this->media_source = 0;
+			}
+
+			InterlockedDecrement(&ActivatePoolOccupancy);
+		}
 	}
 
 	return this->ref_count;
 }
 
 HRESULT
-IHoloCamActivate__GetItem(IHoloCamActivate* this, REFGUID guidKey, PROPVARIANT* pValue)
+Activate__GetItem(Activate* this, REFGUID guidKey, PROPVARIANT* pValue)
 {
 	return IMFAttributes_GetItem(this->attributes, guidKey, pValue);
 }
 
 HRESULT
-IHoloCamActivate__GetItemType(IHoloCamActivate* this, REFGUID guidKey, MF_ATTRIBUTE_TYPE* pType)
+Activate__GetItemType(Activate* this, REFGUID guidKey, MF_ATTRIBUTE_TYPE* pType)
 {
 	return IMFAttributes_GetItemType(this->attributes, guidKey, pType);
 }
 
 HRESULT
-IHoloCamActivate__CompareItem(IHoloCamActivate* this, REFGUID guidKey, REFPROPVARIANT Value, BOOL* pbResult)
+Activate__CompareItem(Activate* this, REFGUID guidKey, REFPROPVARIANT Value, BOOL* pbResult)
 {
 	return IMFAttributes_CompareItem(this->attributes, guidKey, Value, pbResult);
 }
 
 HRESULT
-IHoloCamActivate__Compare(IHoloCamActivate* this, IMFAttributes* pTheirs, MF_ATTRIBUTES_MATCH_TYPE MatchType, BOOL* pbResult)
+Activate__Compare(Activate* this, IMFAttributes* pTheirs, MF_ATTRIBUTES_MATCH_TYPE MatchType, BOOL* pbResult)
 {
 	return IMFAttributes_Compare(this->attributes, pTheirs, MatchType, pbResult);
 }
 
 HRESULT
-IHoloCamActivate__GetUINT32(IHoloCamActivate* this, REFGUID guidKey, UINT32* punValue)
+Activate__GetUINT32(Activate* this, REFGUID guidKey, UINT32* punValue)
 {
 	return IMFAttributes_GetUINT32(this->attributes, guidKey, punValue);
 }
 
 HRESULT
-IHoloCamActivate__GetUINT64(IHoloCamActivate* this, REFGUID guidKey, UINT64* punValue)
+Activate__GetUINT64(Activate* this, REFGUID guidKey, UINT64* punValue)
 {
 	return IMFAttributes_GetUINT64(this->attributes, guidKey, punValue);
 }
 
 HRESULT
-IHoloCamActivate__GetDouble(IHoloCamActivate* this, REFGUID guidKey, double* pfValue)
+Activate__GetDouble(Activate* this, REFGUID guidKey, double* pfValue)
 {
 	return IMFAttributes_GetDouble(this->attributes, guidKey, pfValue);
 }
 
 HRESULT
-IHoloCamActivate__GetGUID(IHoloCamActivate* this, REFGUID guidKey, GUID* pguidValue)
+Activate__GetGUID(Activate* this, REFGUID guidKey, GUID* pguidValue)
 {
 	return IMFAttributes_GetGUID(this->attributes, guidKey, pguidValue);
 }
 
 HRESULT
-IHoloCamActivate__GetStringLength(IHoloCamActivate* this, REFGUID guidKey, UINT32* pcchLength)
+Activate__GetStringLength(Activate* this, REFGUID guidKey, UINT32* pcchLength)
 {
 	return IMFAttributes_GetStringLength(this->attributes, guidKey, pcchLength);
 }
 
 HRESULT
-IHoloCamActivate__GetString(IHoloCamActivate* this, REFGUID guidKey, LPWSTR pwszValue, UINT32 cchBufSize, UINT32* pcchLength)
+Activate__GetString(Activate* this, REFGUID guidKey, LPWSTR pwszValue, UINT32 cchBufSize, UINT32* pcchLength)
 {
 	return IMFAttributes_GetString(this->attributes, guidKey, pwszValue, cchBufSize, pcchLength);
 }
 
 HRESULT
-IHoloCamActivate__GetAllocatedString(IHoloCamActivate* this, REFGUID guidKey, LPWSTR* ppwszValue, UINT32* pcchLength)
+Activate__GetAllocatedString(Activate* this, REFGUID guidKey, LPWSTR* ppwszValue, UINT32* pcchLength)
 {
 	return IMFAttributes_GetAllocatedString(this->attributes, guidKey, ppwszValue, pcchLength);
 }
 
 HRESULT
-IHoloCamActivate__GetBlobSize(IHoloCamActivate* this, REFGUID guidKey, UINT32* pcbBlobSize)
+Activate__GetBlobSize(Activate* this, REFGUID guidKey, UINT32* pcbBlobSize)
 {
 	return IMFAttributes_GetBlobSize(this->attributes, guidKey, pcbBlobSize);
 }
 
 HRESULT
-IHoloCamActivate__GetBlob(IHoloCamActivate* this, REFGUID guidKey, UINT8* pBuf, UINT32 cbBufSize, UINT32* pcbBlobSize)
+Activate__GetBlob(Activate* this, REFGUID guidKey, UINT8* pBuf, UINT32 cbBufSize, UINT32* pcbBlobSize)
 {
 	return IMFAttributes_GetBlob(this->attributes, guidKey, pBuf, cbBufSize, pcbBlobSize);
 }
 
 HRESULT
-IHoloCamActivate__GetAllocatedBlob(IHoloCamActivate* this, REFGUID guidKey, UINT8** ppBuf, UINT32* pcbSize)
+Activate__GetAllocatedBlob(Activate* this, REFGUID guidKey, UINT8** ppBuf, UINT32* pcbSize)
 {
 	return IMFAttributes_GetAllocatedBlob(this->attributes, guidKey, ppBuf, pcbSize);
 }
 
 HRESULT
-IHoloCamActivate__GetUnknown(IHoloCamActivate* this, REFGUID guidKey, REFIID riid, LPVOID* ppv)
+Activate__GetUnknown(Activate* this, REFGUID guidKey, REFIID riid, LPVOID* ppv)
 {
 	return IMFAttributes_GetUnknown(this->attributes, guidKey, riid, ppv);
 }
 
 HRESULT
-IHoloCamActivate__SetItem(IHoloCamActivate* this, REFGUID guidKey, REFPROPVARIANT Value)
+Activate__SetItem(Activate* this, REFGUID guidKey, REFPROPVARIANT Value)
 {
 	return IMFAttributes_SetItem(this->attributes, guidKey, Value);
 }
 
 HRESULT
-IHoloCamActivate__DeleteItem(IHoloCamActivate* this, REFGUID guidKey)
+Activate__DeleteItem(Activate* this, REFGUID guidKey)
 {
 	return IMFAttributes_DeleteItem(this->attributes, guidKey);
 }
 
 HRESULT
-IHoloCamActivate__DeleteAllItems(IHoloCamActivate* this)
+Activate__DeleteAllItems(Activate* this)
 {
 	return IMFAttributes_DeleteAllItems(this->attributes);
 }
 
 HRESULT
-IHoloCamActivate__SetUINT32(IHoloCamActivate* this, REFGUID guidKey, UINT32  unValue)
+Activate__SetUINT32(Activate* this, REFGUID guidKey, UINT32  unValue)
 {
 	return IMFAttributes_SetUINT32(this->attributes, guidKey, unValue);
 }
 
 HRESULT
-IHoloCamActivate__SetUINT64(IHoloCamActivate* this, REFGUID guidKey, UINT64  unValue)
+Activate__SetUINT64(Activate* this, REFGUID guidKey, UINT64  unValue)
 {
 	return IMFAttributes_SetUINT64(this->attributes, guidKey, unValue);
 }
 
 HRESULT
-IHoloCamActivate__SetDouble(IHoloCamActivate* this, REFGUID guidKey, double  fValue)
+Activate__SetDouble(Activate* this, REFGUID guidKey, double  fValue)
 {
 	return IMFAttributes_SetDouble(this->attributes, guidKey, fValue);
 }
 
 HRESULT
-IHoloCamActivate__SetGUID(IHoloCamActivate* this, REFGUID guidKey, REFGUID guidValue)
+Activate__SetGUID(Activate* this, REFGUID guidKey, REFGUID guidValue)
 {
 	return IMFAttributes_SetGUID(this->attributes, guidKey, guidValue);
 }
 
 HRESULT
-IHoloCamActivate__SetString(IHoloCamActivate* this, REFGUID guidKey, LPCWSTR wszValue)
+Activate__SetString(Activate* this, REFGUID guidKey, LPCWSTR wszValue)
 {
 	return IMFAttributes_SetString(this->attributes, guidKey, wszValue);
 }
 
 HRESULT
-IHoloCamActivate__SetBlob(IHoloCamActivate* this, REFGUID guidKey, const UINT8* pBuf, UINT32 cbBufSize)
+Activate__SetBlob(Activate* this, REFGUID guidKey, const UINT8* pBuf, UINT32 cbBufSize)
 {
 	return IMFAttributes_SetBlob(this->attributes, guidKey, pBuf, cbBufSize);
 }
 
 HRESULT
-IHoloCamActivate__SetUnknown(IHoloCamActivate* this, REFGUID guidKey, IUnknown* pUnknown)
+Activate__SetUnknown(Activate* this, REFGUID guidKey, IUnknown* pUnknown)
 {
 	return IMFAttributes_SetUnknown(this->attributes, guidKey, pUnknown);
 }
 
 HRESULT
-IHoloCamActivate__LockStore(IHoloCamActivate* this)
+Activate__LockStore(Activate* this)
 {
 	return IMFAttributes_LockStore(this->attributes);
 }
 
 HRESULT
-IHoloCamActivate__UnlockStore(IHoloCamActivate* this)
+Activate__UnlockStore(Activate* this)
 {
 	return IMFAttributes_UnlockStore(this->attributes);
 }
 
 HRESULT
-IHoloCamActivate__GetCount(IHoloCamActivate* this, UINT32* pcItems)
+Activate__GetCount(Activate* this, UINT32* pcItems)
 {
 	return IMFAttributes_GetCount(this->attributes, pcItems);
 }
 
 HRESULT
-IHoloCamActivate__GetItemByIndex(IHoloCamActivate* this, INT32 unIndex, GUID* pguidKey, PROPVARIANT* pValue)
+Activate__GetItemByIndex(Activate* this, INT32 unIndex, GUID* pguidKey, PROPVARIANT* pValue)
 {
 	return IMFAttributes_GetItemByIndex(this->attributes, unIndex, pguidKey, pValue);
 }
 
 HRESULT
-IHoloCamActivate__CopyAllItems(IHoloCamActivate* this, IMFAttributes* pDest)
+Activate__CopyAllItems(Activate* this, IMFAttributes* pDest)
 {
 	return IMFAttributes_CopyAllItems(this->attributes, pDest);
 }
 
-IHoloCamMediaSource HoloCamMediaSourcePool[HOLO_MAX_CAMERA_COUNT] = {0};
-
 HRESULT
-IHoloCamActivate__ActivateObject(IHoloCamActivate* this, REFIID riid, void** ppv)
+Activate__ActivateObject(Activate* this, REFIID riid, void** ppv)
 {
 	HRESULT result;
 
@@ -296,39 +308,47 @@ IHoloCamActivate__ActivateObject(IHoloCamActivate* this, REFIID riid, void** ppv
 	{
 		*ppv = 0;
 
-		s32 idx = -1;
-		for (u32 i = 0; idx == -1 && i < ARRAY_LEN(HoloCamMediaSourcePool); ++i)
+		MediaSource* media_source = 0;
+		for (umm i = 0; i < ARRAY_LEN(MediaSourcePool) && media_source == 0; ++i)
 		{
-			AcquireSRWLockExclusive(&HoloCamMediaSourcePool[i].lock);
-
-			if (HoloCamMediaSourcePool[i].ref_count == 0)
+			AcquireSRWLockExclusive(&MediaSourcePool[i].lock);
+			if (MediaSourcePool[i].ref_count == 0)
 			{
-				idx = (s32)i;
+				media_source = &MediaSourcePool[i];
+				media_source->ref_count = 1;
 			}
-
-			ReleaseSRWLockExclusive(&HoloCamMediaSourcePool[i].lock);
+			ReleaseSRWLockExclusive(&MediaSourcePool[i].lock);
 		}
 
-		if (idx == -1) result = E_FAIL;
+		if (media_source == 0) result = E_OUTOFMEMORY;
 		else
 		{
-			this->media_source = &HoloCamMediaSourcePool[idx];
+			InterlockedIncrement(&MediaSourcePoolOccupancy);
 
-			IMFAttributes* device_attributes;
-			LPWSTR symlink;
-			RET_IF_FAIL(MFCreateAttributes(&device_attributes, 2));
-			RET_IF_FAIL(IMFAttributes_GetAllocatedString(this->attributes, &HOLO_CAM_PHYSICAL_DEVICE_SYMLINK, &symlink, &(u32){0}));
-			result = IMFAttributes_SetGUID(device_attributes, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
-			if (SUCCEEDED(result)) result = IMFAttributes_SetString(device_attributes, &MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, symlink);
-			CoTaskMemFree(symlink);
-			if (!SUCCEEDED(result)) return result;
+			if (this->media_source != 0) this->media_source->lpVtbl->Release(this->media_source);
 
-			
-			IMFMediaSource* device_media_source;
-			RET_IF_FAIL(MFCreateDeviceSource(device_attributes, &device_media_source));
+			this->media_source = media_source;
+			*this->media_source = (MediaSource){
+				.lpVtbl                       = &MediaSource_Vtbl,
+				.lpGetServiceVtbl             = &MediaSource_GetService_Vtbl,
+				.lpSampleAllocatorControlVtbl = &MediaSource_SampleAllocatorControl_Vtbl,
+				.lpKsControlVtbl              = &MediaSource_KsControl_Vtbl,
+				.ref_count                    = 1,
+				.lock                         = SRWLOCK_INIT,
+			};
 
-			RET_IF_FAIL(IHoloCamMediaSource__Init(this->media_source, this->attributes, device_media_source));
-			result = this->media_source->lpVtbl->QueryInterface(this->media_source, riid, ppv);
+			result = MediaSource__Init(this->media_source);
+
+			if (SUCCEEDED(result))
+			{
+				result = this->media_source->lpVtbl->QueryInterface(this->media_source, riid, ppv);
+			}
+
+			if (!SUCCEEDED(result))
+			{
+				this->media_source->lpVtbl->Release(this->media_source);
+				this->media_source = 0;
+			}
 		}
 	}
 
@@ -336,100 +356,102 @@ IHoloCamActivate__ActivateObject(IHoloCamActivate* this, REFIID riid, void** ppv
 }
 
 HRESULT
-IHoloCamActivate__ShutdownObject(IHoloCamActivate* this)
+Activate__ShutdownObject(Activate* this)
 {
 	return S_OK;
 }
 
 HRESULT
-IHoloCamActivate__DetachObject(IHoloCamActivate* this)
+Activate__DetachObject(Activate* this)
 {
-	this->media_source->lpVtbl->Release(this->media_source);
-	this->media_source = 0;
+	if (this->media_source != 0)
+	{
+		this->media_source->lpVtbl->Release(this->media_source);
+		this->media_source = 0;
+	}
 	return S_OK;
 }
 
-IHoloCamActivateVtbl IHoloCamActivate_Vtbl = {
+ActivateVtbl Activate_Vtbl = {
 	// IUnknown
-	.QueryInterface = IHoloCamActivate__QueryInterface,
-	.AddRef         = IHoloCamActivate__AddRef,
-	.Release        = IHoloCamActivate__Release,
+	.QueryInterface = Activate__QueryInterface,
+	.AddRef         = Activate__AddRef,
+	.Release        = Activate__Release,
 
 	// IMFAttributes
-	.GetItem            = IHoloCamActivate__GetItem,
-	.GetItemType        = IHoloCamActivate__GetItemType,
-	.CompareItem        = IHoloCamActivate__CompareItem,
-	.Compare            = IHoloCamActivate__Compare,
-	.GetUINT32          = IHoloCamActivate__GetUINT32,
-	.GetUINT64          = IHoloCamActivate__GetUINT64,
-	.GetDouble          = IHoloCamActivate__GetDouble,
-	.GetGUID            = IHoloCamActivate__GetGUID,
-	.GetStringLength    = IHoloCamActivate__GetStringLength,
-	.GetString          = IHoloCamActivate__GetString,
-	.GetAllocatedString = IHoloCamActivate__GetAllocatedString,
-	.GetBlobSize        = IHoloCamActivate__GetBlobSize,
-	.GetBlob            = IHoloCamActivate__GetBlob,
-	.GetAllocatedBlob   = IHoloCamActivate__GetAllocatedBlob,
-	.GetUnknown         = IHoloCamActivate__GetUnknown,
-	.SetItem            = IHoloCamActivate__SetItem,
-	.DeleteItem         = IHoloCamActivate__DeleteItem,
-	.DeleteAllItems     = IHoloCamActivate__DeleteAllItems,
-	.SetUINT32          = IHoloCamActivate__SetUINT32,
-	.SetUINT64          = IHoloCamActivate__SetUINT64,
-	.SetDouble          = IHoloCamActivate__SetDouble,
-	.SetGUID            = IHoloCamActivate__SetGUID,
-	.SetString          = IHoloCamActivate__SetString,
-	.SetBlob            = IHoloCamActivate__SetBlob,
-	.SetUnknown         = IHoloCamActivate__SetUnknown,
-	.LockStore          = IHoloCamActivate__LockStore,
-	.UnlockStore        = IHoloCamActivate__UnlockStore,
-	.GetCount           = IHoloCamActivate__GetCount,
-	.GetItemByIndex     = IHoloCamActivate__GetItemByIndex,
-	.CopyAllItems       = IHoloCamActivate__CopyAllItems,
+	.GetItem            = Activate__GetItem,
+	.GetItemType        = Activate__GetItemType,
+	.CompareItem        = Activate__CompareItem,
+	.Compare            = Activate__Compare,
+	.GetUINT32          = Activate__GetUINT32,
+	.GetUINT64          = Activate__GetUINT64,
+	.GetDouble          = Activate__GetDouble,
+	.GetGUID            = Activate__GetGUID,
+	.GetStringLength    = Activate__GetStringLength,
+	.GetString          = Activate__GetString,
+	.GetAllocatedString = Activate__GetAllocatedString,
+	.GetBlobSize        = Activate__GetBlobSize,
+	.GetBlob            = Activate__GetBlob,
+	.GetAllocatedBlob   = Activate__GetAllocatedBlob,
+	.GetUnknown         = Activate__GetUnknown,
+	.SetItem            = Activate__SetItem,
+	.DeleteItem         = Activate__DeleteItem,
+	.DeleteAllItems     = Activate__DeleteAllItems,
+	.SetUINT32          = Activate__SetUINT32,
+	.SetUINT64          = Activate__SetUINT64,
+	.SetDouble          = Activate__SetDouble,
+	.SetGUID            = Activate__SetGUID,
+	.SetString          = Activate__SetString,
+	.SetBlob            = Activate__SetBlob,
+	.SetUnknown         = Activate__SetUnknown,
+	.LockStore          = Activate__LockStore,
+	.UnlockStore        = Activate__UnlockStore,
+	.GetCount           = Activate__GetCount,
+	.GetItemByIndex     = Activate__GetItemByIndex,
+	.CopyAllItems       = Activate__CopyAllItems,
 
 	// IMFActivate
-	.ActivateObject = IHoloCamActivate__ActivateObject,
-	.ShutdownObject = IHoloCamActivate__ShutdownObject,
-	.DetachObject   = IHoloCamActivate__DetachObject,
+	.ActivateObject = Activate__ActivateObject,
+	.ShutdownObject = Activate__ShutdownObject,
+	.DetachObject   = Activate__DetachObject,
 };
 
 HRESULT
-IHoloCamActivateFactory__QueryInterface(IClassFactory* this, REFIID riid, void** handle)
+ActivateFactory__QueryInterface(IClassFactory* this, REFIID riid, void** handle)
 {
 	HRESULT result;
 
 	if (handle == 0) result = E_POINTER;
-	else if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IClassFactory) && !IsEqualIID(riid, &IID_IHoloCamActivateFactory))
-	{
-		*handle = 0;
-		result  = E_NOINTERFACE;
-	}
 	else
 	{
-		*handle = this;
-		this->lpVtbl->AddRef(this);
-		result = S_OK;
+		*handle = 0;
+
+		if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IClassFactory) && !IsEqualIID(riid, &IID_ActivateFactory)) result = E_NOINTERFACE;
+		else
+		{
+			*handle = this;
+			this->lpVtbl->AddRef(this);
+			result = S_OK;
+		}
 	}
 
 	return result;
 }
 
 HRESULT
-IHoloCamActivateFactory__AddRef(IClassFactory* this)
+ActivateFactory__AddRef(IClassFactory* this)
 {
 	return 1;
 }
 
 HRESULT
-IHoloCamActivateFactory__Release(IClassFactory* this)
+ActivateFactory__Release(IClassFactory* this)
 {
 	return 1;
 }
 
-IHoloCamActivate HoloCamActivatePool[HOLO_MAX_CAMERA_COUNT];
-
 HRESULT
-IHoloCamActivateFactory__CreateInstance(IClassFactory* this, IUnknown* outer, REFIID id, void** handle)
+ActivateFactory__CreateInstance(IClassFactory* this, IUnknown* outer, REFIID id, void** handle)
 {
 	HRESULT result;
 
@@ -441,18 +463,25 @@ IHoloCamActivateFactory__CreateInstance(IClassFactory* this, IUnknown* outer, RE
 		else
 		{
 			u32 i = 0;
-			for (; i < ARRAY_LEN(HoloCamActivatePool); ++i)
+			for (; i < ARRAY_LEN(ActivatePool); ++i)
 			{
-				if (InterlockedCompareExchange(&HoloCamActivatePool[i].ref_count, 1, 0) == 0) break;
+				if (InterlockedCompareExchange(&ActivatePool[i].ref_count, 1, 0) == 0) break;
 			}
 
-			if (i >= ARRAY_LEN(HoloCamActivatePool)) result = E_FAIL;
+			if (i >= ARRAY_LEN(ActivatePool)) result = E_OUTOFMEMORY;
 			else
 			{
-				IHoloCamActivate* activate = &HoloCamActivatePool[i];
-				activate->lpVtbl = &IHoloCamActivate_Vtbl;
+				InterlockedIncrement(&ActivatePoolOccupancy);
 
-				if (!SUCCEEDED(MFCreateAttributes(&activate->attributes, 1))) result = E_FAIL;
+				Activate* activate = &ActivatePool[i];
+
+				activate->lpVtbl = &Activate_Vtbl;
+
+				if (!SUCCEEDED(MFCreateAttributes(&activate->attributes, 0)))
+				{
+					result = E_FAIL;
+					activate->lpVtbl->Release(activate);
+				}
 				else
 				{
 					result = activate->lpVtbl->QueryInterface(activate, id, handle);
@@ -466,18 +495,18 @@ IHoloCamActivateFactory__CreateInstance(IClassFactory* this, IUnknown* outer, RE
 }
 
 HRESULT
-IHoloCamActivateFactory__LockServer(IClassFactory* this, BOOL flock)
+ActivateFactory__LockServer(IClassFactory* this, BOOL flock)
 {
 	// TODO:
 	return E_NOTIMPL;
 }
 
-static IClassFactoryVtbl IHoloCamActivateFactoryVtbl = {
-	.QueryInterface = IHoloCamActivateFactory__QueryInterface,
-	.AddRef         = IHoloCamActivateFactory__AddRef,
-	.Release        = IHoloCamActivateFactory__Release,
-	.CreateInstance = IHoloCamActivateFactory__CreateInstance,
-	.LockServer     = IHoloCamActivateFactory__LockServer,
+static IClassFactoryVtbl ActivateFactoryVtbl = {
+	.QueryInterface = ActivateFactory__QueryInterface,
+	.AddRef         = ActivateFactory__AddRef,
+	.Release        = ActivateFactory__Release,
+	.CreateInstance = ActivateFactory__CreateInstance,
+	.LockServer     = ActivateFactory__LockServer,
 };
 
-static IClassFactory HoloCamActivateFactory = { &IHoloCamActivateFactoryVtbl };
+static IClassFactory ActivateFactory = { &ActivateFactoryVtbl };
