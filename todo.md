@@ -1,4 +1,2 @@
 - decide on a reasonable default for max number of virtual cameras
-- add registry keys
-- consider adding multiple video streams
-- audio streams
+- MediaSource__QueryInterface is called after ref count is decremented to 0 by Activate__Release

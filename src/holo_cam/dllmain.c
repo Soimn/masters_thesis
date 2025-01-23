@@ -90,7 +90,10 @@ typedef u8 bool;
 
 #define ALIGN(N, A) (((umm)(N) + ((umm)(A) + 1)) & (umm)-(smm)(A))
 
+#define BREAK_IF_FAILED(RESULT, CALL) { (RESULT) = (CALL); if (!SUCCEEDED((RESULT))) break; }
+
 #include "../holo_cam.h"
+#include "media_stream.h"
 #include "media_source.h"
 #include "activate.h"
 
@@ -104,16 +107,50 @@ DllMain(HINSTANCE module, DWORD reason, LPVOID _)
 		Module = module;
 		DisableThreadLibraryCalls(module);
 
-		for (umm i = 0; i < ARRAY_LEN(MediaSourcePool); ++i)
+		MediaStreamPoolOccupancy    = 0;
+		MediaStreamPoolFreeList     = &MediaStreamPool[0];
+		MediaStreamPoolFreeListLock = (SRWLOCK)SRWLOCK_INIT;
+		for (umm i = 0; i < ARRAY_LEN(MediaStreamPool); ++i)
 		{
-			MediaSourcePool[i] = (MediaSource){
-				.ref_count = 0,
-				.lock      = SRWLOCK_INIT,
+			MediaStreamPool[i] = (Media_Stream){
+				.lpVtbl = &MediaStream_Vtbl,
+				.lpKsControlVtbl = &MediaStream_KsControl_Vtbl,
+				.ref_count       = 0,
+				.lock            = SRWLOCK_INIT,
+				.next_free       = &MediaStreamPool[i+1],
 			};
 		}
+		MediaStreamPool[ARRAY_LEN(MediaStreamPool)-1].next_free = 0;
 
-		MediaSourcePoolOccupancy = 0;
+		MediaSourcePoolOccupancy    = 0;
+		MediaSourcePoolFreeList     = &MediaSourcePool[0];
+		MediaSourcePoolFreeListLock = (SRWLOCK)SRWLOCK_INIT;
+		for (umm i = 0; i < ARRAY_LEN(MediaSourcePool); ++i)
+		{
+			MediaSourcePool[i] = (Media_Source){
+				.lpVtbl                       = &MediaSource_Vtbl,
+				.lpGetServiceVtbl             = &MediaSource_GetService_Vtbl,
+				.lpSampleAllocatorControlVtbl = &MediaSource_SampleAllocatorControl_Vtbl,
+				.lpKsControlVtbl              = &MediaSource_KsControl_Vtbl,
+				.ref_count                    = 0,
+				.lock                         = SRWLOCK_INIT,
+				.next_free                    = &MediaSourcePool[i+1],
+			};
+		}
+		MediaSourcePool[ARRAY_LEN(MediaSourcePool)-1].next_free = 0;
+
 		ActivatePoolOccupancy    = 0;
+		ActivatePoolFreeList     = &ActivatePool[0];
+		ActivatePoolFreeListLock = (SRWLOCK)SRWLOCK_INIT;
+		for (umm i = 0; i < ARRAY_LEN(ActivatePool); ++i)
+		{
+			ActivatePool[i] = (Activate){
+				.lpVtbl    = &Activate_Vtbl,
+				.ref_count = 0,
+				.next_free = &ActivatePool[i+1],
+			};
+		}
+		ActivatePool[ARRAY_LEN(ActivatePool)-1].next_free = 0;
 	}
 
 	return TRUE;
@@ -134,7 +171,21 @@ DllGetClassObject(REFCLSID clsid, REFIID riid, void** factory_handle)
 HRESULT
 DllCanUnloadNow()
 {
-	return (MediaSourcePoolOccupancy > 0 || ActivatePoolOccupancy > 0 ? S_FALSE : S_OK);
+	bool can_unload = true;
+
+	AcquireSRWLockExclusive(&MediaStreamPoolFreeListLock);
+	can_unload = (can_unload && MediaStreamPoolOccupancy == 0);
+	ReleaseSRWLockExclusive(&MediaStreamPoolFreeListLock);
+
+	AcquireSRWLockExclusive(&MediaSourcePoolFreeListLock);
+	can_unload = (can_unload && MediaSourcePoolOccupancy == 0);
+	ReleaseSRWLockExclusive(&MediaSourcePoolFreeListLock);
+
+	AcquireSRWLockExclusive(&ActivatePoolFreeListLock);
+	can_unload = (can_unload && ActivatePoolOccupancy == 0);
+	ReleaseSRWLockExclusive(&ActivatePoolFreeListLock);
+
+	return (can_unload ? S_OK : S_FALSE);
 }
 
 #define REGISTRY_PATH L"Software\\Classes\\CLSID\\" CLSID_HOLOCAM_STRING

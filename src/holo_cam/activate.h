@@ -50,16 +50,33 @@ typedef struct ActivateVtbl
 	HRESULT (*DetachObject)   (Activate* this);
 } ActivateVtbl;
 
+typedef struct Activate_Dynamic_State
+{
+	IMFAttributes* attributes;
+	Media_Source* media_source;
+} Activate_Dynamic_State;
+
 typedef struct Activate
 {
+	// NOTE: Initialized by DllMain
 	ActivateVtbl* lpVtbl;
 	u32 ref_count;
-	IMFAttributes* attributes;
-	MediaSource* media_source;
+
+	union
+	{
+		// NOTE: free list link
+		struct Activate* next_free;
+
+		// NOTE: Initialized by ActivateFactory__CreateInstance
+		Activate_Dynamic_State dynamic_state;
+		struct Activate_Dynamic_State;
+	};
 } Activate;
 
-static Activate ActivatePool[HOLOCAM_MAX_CAMERA_COUNT] = {0};
-static s32 ActivatePoolOccupancy = 0;
+static Activate ActivatePool[HOLOCAM_MAX_CAMERA_COUNT];
+static Activate* ActivatePoolFreeList   = 0;
+static s32 ActivatePoolOccupancy        = 0;
+static SRWLOCK ActivatePoolFreeListLock = SRWLOCK_INIT;
 
 HRESULT
 Activate__QueryInterface(Activate* this, REFIID riid, void** handle)
@@ -111,7 +128,13 @@ Activate__Release(Activate* this)
 				this->media_source = 0;
 			}
 
-			InterlockedDecrement(&ActivatePoolOccupancy);
+			AcquireSRWLockExclusive(&ActivatePoolFreeListLock);
+			{
+				this->next_free = ActivatePoolFreeList;
+				ActivatePoolFreeList = this;
+				ActivatePoolOccupancy -= 1;
+			}
+			ReleaseSRWLockExclusive(&ActivatePoolFreeListLock);
 		}
 	}
 
@@ -308,47 +331,34 @@ Activate__ActivateObject(Activate* this, REFIID riid, void** ppv)
 	{
 		*ppv = 0;
 
-		MediaSource* media_source = 0;
-		for (umm i = 0; i < ARRAY_LEN(MediaSourcePool) && media_source == 0; ++i)
-		{
-			AcquireSRWLockExclusive(&MediaSourcePool[i].lock);
-			if (MediaSourcePool[i].ref_count == 0)
-			{
-				media_source = &MediaSourcePool[i];
-				media_source->ref_count = 1;
-			}
-			ReleaseSRWLockExclusive(&MediaSourcePool[i].lock);
-		}
+		if (this->media_source != 0) this->media_source->lpVtbl->Release(this->media_source);
 
-		if (media_source == 0) result = E_OUTOFMEMORY;
+		this->media_source = 0;
+		AcquireSRWLockExclusive(&MediaSourcePoolFreeListLock);
+		{
+			if (MediaSourcePoolFreeList != 0)
+			{
+				this->media_source = MediaSourcePoolFreeList;
+				MediaSourcePoolFreeList = MediaSourcePoolFreeList->next_free;
+				MediaSourcePoolOccupancy += 1;
+
+				this->media_source->ref_count     = 1;
+				this->media_source->dynamic_state = (Media_Source_Dynamic_State){0};
+			}
+		}
+		ReleaseSRWLockExclusive(&MediaSourcePoolFreeListLock);
+
+		if (this->media_source == 0) result = E_OUTOFMEMORY;
 		else
 		{
-			InterlockedIncrement(&MediaSourcePoolOccupancy);
-
-			if (this->media_source != 0) this->media_source->lpVtbl->Release(this->media_source);
-
-			this->media_source = media_source;
-			*this->media_source = (MediaSource){
-				.lpVtbl                       = &MediaSource_Vtbl,
-				.lpGetServiceVtbl             = &MediaSource_GetService_Vtbl,
-				.lpSampleAllocatorControlVtbl = &MediaSource_SampleAllocatorControl_Vtbl,
-				.lpKsControlVtbl              = &MediaSource_KsControl_Vtbl,
-				.ref_count                    = 1,
-				.lock                         = SRWLOCK_INIT,
-			};
-
-			result = MediaSource__Init(this->media_source);
-
-			if (SUCCEEDED(result))
+			do
 			{
-				result = this->media_source->lpVtbl->QueryInterface(this->media_source, riid, ppv);
-			}
+				BREAK_IF_FAILED(result, MediaSource__Init(this->media_source, this->attributes));
+				BREAK_IF_FAILED(result, this->media_source->lpVtbl->QueryInterface(this->media_source, riid, ppv));
+			} while (0);
 
-			if (!SUCCEEDED(result))
-			{
-				this->media_source->lpVtbl->Release(this->media_source);
-				this->media_source = 0;
-			}
+			this->media_source->lpVtbl->Release(this->media_source);
+			if (!SUCCEEDED(result)) this->media_source = 0;
 		}
 	}
 
@@ -462,31 +472,33 @@ ActivateFactory__CreateInstance(IClassFactory* this, IUnknown* outer, REFIID id,
 		if (outer != 0) result = CLASS_E_NOAGGREGATION;
 		else
 		{
-			u32 i = 0;
-			for (; i < ARRAY_LEN(ActivatePool); ++i)
+			Activate* activate = 0;
+			AcquireSRWLockExclusive(&ActivatePoolFreeListLock);
 			{
-				if (InterlockedCompareExchange(&ActivatePool[i].ref_count, 1, 0) == 0) break;
-			}
+				if (ActivatePoolFreeList != 0)
+				{
+					activate = ActivatePoolFreeList;
+					ActivatePoolFreeList = ActivatePoolFreeList->next_free;
+					ActivatePoolOccupancy += 1;
 
-			if (i >= ARRAY_LEN(ActivatePool)) result = E_OUTOFMEMORY;
+					activate->ref_count = 1;
+					activate->dynamic_state = (Activate_Dynamic_State){0};
+				}
+			}
+			ReleaseSRWLockExclusive(&ActivatePoolFreeListLock);
+
+			if (activate == 0) result = E_OUTOFMEMORY;
 			else
 			{
-				InterlockedIncrement(&ActivatePoolOccupancy);
-
-				Activate* activate = &ActivatePool[i];
-
-				activate->lpVtbl = &Activate_Vtbl;
-
-				if (!SUCCEEDED(MFCreateAttributes(&activate->attributes, 0)))
+				do
 				{
-					result = E_FAIL;
-					activate->lpVtbl->Release(activate);
-				}
-				else
-				{
-					result = activate->lpVtbl->QueryInterface(activate, id, handle);
-					activate->lpVtbl->Release(activate);
-				}
+					BREAK_IF_FAILED(result, MFCreateAttributes(&activate->attributes, 2));
+					BREAK_IF_FAILED(result, IMFAttributes_SetUINT32(activate->attributes, &MF_VIRTUALCAMERA_PROVIDE_ASSOCIATED_CAMERA_SOURCES, 1));
+					BREAK_IF_FAILED(result, IMFAttributes_SetGUID(activate->attributes, &MFT_TRANSFORM_CLSID_Attribute, &CLSID_HOLOCAM));
+					BREAK_IF_FAILED(result, activate->lpVtbl->QueryInterface(activate, id, handle));
+				} while (0);
+
+				activate->lpVtbl->Release(activate);
 			}
 		}
 	}
