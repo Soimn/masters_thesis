@@ -221,7 +221,7 @@ MediaSource__ReleaseChildren(Media_Source* this)
 
 	for (umm i = 0; i < this->streams_len; ++i)
 	{
-		this->streams[i]->lpVtbl->Release(this->streams[i]);
+		if (this->streams[i] != 0) this->streams[i]->lpVtbl->Release(this->streams[i]);
 		this->streams[i] = 0;
 	}
 }
@@ -404,7 +404,18 @@ MediaSource__GetStreamAttributes(Media_Source* this, DWORD dwStreamIdentifier, I
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (ppAttributes == 0) result = E_NOTIMPL;
+	else
+	{
+		*ppAttributes = 0;
+
+		AcquireSRWLockExclusive(&this->lock);
+
+		if (dwStreamIdentifier >= this->streams_len) result = E_FAIL;
+		else                                         result = IMFAttributes_QueryInterface(this->streams[dwStreamIdentifier]->attributes, &IID_IMFAttributes, ppAttributes);
+
+		ReleaseSRWLockExclusive(&this->lock);
+	}
 
 	return result;
 }
@@ -440,7 +451,7 @@ MediaSource_SampleAllocatorControl__SetDefaultAllocator(void* raw_this, DWORD dw
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	result = ERROR_SET_NOT_FOUND;
 
 	return result;
 }
@@ -450,7 +461,8 @@ MediaSource_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (BytesReturned == 0) result = E_POINTER;
+	else                   	result = ERROR_SET_NOT_FOUND;
 
 	return result;
 }
@@ -460,7 +472,8 @@ MediaSource_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLe
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (Method == 0 || BytesReturned == 0) result = E_POINTER;
+	else                                   result = ERROR_SET_NOT_FOUND;
 
 	return result;
 }
@@ -470,7 +483,8 @@ MediaSource_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG Pr
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (Property == 0 || BytesReturned == 0) result = E_POINTER;
+	else                                     result = ERROR_SET_NOT_FOUND;
 
 	return result;
 }
