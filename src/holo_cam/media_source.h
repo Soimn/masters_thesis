@@ -322,12 +322,24 @@ MediaSource__GetEvent(Media_Source* this, DWORD dwFlags, IMFMediaEvent** ppEvent
 	{
 		*ppEvent = 0;
 
+		IMFMediaEventQueue* event_queue = 0;
+
 		AcquireSRWLockExclusive(&this->lock);
 
 		if (this->event_queue == 0) result = MF_E_SHUTDOWN;
-		else                        result = IMFMediaEventQueue_GetEvent(this->event_queue, dwFlags, ppEvent);
+		else
+		{
+			result = IMFMediaEventQueue_QueryInterface(this->event_queue, &IID_IMFMediaEventQueue, &event_queue);
+		}
 
 		ReleaseSRWLockExclusive(&this->lock);
+
+		if (SUCCEEDED(result))
+		{
+			result = IMFMediaEventQueue_GetEvent(event_queue, dwFlags, ppEvent);
+		}
+
+		if (event_queue != 0) IMFMediaEventQueue_Release(event_queue);
 	}
 
 	return result;
@@ -488,7 +500,7 @@ MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationD
 						BREAK_IF_FAILED(result, MediaSource__GetStreamIndexFromIdentifier(this, id, &idx));
 
 						BOOL was_selected = FALSE;
-						BREAK_IF_FAILED(result, IMFPresentationDescriptor_GetStreamDescriptorByIndex(pPresentationDescriptor, idx, &was_selected, &old_descriptor));
+						BREAK_IF_FAILED(result, IMFPresentationDescriptor_GetStreamDescriptorByIndex(this->presentation_descriptor, idx, &was_selected, &old_descriptor));
 
 						if (is_selected)
 						{
@@ -501,10 +513,10 @@ MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationD
 							BREAK_IF_FAILED(result, this->streams[idx]->lpVtbl->QueryInterface(this->streams[idx], &IID_IUnknown, &stream_unknown));
 							BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamUnk(this->event_queue, (was_selected ? MEUpdatedStream : MENewStream), 0, S_OK, stream_unknown));
 						}
-						else
+						else if (was_selected)
 						{
 							BREAK_IF_FAILED(result, IMFPresentationDescriptor_DeselectStream(this->presentation_descriptor, idx));
-							BREAK_IF_FAILED(result, MediaStream__Stop(this->streams[idx]));
+							BREAK_IF_FAILED(result, MediaStream__Stop(this->streams[idx], false));
 						}
 					} while (0);
 
@@ -541,7 +553,7 @@ MediaSource__Stop(Media_Source* this)
 		result = S_OK;
 		for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
 		{
-			result = MediaStream__Stop(this->streams[i]);
+			result = MediaStream__Stop(this->streams[i], true);
 			if (SUCCEEDED(result))
 			{
 				result = IMFPresentationDescriptor_DeselectStream(this->presentation_descriptor, i);
@@ -796,7 +808,7 @@ MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 
 			for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
 			{
-				result = MediaStream__Init(this->streams[i], i);
+				result = MediaStream__Init(this->streams[i], i, this);
 			}
 
 			if (!SUCCEEDED(result)) break;

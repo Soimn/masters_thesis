@@ -13,6 +13,9 @@
 #include <mfvirtualcamera.h>
 #include <mferror.h>
 #include <ks.h>
+#include <dxgi.h>
+#include <d3d11.h>
+#include <d2d1_1.h>
 
 // NOTE: ksproxy.h for C is broken, this (definition from devicetopology.h) needs to be defined first to override the broken definition
 #define _IKsControl_
@@ -92,7 +95,10 @@ typedef u8 bool;
 
 #define BREAK_IF_FAILED(RESULT, CALL) { (RESULT) = (CALL); if (!SUCCEEDED((RESULT))) break; }
 
+#define U64_HI_LO(HI, LO) (((u64)(HI) << 32) | (u64)(LO))
+
 #include "../holo_cam.h"
+#include "frame_generator.h"
 #include "media_stream.h"
 #include "media_source.h"
 #include "activate.h"

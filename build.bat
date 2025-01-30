@@ -29,7 +29,7 @@ if "%2" neq "" goto invalid_arguments
 
 cl %compile_options% ..\src\example.c /link %link_options% /pdb:holo_example.pdb /out:holo_example.exe
 
-cl /LD /nologo /W3 ..\src\holo_cam\dllmain.c /Od /Zo /Z7 /RTC1 /MTd /DHOLO_DEBUG#1 /link /DEF:..\src\holo_cam\holo_cam.def /incremental:no /opt:ref libucrtd.lib libvcruntimed.lib user32.lib ole32.lib mf.lib mfplat.lib mfuuid.lib mfreadwrite.lib mfsensorgroup.lib advapi32.lib /pdb:holo_cam.pdb /out:holo_cam.dll
+cl /LD /nologo /W3 ..\src\holo_cam\dllmain.c /Od /Zo /Z7 /RTC1 /MTd /DHOLO_DEBUG#1 /link /DEF:..\src\holo_cam\holo_cam.def /incremental:no /opt:ref libucrtd.lib libvcruntimed.lib user32.lib ole32.lib mf.lib mfplat.lib mfuuid.lib mfreadwrite.lib mfsensorgroup.lib advapi32.lib d2d1.lib /pdb:holo_cam.pdb /out:holo_cam.dll
 
 goto end
 
