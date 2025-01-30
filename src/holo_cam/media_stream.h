@@ -40,6 +40,7 @@ typedef struct Media_Stream_Dynamic_State
 	IMFAttributes* attributes;
 	IMFMediaEventQueue* event_queue;
 	IMFStreamDescriptor* stream_descriptor;
+	MF_STREAM_STATE stream_state;
 } Media_Stream_Dynamic_State;
 
 typedef struct Media_Stream
@@ -60,6 +61,9 @@ typedef struct Media_Stream
 		struct Media_Stream_Dynamic_State;
 	};
 } Media_Stream;
+
+HRESULT MediaStream__Stop(Media_Stream* this);
+HRESULT MediaStream__Start(Media_Stream* this, IMFMediaType* media_type);
 
 // NOTE: Initialized by DllMain
 static Media_Stream MediaStreamPool[HOLOCAM_MAX_CAMERA_COUNT*HOLOCAM_MAX_CAMERA_STREAM_COUNT];
@@ -254,7 +258,32 @@ MediaStream__SetStreamState(Media_Stream* this, MF_STREAM_STATE value)
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	AcquireSRWLockExclusive(&this->lock);
+
+	if (this->stream_state == value) result = S_OK;
+	else
+	{
+		if (value == MF_STREAM_STATE_PAUSED)
+		{
+			if (this->stream_state != MF_STREAM_STATE_RUNNING) result = MF_E_INVALID_STATE_TRANSITION;
+			else
+			{
+				this->stream_state = value;
+				result = S_OK;
+			}
+		}
+		else if (value == MF_STREAM_STATE_RUNNING)
+		{
+			result = MediaStream__Start(this, 0);
+		}
+		else if (value == MF_STREAM_STATE_STOPPED)
+		{
+			result = MediaStream__Stop(this);
+		}
+		else result = MF_E_INVALID_STATE_TRANSITION;
+	}
+
+	ReleaseSRWLockExclusive(&this->lock);
 
 	return result;
 }
@@ -264,7 +293,15 @@ MediaStream__GetStreamState(Media_Stream* this, MF_STREAM_STATE* value)
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (value == 0) result = E_POINTER;
+	else
+	{
+		AcquireSRWLockExclusive(&this->lock);
+
+		*value = this->stream_state;
+
+		ReleaseSRWLockExclusive(&this->lock);
+	}
 
 	return result;
 }
@@ -274,7 +311,8 @@ MediaStream_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (BytesReturned == 0) result = E_POINTER;
+	else                   	result = ERROR_SET_NOT_FOUND;
 
 	return result;
 }
@@ -284,7 +322,8 @@ MediaStream_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLe
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (Method == 0 || BytesReturned == 0) result = E_POINTER;
+	else                                   result = ERROR_SET_NOT_FOUND;
 
 	return result;
 }
@@ -294,7 +333,8 @@ MediaStream_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG Pr
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (Property == 0 || BytesReturned == 0) result = E_POINTER;
+	else                                     result = ERROR_SET_NOT_FOUND;
 
 	return result;
 }
@@ -367,6 +407,59 @@ MediaStream__Init(Media_Stream* this, u32 index)
 
 	if (media_type != 0) IMFMediaType_Release(media_type);
 	if (handler != 0) IMFMediaTypeHandler_Release(handler);
+
+	return result;
+}
+
+HRESULT
+MediaStream__Start(Media_Stream* this, IMFMediaType* media_type)
+{
+	HRESULT result;
+
+	result = E_NOTIMPL;
+
+	return result;
+}
+
+HRESULT
+MediaStream__Stop(Media_Stream* this)
+{
+	HRESULT result;
+
+	result = E_NOTIMPL;
+
+	return result;
+}
+
+void
+MediaStream__Shutdown(Media_Stream* this)
+{
+	// NOTE: Consider logging result
+	if (this->event_queue != 0) IMFMediaEventQueue_Shutdown(this->event_queue);
+
+	MediaStream__ReleaseChildren(this);
+}
+
+HRESULT
+MediaStream__SetD3DManager(Media_Stream* this, IUnknown* manager)
+{
+	HRESULT result;
+
+	if (manager == 0) result = E_POINTER;
+	else
+	{
+		result = E_NOTIMPL;
+	}
+
+	return result;
+}
+
+HRESULT
+MediaStream__SetAllocator(Media_Stream* this, IUnknown* allocator)
+{
+	HRESULT result;
+
+	result = E_NOTIMPL;
 
 	return result;
 }

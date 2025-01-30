@@ -281,7 +281,12 @@ MediaSource__BeginGetEvent(Media_Source* this, IMFAsyncCallback* pCallback, IUnk
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	AcquireSRWLockExclusive(&this->lock);
+
+	if (this->event_queue == 0) result = MF_E_SHUTDOWN;
+	else                        result = IMFMediaEventQueue_BeginGetEvent(this->event_queue, pCallback, punkState);
+
+	ReleaseSRWLockExclusive(&this->lock);
 
 	return result;
 }
@@ -291,7 +296,18 @@ MediaSource__EndGetEvent(Media_Source* this, IMFAsyncResult* pResult, IMFMediaEv
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (ppEvent == 0) result = E_POINTER;
+	else
+	{
+		*ppEvent = 0;
+
+		AcquireSRWLockExclusive(&this->lock);
+
+		if (this->event_queue == 0) result = MF_E_SHUTDOWN;
+		else                        result = IMFMediaEventQueue_EndGetEvent(this->event_queue, pResult, ppEvent);
+
+		ReleaseSRWLockExclusive(&this->lock);
+	}
 
 	return result;
 }
@@ -301,7 +317,18 @@ MediaSource__GetEvent(Media_Source* this, DWORD dwFlags, IMFMediaEvent** ppEvent
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (ppEvent == 0) result = E_POINTER;
+	else
+	{
+		*ppEvent = 0;
+
+		AcquireSRWLockExclusive(&this->lock);
+
+		if (this->event_queue == 0) result = MF_E_SHUTDOWN;
+		else                        result = IMFMediaEventQueue_GetEvent(this->event_queue, dwFlags, ppEvent);
+
+		ReleaseSRWLockExclusive(&this->lock);
+	}
 
 	return result;
 }
@@ -311,7 +338,12 @@ MediaSource__QueueEvent(Media_Source* this, MediaEventType met, REFGUID guidExte
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	AcquireSRWLockExclusive(&this->lock);
+
+	if (this->event_queue == 0) result = MF_E_SHUTDOWN;
+	else                        result = IMFMediaEventQueue_QueueEventParamVar(this->event_queue, met, guidExtendedType, hrStatus, pvValue);
+
+	ReleaseSRWLockExclusive(&this->lock);
 
 	return result;
 }
@@ -342,7 +374,13 @@ MediaSource__GetCharacteristics(Media_Source* this, DWORD* pdwCharacteristics)
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (pdwCharacteristics == 0) result = E_POINTER;
+	else
+	{
+		*pdwCharacteristics = MFMEDIASOURCE_IS_LIVE;
+
+		result = S_OK;
+	}
 
 	return result;
 }
@@ -356,7 +394,57 @@ MediaSource__Pause(Media_Source* this)
 HRESULT
 MediaSource__Shutdown(Media_Source* this)
 {
-	return E_NOTIMPL;
+	HRESULT result;
+
+	AcquireSRWLockExclusive(&this->lock);
+
+	// NOTE: These should be 0 ONLY when the camera has shutdown
+	if (this->event_queue == 0 || this->presentation_descriptor == 0) result = MF_E_SHUTDOWN;
+	else
+	{
+		// NOTE: consider logging result
+		IMFMediaEventQueue_Shutdown(this->event_queue);
+
+		for (u32 i = 0; i < this->streams_len; ++i) MediaStream__Shutdown(this->streams[i]);
+
+		MediaSource__ReleaseChildren(this);
+
+		result = S_OK;
+	}
+
+	ReleaseSRWLockExclusive(&this->lock);
+
+	return result;
+}
+
+// NOTE: Lock must be held when calling this
+HRESULT
+MediaSource__GetStreamIndexFromIdentifier(Media_Source* this, DWORD identifier, u32* index)
+{
+	HRESULT result = E_FAIL;
+
+	for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
+	{
+		DWORD id;
+
+		IMFStreamDescriptor* stream_descriptor = 0;
+
+		do
+		{
+			BREAK_IF_FAILED(result, this->streams[i]->lpVtbl->GetStreamDescriptor(this->streams[i], &stream_descriptor));
+			BREAK_IF_FAILED(result, IMFStreamDescriptor_GetStreamIdentifier(stream_descriptor, &id));
+		} while (0);
+
+		if (stream_descriptor != 0) IMFStreamDescriptor_Release(stream_descriptor);
+
+		if (SUCCEEDED(result) && id == identifier)
+		{
+			*index = i;
+			break;
+		}
+	}
+
+	return result;
 }
 
 HRESULT
@@ -364,7 +452,76 @@ MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationD
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if      (pPresentationDescriptor == 0 || pvarStartPosition == 0)           result = E_POINTER;
+	else if (pguidTimeFormat != 0 && !IsEqualIID(pguidTimeFormat, &GUID_NULL)) result = E_INVALIDARG;
+	else
+	{
+		AcquireSRWLockExclusive(&this->lock);
+
+		if (this->event_queue == 0 || this->presentation_descriptor == 0) result = MF_E_SHUTDOWN;
+		else
+		{
+			PROPVARIANT time = { .vt = VT_I8,  .hVal.QuadPart = MFGetSystemTime() };
+			do
+			{
+				DWORD stream_descriptor_count;
+				BREAK_IF_FAILED(result, IMFPresentationDescriptor_GetStreamDescriptorCount(pPresentationDescriptor, &stream_descriptor_count));
+				BREAK_IF_FAILED(result, (stream_descriptor_count == this->streams_len ? S_OK : E_INVALIDARG));
+
+				for (u32 i = 0; i < stream_descriptor_count && SUCCEEDED(result); ++i)
+				{
+					IMFStreamDescriptor* descriptor     = 0;
+					IMFStreamDescriptor* old_descriptor = 0;
+					IMFMediaTypeHandler* type_handler   = 0;
+					IMFMediaType* type                  = 0;
+					IUnknown* stream_unknown            = 0;
+					
+					do
+					{
+						BOOL is_selected = FALSE;
+						BREAK_IF_FAILED(result, IMFPresentationDescriptor_GetStreamDescriptorByIndex(pPresentationDescriptor, i, &is_selected, &descriptor));
+
+						DWORD id = 0;
+						BREAK_IF_FAILED(result, IMFStreamDescriptor_GetStreamIdentifier(descriptor, &id));
+
+						u32 idx = 0;
+						BREAK_IF_FAILED(result, MediaSource__GetStreamIndexFromIdentifier(this, id, &idx));
+
+						BOOL was_selected = FALSE;
+						BREAK_IF_FAILED(result, IMFPresentationDescriptor_GetStreamDescriptorByIndex(pPresentationDescriptor, idx, &was_selected, &old_descriptor));
+
+						if (is_selected)
+						{
+							BREAK_IF_FAILED(result, IMFPresentationDescriptor_SelectStream(this->presentation_descriptor, idx));
+
+							BREAK_IF_FAILED(result, IMFStreamDescriptor_GetMediaTypeHandler(descriptor, &type_handler));
+							BREAK_IF_FAILED(result, IMFMediaTypeHandler_GetCurrentMediaType(type_handler, &type));
+							BREAK_IF_FAILED(result, MediaStream__Start(this->streams[idx], type));
+
+							BREAK_IF_FAILED(result, this->streams[idx]->lpVtbl->QueryInterface(this->streams[idx], &IID_IUnknown, &stream_unknown));
+							BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamUnk(this->event_queue, (was_selected ? MEUpdatedStream : MENewStream), 0, S_OK, stream_unknown));
+						}
+						else
+						{
+							BREAK_IF_FAILED(result, IMFPresentationDescriptor_DeselectStream(this->presentation_descriptor, idx));
+							BREAK_IF_FAILED(result, MediaStream__Stop(this->streams[idx]));
+						}
+					} while (0);
+
+					if (descriptor     != 0) IMFStreamDescriptor_Release(descriptor);
+					if (old_descriptor != 0) IMFStreamDescriptor_Release(old_descriptor);
+					if (type_handler   != 0) IMFMediaTypeHandler_Release(type_handler);
+					if (type           != 0) IMFMediaType_Release(type);
+					if (stream_unknown != 0) IUnknown_Release(stream_unknown);
+				}
+				if (!SUCCEEDED(result)) break;
+				
+				BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MESourceStarted, 0, S_OK, &time));
+			} while (0);
+		}
+
+		ReleaseSRWLockExclusive(&this->lock);
+	}
 
 	return result;
 }
@@ -374,7 +531,30 @@ MediaSource__Stop(Media_Source* this)
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	AcquireSRWLockExclusive(&this->lock);
+
+	if (this->event_queue == 0 || this->presentation_descriptor == 0) result = MF_E_SHUTDOWN;
+	else
+	{
+		PROPVARIANT time = { .vt = VT_I8,  .hVal.QuadPart = MFGetSystemTime() };
+
+		result = S_OK;
+		for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
+		{
+			result = MediaStream__Stop(this->streams[i]);
+			if (SUCCEEDED(result))
+			{
+				result = IMFPresentationDescriptor_DeselectStream(this->presentation_descriptor, i);
+			}
+		}
+
+		if (SUCCEEDED(result))
+		{
+			result = IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MESourceStopped, 0, S_OK, &time);
+		}
+	}
+
+	ReleaseSRWLockExclusive(&this->lock);
 
 	return result;
 }
@@ -404,7 +584,7 @@ MediaSource__GetStreamAttributes(Media_Source* this, DWORD dwStreamIdentifier, I
 {
 	HRESULT result;
 
-	if (ppAttributes == 0) result = E_NOTIMPL;
+	if (ppAttributes == 0) result = E_POINTER;
 	else
 	{
 		*ppAttributes = 0;
@@ -425,7 +605,24 @@ MediaSource__SetD3DManager(Media_Source* this, IUnknown* pManager)
 {
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (pManager == 0) result = E_POINTER;
+	else
+	{
+		AcquireSRWLockExclusive(&this->lock);
+
+		// NOTE: stream pointers are ONLY 0 when the camera has shutdown
+		if (this->streams_len > 0 && this->streams[0] == 0) result = MF_E_SHUTDOWN;
+		else
+		{
+			result = S_OK;
+			for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
+			{
+				result = MediaStream__SetD3DManager(this->streams[i], pManager);
+			}
+		}
+
+		ReleaseSRWLockExclusive(&this->lock);
+	}
 
 	return result;
 }
@@ -439,9 +636,24 @@ MediaSource_GetService__GetService(void* raw_this, REFGUID guidService, REFIID r
 HRESULT
 MediaSource_SampleAllocatorControl__GetAllocatorUsage(void* raw_this, DWORD dwOutputStreamID, DWORD* pdwInputStreamID, MFSampleAllocatorUsage* peUsage)
 {
+	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, SampleAllocatorControl);
 	HRESULT result;
 
-	result = E_NOTIMPL;
+	if (pdwInputStreamID == 0 || peUsage == 0) result = E_POINTER;
+	else
+	{
+		AcquireSRWLockExclusive(&this->lock);
+
+		u32 idx;
+		result = MediaSource__GetStreamIndexFromIdentifier(this, dwOutputStreamID, &idx);
+		if (SUCCEEDED(result))
+		{
+			*pdwInputStreamID = dwOutputStreamID;
+			peUsage           = MFSampleAllocatorUsage_UsesProvidedAllocator;
+		}
+
+		ReleaseSRWLockExclusive(&this->lock);
+	}
 
 	return result;
 }
@@ -449,9 +661,23 @@ MediaSource_SampleAllocatorControl__GetAllocatorUsage(void* raw_this, DWORD dwOu
 HRESULT
 MediaSource_SampleAllocatorControl__SetDefaultAllocator(void* raw_this, DWORD dwOutputStreamID, IUnknown* pAllocator)
 {
+	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, SampleAllocatorControl);
 	HRESULT result;
 
-	result = ERROR_SET_NOT_FOUND;
+	if (pAllocator == 0) result = E_POINTER;
+	else
+	{
+		AcquireSRWLockExclusive(&this->lock);
+
+		u32 idx;
+		result = MediaSource__GetStreamIndexFromIdentifier(this, dwOutputStreamID, &idx);
+		if (SUCCEEDED(result))
+		{
+			result = MediaStream__SetAllocator(this->streams[idx], pAllocator);
+		}
+
+		ReleaseSRWLockExclusive(&this->lock);
+	}
 
 	return result;
 }

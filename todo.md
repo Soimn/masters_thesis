@@ -1,2 +1,4 @@
 - decide on a reasonable default for max number of virtual cameras
 - MediaSource__QueryInterface is called after ref count is decremented to 0 by Activate__Release
+- GetEvent can block indefinitely
+- Make sure MediaStream__Start and MediaStream__Stop work when double starting/stopping

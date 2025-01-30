@@ -39,6 +39,8 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 
 			result = IMFVirtualCamera_Start(cam, 0);
 
+			IMFVirtualCamera_Release(cam);
+
 			MFShutdown();
 		}
 
