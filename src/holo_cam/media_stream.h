@@ -41,7 +41,7 @@ typedef struct MediaStream_KsControlVtbl
 
 typedef struct Media_Source Media_Source;
 HRESULT MediaSource__QueryInterface(Media_Source* this, REFIID riid, void** ppvObject);
-ULONG MediaSource__Release(Media_Source* this);
+//ULONG MediaSource__Release(Media_Source* this);
 
 typedef struct Media_Stream_Dynamic_State
 {
@@ -52,7 +52,8 @@ typedef struct Media_Stream_Dynamic_State
 	Media_Source* parent;
 	IMFVideoSampleAllocatorEx* sample_allocator;
 	GUID format;
-	Frame_Generator frame_generator;
+	u32 width;
+	u32 height;
 } Media_Stream_Dynamic_State;
 
 typedef struct Media_Stream
@@ -88,6 +89,7 @@ static SRWLOCK MediaStreamPoolFreeListLock   = SRWLOCK_INIT;
 HRESULT
 MediaStream__QueryInterface(Media_Stream* this, REFIID riid, void** handle)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (handle == 0) result = E_POINTER;
@@ -119,6 +121,7 @@ MediaStream__QueryInterface(Media_Stream* this, REFIID riid, void** handle)
 HRESULT
 MediaStream_KsControl__QueryInterface(void* raw_this, REFIID riid, void** handle)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Stream* this = MEDIASTREAM_ADJ_THIS(raw_this, KsControl);
 	return this->lpVtbl->QueryInterface(this, riid, handle);
 }
@@ -126,6 +129,7 @@ MediaStream_KsControl__QueryInterface(void* raw_this, REFIID riid, void** handle
 ULONG
 MediaStream__AddRef(Media_Stream* this)
 {
+	LOG_FUNCTION_ENTRY();
 	AcquireSRWLockExclusive(&this->lock);
 	this->ref_count += 1;
 	u32 ref_count = this->ref_count;
@@ -137,6 +141,7 @@ MediaStream__AddRef(Media_Stream* this)
 HRESULT
 MediaStream_KsControl__AddRef(void* raw_this)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Stream* this = MEDIASTREAM_ADJ_THIS(raw_this, KsControl);
 	return this->lpVtbl->AddRef(this);
 }
@@ -145,6 +150,7 @@ MediaStream_KsControl__AddRef(void* raw_this)
 void
 MediaStream__ReleaseChildren(Media_Stream* this)
 {
+	LOG_FUNCTION_ENTRY();
 	if (this->attributes != 0)
 	{
 		IMFAttributes_Release(this->attributes);
@@ -163,24 +169,17 @@ MediaStream__ReleaseChildren(Media_Stream* this)
 		this->stream_descriptor = 0;
 	}
 
-	if (this->parent != 0)
-	{
-		MediaSource__Release(this->parent);
-		this->parent = 0;
-	}
-
 	if (this->sample_allocator != 0)
 	{
 		IMFVideoSampleAllocatorEx_Release(this->sample_allocator);
 		this->sample_allocator = 0;
 	}
-
-	FrameGenerator_Teardown(&this->frame_generator);
 }
 
 ULONG
 MediaStream__Release(Media_Stream* this)
 {
+	LOG_FUNCTION_ENTRY();
 	AcquireSRWLockExclusive(&this->lock);
 
 	if (this->ref_count > 0)
@@ -210,6 +209,7 @@ MediaStream__Release(Media_Stream* this)
 ULONG
 MediaStream_KsControl__Release(void* raw_this)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Stream* this = MEDIASTREAM_ADJ_THIS(raw_this, KsControl);
 	return this->lpVtbl->Release(this);
 }
@@ -217,6 +217,7 @@ MediaStream_KsControl__Release(void* raw_this)
 HRESULT
 MediaStream__GetEvent(Media_Stream* this, DWORD dwFlags, IMFMediaEvent** ppEvent)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (ppEvent == 0) result = E_POINTER;
@@ -250,6 +251,7 @@ MediaStream__GetEvent(Media_Stream* this, DWORD dwFlags, IMFMediaEvent** ppEvent
 HRESULT
 MediaStream__BeginGetEvent(Media_Stream* this, IMFAsyncCallback* pCallback, IUnknown* punkState)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -265,6 +267,7 @@ MediaStream__BeginGetEvent(Media_Stream* this, IMFAsyncCallback* pCallback, IUnk
 HRESULT
 MediaStream__EndGetEvent(Media_Stream* this, IMFAsyncResult* pResult, IMFMediaEvent** ppEvent)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (ppEvent == 0) result = E_POINTER;
@@ -286,6 +289,7 @@ MediaStream__EndGetEvent(Media_Stream* this, IMFAsyncResult* pResult, IMFMediaEv
 HRESULT
 MediaStream__QueueEvent(Media_Stream* this, MediaEventType met, REFGUID guidExtendedType, HRESULT hrStatus, const PROPVARIANT* pvValue)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -301,6 +305,7 @@ MediaStream__QueueEvent(Media_Stream* this, MediaEventType met, REFGUID guidExte
 HRESULT
 MediaStream__GetMediaSource(Media_Stream* this, IMFMediaSource** ppMediaSource)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (ppMediaSource == 0) result = E_POINTER;
@@ -318,6 +323,7 @@ MediaStream__GetMediaSource(Media_Stream* this, IMFMediaSource** ppMediaSource)
 HRESULT
 MediaStream__GetStreamDescriptor(Media_Stream* this, IMFStreamDescriptor** ppStreamDescriptor)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (ppStreamDescriptor == 0) result = E_POINTER;
@@ -337,34 +343,71 @@ MediaStream__GetStreamDescriptor(Media_Stream* this, IMFStreamDescriptor** ppStr
 HRESULT
 MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	AcquireSRWLockExclusive(&this->lock);
 
-	if (this->sample_allocator == 0 || this->event_queue == 0) result = MF_E_SHUTDOWN;
+	if      (this->sample_allocator == 0 || this->event_queue == 0) result = MF_E_SHUTDOWN;
+	else if (this->stream_state != MF_STREAM_STATE_RUNNING)         result = MF_E_INVALIDREQUEST;
 	else
 	{
-		IMFSample* sample           = 0;
-		IMFSample* generated_sample = 0;
+		IMFSample* sample            = 0;
+		IMFMediaBuffer* media_buffer = 0;
+		IMF2DBuffer2* buffer         = 0;
 
 		do
 		{
 			BREAK_IF_FAILED(result, IMFVideoSampleAllocatorEx_AllocateSample(this->sample_allocator, &sample));
+
+			BREAK_IF_FAILED(result, IMFSample_GetBufferByIndex(sample, 0, &media_buffer));
+			BREAK_IF_FAILED(result, IMFMediaBuffer_QueryInterface(media_buffer, &IID_IMF2DBuffer2, &buffer));
+
+			BYTE* data       = 0;
+			LONG pitch       = 0;
+			BYTE* data_start = 0;
+			DWORD data_len   = 0;
+			BREAK_IF_FAILED(result, IMF2DBuffer2_Lock2DSize(buffer, MF2DBuffer_LockFlags_Write, &data, &pitch, &data_start, &data_len));
+
+			if (IsEqualGUID(&this->format, &MFVideoFormat_NV12))
+			{
+				// TODO
+			}
+			else
+			{
+				u32 abs_pitch = (pitch < 0 ? -pitch : pitch);
+				if (abs_pitch < this->width || data_len < abs_pitch*this->height)
+				{
+					result = ERROR_INSUFFICIENT_BUFFER;
+					break;
+				}
+
+				for (u32 j = 0; j < this->height; ++j)
+				{
+					u32* line = (u32*)(data + j*pitch);
+					for (u32 i = 0; i < this->width; ++i)
+					{
+						line[i] = (i % 2 == 0 ? 0 : 0xFF00FF);
+					}
+				}
+			}
+
+			BREAK_IF_FAILED(result, IMF2DBuffer2_Unlock2D(buffer));
+
 			BREAK_IF_FAILED(result, IMFSample_SetSampleTime(sample, MFGetSystemTime()));
 			BREAK_IF_FAILED(result, IMFSample_SetSampleDuration(sample, 10000000LL/TEMP_FPS));
 
-			BREAK_IF_FAILED(result, FrameGenerator_Generate(&this->frame_generator, sample, &this->format, &generated_sample));
-
 			if (pToken != 0)
 			{
-				BREAK_IF_FAILED(result, IMFSample_SetUnknown(generated_sample, &MFSampleExtension_Token, pToken));
+				BREAK_IF_FAILED(result, IMFSample_SetUnknown(sample, &MFSampleExtension_Token, pToken));
 			}
 
-			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamUnk(this->event_queue, MEMediaSample, 0, S_OK, (IUnknown*)generated_sample));
+			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamUnk(this->event_queue, MEMediaSample, 0, S_OK, (IUnknown*)sample));
 		} while (0);
 
-		if (sample           != 0) IMFSample_Release(sample);
-		if (generated_sample != 0) IMFSample_Release(generated_sample);
+		if (buffer       != 0) IMF2DBuffer2_Release(buffer);
+		if (media_buffer != 0) IMFMediaBuffer_Release(media_buffer);
+		if (sample       != 0) IMFSample_Release(sample);
 	}
 
 	ReleaseSRWLockExclusive(&this->lock);
@@ -375,6 +418,7 @@ MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 HRESULT
 MediaStream__SetStreamState(Media_Stream* this, MF_STREAM_STATE value)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -410,6 +454,7 @@ MediaStream__SetStreamState(Media_Stream* this, MF_STREAM_STATE value)
 HRESULT
 MediaStream__GetStreamState(Media_Stream* this, MF_STREAM_STATE* value)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (value == 0) result = E_POINTER;
@@ -428,6 +473,7 @@ MediaStream__GetStreamState(Media_Stream* this, MF_STREAM_STATE* value)
 HRESULT
 MediaStream_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength, void* EventData, ULONG DataLength, ULONG* BytesReturned)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (BytesReturned == 0) result = E_POINTER;
@@ -439,6 +485,7 @@ MediaStream_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength
 HRESULT
 MediaStream_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLength, void* MethodData, ULONG DataLength, ULONG* BytesReturned)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (Method == 0 || BytesReturned == 0) result = E_POINTER;
@@ -450,6 +497,7 @@ MediaStream_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLe
 HRESULT
 MediaStream_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG PropertyLength, void* PropertyData, ULONG DataLength, ULONG* BytesReturned)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (Property == 0 || BytesReturned == 0) result = E_POINTER;
@@ -486,6 +534,7 @@ static MediaStream_KsControlVtbl MediaStream_KsControl_Vtbl = {
 HRESULT
 MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	// TODO
@@ -497,9 +546,7 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent)
 	IMFMediaTypeHandler* handler = 0;
 	do
 	{
-		FrameGenerator_Init(&this->frame_generator);
-
-		BREAK_IF_FAILED(result, MediaSource__QueryInterface(parent, &IID_IMFMediaSource, &this->parent));
+		this->parent = parent;
 
 		BREAK_IF_FAILED(result, MFCreateAttributes(&this->attributes, 0));
 		BREAK_IF_FAILED(result, IMFAttributes_SetGUID(this->attributes, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
@@ -534,7 +581,11 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent)
 		BREAK_IF_FAILED(result, MFCreateStreamDescriptor(index, ARRAY_LEN(media_types), &media_types[0], &this->stream_descriptor));
 
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_GetMediaTypeHandler(this->stream_descriptor, &handler));
-		BREAK_IF_FAILED(result, IMFMediaTypeHandler_SetCurrentMediaType(handler, media_types[0]));
+		BREAK_IF_FAILED(result, IMFMediaTypeHandler_SetCurrentMediaType(handler, media_types[1]));
+		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetGUID(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
+		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_ID, index));
+		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_FRAMESERVER_SHARED, 1));
+		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_ATTRIBUTE_FRAMESOURCE_TYPES, MFFrameSourceTypes_Color));
 	} while (0);
 
 	for (umm i = 0; i < ARRAY_LEN(media_types); ++i)
@@ -550,6 +601,7 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent)
 HRESULT
 MediaStream__Start(Media_Stream* this, IMFMediaType* media_type)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (media_type == 0) result = E_POINTER;
@@ -568,6 +620,7 @@ MediaStream__Start(Media_Stream* this, IMFMediaType* media_type)
 HRESULT
 MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool send_event)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (this->event_queue || this->sample_allocator == 0) result = MF_E_SHUTDOWN;
@@ -577,10 +630,24 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 		{
 			if (media_type != 0)
 			{
-				BREAK_IF_FAILED(result, IMFMediaType_GetGUID(media_type, &MF_MT_SUBTYPE, &this->format));
-			}
+				GUID format;
+				BREAK_IF_FAILED(result, IMFMediaType_GetGUID(media_type, &MF_MT_SUBTYPE, &format));
 
-			BREAK_IF_FAILED(result, FrameGenerator_EnsureRenderTarget(&this->frame_generator, TEMP_WIDTH, TEMP_HEIGHT));
+				u64 frame_size;
+				BREAK_IF_FAILED(result, IMFMediaType_GetUINT64(media_type, &MF_MT_FRAME_SIZE, &frame_size));
+
+				if (!IsEqualGUID(&format, &MFVideoFormat_RGB32) && !IsEqualGUID(&format, &MFVideoFormat_NV12))
+				{
+					result = MF_E_UNSUPPORTED_FORMAT;
+					break;
+				}
+				else
+				{
+					this->format = format;
+					this->width  = (u32)(frame_size >> 32);
+					this->height = (u32)frame_size;
+				}
+			}
 
 			BREAK_IF_FAILED(result, IMFVideoSampleAllocatorEx_InitializeSampleAllocator(this->sample_allocator, 10, media_type));
 
@@ -596,6 +663,7 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 HRESULT
 MediaStream__Stop(Media_Stream* this, bool send_event)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -622,6 +690,7 @@ MediaStream__Stop(Media_Stream* this, bool send_event)
 HRESULT
 MediaStream__StopInternal(Media_Stream* this, bool send_event)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	this->stream_state = MF_STREAM_STATE_STOPPED;
@@ -637,6 +706,7 @@ MediaStream__StopInternal(Media_Stream* this, bool send_event)
 void
 MediaStream__Shutdown(Media_Stream* this)
 {
+	LOG_FUNCTION_ENTRY();
 	// NOTE: Consider logging result
 	if (this->event_queue != 0) IMFMediaEventQueue_Shutdown(this->event_queue);
 
@@ -646,16 +716,20 @@ MediaStream__Shutdown(Media_Stream* this)
 HRESULT
 MediaStream__SetD3DManager(Media_Stream* this, IUnknown* manager)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (manager == 0) result = E_POINTER;
 	else
 	{
+		/*
 		result = IMFVideoSampleAllocatorEx_SetDirectXManager(this->sample_allocator, manager);
 		if (SUCCEEDED(result))
 		{
 			FrameGenerator_SetD3DManager(&this->frame_generator, manager, TEMP_WIDTH, TEMP_HEIGHT);
 		}
+		*/
+		result = E_NOTIMPL;
 	}
 
 	return result;
@@ -664,6 +738,7 @@ MediaStream__SetD3DManager(Media_Stream* this, IUnknown* manager)
 HRESULT
 MediaStream__SetAllocator(Media_Stream* this, IUnknown* allocator)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (allocator == 0) result = E_POINTER;

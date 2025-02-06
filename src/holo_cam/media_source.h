@@ -104,7 +104,13 @@ static SRWLOCK MediaSourcePoolFreeListLock   = SRWLOCK_INIT;
 HRESULT
 MediaSource__QueryInterface(Media_Source* this, REFIID riid, void** handle)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
+
+	if (riid)
+	{
+		LogGUID("[Holo] --- MediaSource__QueryInterface riid is ", riid);
+	}
 
 	if (handle == 0) result = E_POINTER;
 	else
@@ -147,6 +153,7 @@ MediaSource__QueryInterface(Media_Source* this, REFIID riid, void** handle)
 HRESULT
 MediaSource_GetService__QueryInterface(void* raw_this, REFIID riid, void** handle)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, GetService);
 	return this->lpVtbl->QueryInterface(this, riid, handle);
 }
@@ -154,6 +161,7 @@ MediaSource_GetService__QueryInterface(void* raw_this, REFIID riid, void** handl
 HRESULT
 MediaSource_SampleAllocatorControl__QueryInterface(void* raw_this, REFIID riid, void** handle)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, SampleAllocatorControl);
 	return this->lpVtbl->QueryInterface(this, riid, handle);
 }
@@ -161,6 +169,7 @@ MediaSource_SampleAllocatorControl__QueryInterface(void* raw_this, REFIID riid, 
 HRESULT
 MediaSource_KsControl__QueryInterface(void* raw_this, REFIID riid, void** handle)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, KsControl);
 	return this->lpVtbl->QueryInterface(this, riid, handle);
 }
@@ -168,6 +177,7 @@ MediaSource_KsControl__QueryInterface(void* raw_this, REFIID riid, void** handle
 ULONG
 MediaSource__AddRef(Media_Source* this)
 {
+	LOG_FUNCTION_ENTRY();
 	AcquireSRWLockExclusive(&this->lock);
 	this->ref_count += 1;
 	u32 ref_count = this->ref_count;
@@ -179,6 +189,7 @@ MediaSource__AddRef(Media_Source* this)
 HRESULT
 MediaSource_GetService__AddRef(void* raw_this)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, GetService);
 	return this->lpVtbl->AddRef(this);
 }
@@ -186,6 +197,7 @@ MediaSource_GetService__AddRef(void* raw_this)
 HRESULT
 MediaSource_SampleAllocatorControl__AddRef(void* raw_this)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, SampleAllocatorControl);
 	return this->lpVtbl->AddRef(this);
 }
@@ -193,6 +205,7 @@ MediaSource_SampleAllocatorControl__AddRef(void* raw_this)
 HRESULT
 MediaSource_KsControl__AddRef(void* raw_this)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, KsControl);
 	return this->lpVtbl->AddRef(this);
 }
@@ -201,6 +214,7 @@ MediaSource_KsControl__AddRef(void* raw_this)
 void
 MediaSource__ReleaseChildren(Media_Source* this)
 {
+	LOG_FUNCTION_ENTRY();
 	if (this->attributes != 0)
 	{
 		IMFAttributes_Release(this->attributes);
@@ -229,6 +243,7 @@ MediaSource__ReleaseChildren(Media_Source* this)
 ULONG
 MediaSource__Release(Media_Source* this)
 {
+	LOG_FUNCTION_ENTRY();
 	AcquireSRWLockExclusive(&this->lock);
 
 	if (this->ref_count > 0)
@@ -258,6 +273,7 @@ MediaSource__Release(Media_Source* this)
 HRESULT
 MediaSource_GetService__Release(void* raw_this)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, GetService);
 	return this->lpVtbl->Release(this);
 }
@@ -265,6 +281,7 @@ MediaSource_GetService__Release(void* raw_this)
 HRESULT
 MediaSource_SampleAllocatorControl__Release(void* raw_this)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, SampleAllocatorControl);
 	return this->lpVtbl->Release(this);
 }
@@ -272,6 +289,7 @@ MediaSource_SampleAllocatorControl__Release(void* raw_this)
 HRESULT
 MediaSource_KsControl__Release(void* raw_this)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, KsControl);
 	return this->lpVtbl->Release(this);
 }
@@ -279,6 +297,7 @@ MediaSource_KsControl__Release(void* raw_this)
 HRESULT
 MediaSource__BeginGetEvent(Media_Source* this, IMFAsyncCallback* pCallback, IUnknown* punkState)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -294,6 +313,7 @@ MediaSource__BeginGetEvent(Media_Source* this, IMFAsyncCallback* pCallback, IUnk
 HRESULT
 MediaSource__EndGetEvent(Media_Source* this, IMFAsyncResult* pResult, IMFMediaEvent** ppEvent)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (ppEvent == 0) result = E_POINTER;
@@ -315,6 +335,7 @@ MediaSource__EndGetEvent(Media_Source* this, IMFAsyncResult* pResult, IMFMediaEv
 HRESULT
 MediaSource__GetEvent(Media_Source* this, DWORD dwFlags, IMFMediaEvent** ppEvent)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (ppEvent == 0) result = E_POINTER;
@@ -348,6 +369,7 @@ MediaSource__GetEvent(Media_Source* this, DWORD dwFlags, IMFMediaEvent** ppEvent
 HRESULT
 MediaSource__QueueEvent(Media_Source* this, MediaEventType met, REFGUID guidExtendedType, HRESULT hrStatus, const PROPVARIANT* pvValue)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -363,6 +385,7 @@ MediaSource__QueueEvent(Media_Source* this, MediaEventType met, REFGUID guidExte
 HRESULT
 MediaSource__CreatePresentationDescriptor(Media_Source* this, IMFPresentationDescriptor** ppPresentationDescriptor)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 	
 	if (ppPresentationDescriptor == 0) result = E_POINTER;
@@ -378,12 +401,15 @@ MediaSource__CreatePresentationDescriptor(Media_Source* this, IMFPresentationDes
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	if (SUCCEEDED(result)) OutputDebugStringA("[Holo] ---v SUCCESS");
+	else                   OutputDebugStringA("[Holo] ---v FAIL");
 	return result;
 }
 
 HRESULT
 MediaSource__GetCharacteristics(Media_Source* this, DWORD* pdwCharacteristics)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (pdwCharacteristics == 0) result = E_POINTER;
@@ -400,12 +426,14 @@ MediaSource__GetCharacteristics(Media_Source* this, DWORD* pdwCharacteristics)
 HRESULT
 MediaSource__Pause(Media_Source* this)
 {
+	LOG_FUNCTION_ENTRY();
 	return MF_E_INVALID_STATE_TRANSITION;
 }
 
 HRESULT
 MediaSource__Shutdown(Media_Source* this)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -433,7 +461,8 @@ MediaSource__Shutdown(Media_Source* this)
 HRESULT
 MediaSource__GetStreamIndexFromIdentifier(Media_Source* this, DWORD identifier, u32* index)
 {
-	HRESULT result = E_FAIL;
+	LOG_FUNCTION_ENTRY();
+	HRESULT result = S_OK;
 
 	for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
 	{
@@ -462,6 +491,7 @@ MediaSource__GetStreamIndexFromIdentifier(Media_Source* this, DWORD identifier, 
 HRESULT
 MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationDescriptor, const GUID* pguidTimeFormat, const PROPVARIANT* pvarStartPosition)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if      (pPresentationDescriptor == 0 || pvarStartPosition == 0)           result = E_POINTER;
@@ -520,11 +550,11 @@ MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationD
 						}
 					} while (0);
 
-					if (descriptor     != 0) IMFStreamDescriptor_Release(descriptor);
-					if (old_descriptor != 0) IMFStreamDescriptor_Release(old_descriptor);
-					if (type_handler   != 0) IMFMediaTypeHandler_Release(type_handler);
-					if (type           != 0) IMFMediaType_Release(type);
 					if (stream_unknown != 0) IUnknown_Release(stream_unknown);
+					if (type           != 0) IMFMediaType_Release(type);
+					if (type_handler   != 0) IMFMediaTypeHandler_Release(type_handler);
+					if (old_descriptor != 0) IMFStreamDescriptor_Release(old_descriptor);
+					if (descriptor     != 0) IMFStreamDescriptor_Release(descriptor);
 				}
 				if (!SUCCEEDED(result)) break;
 				
@@ -541,6 +571,7 @@ MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationD
 HRESULT
 MediaSource__Stop(Media_Source* this)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	AcquireSRWLockExclusive(&this->lock);
@@ -574,6 +605,7 @@ MediaSource__Stop(Media_Source* this)
 HRESULT
 MediaSource__GetSourceAttributes(Media_Source* this, IMFAttributes** ppAttributes)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (ppAttributes == 0) result = E_POINTER;
@@ -588,12 +620,16 @@ MediaSource__GetSourceAttributes(Media_Source* this, IMFAttributes** ppAttribute
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	if (SUCCEEDED(result)) OutputDebugStringA("[Holo] ---v SUCCESS");
+	else                   OutputDebugStringA("[Holo] ---v FAIL");
 	return result;
 }
 
 HRESULT
 MediaSource__GetStreamAttributes(Media_Source* this, DWORD dwStreamIdentifier, IMFAttributes** ppAttributes)
 {
+	LOG_FUNCTION_ENTRY();
+	OutputDebugStringA(dwStreamIdentifier == 0 ? "[HOLO] ---v dwStreamIdentifier is 0" : "[HOLO] ---v dwStreamIdentifier is non zero");
 	HRESULT result;
 
 	if (ppAttributes == 0) result = E_POINTER;
@@ -609,12 +645,15 @@ MediaSource__GetStreamAttributes(Media_Source* this, DWORD dwStreamIdentifier, I
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	if (SUCCEEDED(result)) OutputDebugStringA("[Holo] ---v SUCCESS");
+	else                   OutputDebugStringA("[Holo] ---v FAIL");
 	return result;
 }
 
 HRESULT
 MediaSource__SetD3DManager(Media_Source* this, IUnknown* pManager)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (pManager == 0) result = E_POINTER;
@@ -626,11 +665,13 @@ MediaSource__SetD3DManager(Media_Source* this, IUnknown* pManager)
 		if (this->streams_len > 0 && this->streams[0] == 0) result = MF_E_SHUTDOWN;
 		else
 		{
+			/*
 			result = S_OK;
 			for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
 			{
 				result = MediaStream__SetD3DManager(this->streams[i], pManager);
-			}
+			}*/
+			result = E_NOTIMPL;
 		}
 
 		ReleaseSRWLockExclusive(&this->lock);
@@ -642,12 +683,26 @@ MediaSource__SetD3DManager(Media_Source* this, IUnknown* pManager)
 HRESULT
 MediaSource_GetService__GetService(void* raw_this, REFGUID guidService, REFIID riid, void** ppvObject)
 {
-	return MF_E_UNSUPPORTED_SERVICE;
+	LOG_FUNCTION_ENTRY();
+	HRESULT result;
+
+	if (ppvObject == 0) result = E_POINTER;
+	else
+	{
+		*ppvObject = 0;
+		result = MF_E_UNSUPPORTED_SERVICE;
+	}
+
+	if      (SUCCEEDED(result))                  OutputDebugStringA("[Holo] ---v SUCCESS");
+	else if (result == MF_E_UNSUPPORTED_SERVICE) OutputDebugStringA("[Holo] ---v FAIL SUCCESSFULLY");
+	else                                         OutputDebugStringA("[Holo] ---v FAIL");
+	return result;
 }
 
 HRESULT
 MediaSource_SampleAllocatorControl__GetAllocatorUsage(void* raw_this, DWORD dwOutputStreamID, DWORD* pdwInputStreamID, MFSampleAllocatorUsage* peUsage)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, SampleAllocatorControl);
 	HRESULT result;
 
@@ -658,6 +713,7 @@ MediaSource_SampleAllocatorControl__GetAllocatorUsage(void* raw_this, DWORD dwOu
 
 		u32 idx;
 		result = MediaSource__GetStreamIndexFromIdentifier(this, dwOutputStreamID, &idx);
+		Log("[Holo] --- MediaSource__GetAllocatorUsage idx for id %d is %d", dwOutputStreamID, idx);
 		if (SUCCEEDED(result))
 		{
 			*pdwInputStreamID = dwOutputStreamID;
@@ -667,12 +723,15 @@ MediaSource_SampleAllocatorControl__GetAllocatorUsage(void* raw_this, DWORD dwOu
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	Log("[Holo] --- MediaSource__GetAllocatorUsage resulted in code %d", result);
+
 	return result;
 }
 
 HRESULT
 MediaSource_SampleAllocatorControl__SetDefaultAllocator(void* raw_this, DWORD dwOutputStreamID, IUnknown* pAllocator)
 {
+	LOG_FUNCTION_ENTRY();
 	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, SampleAllocatorControl);
 	HRESULT result;
 
@@ -697,6 +756,7 @@ MediaSource_SampleAllocatorControl__SetDefaultAllocator(void* raw_this, DWORD dw
 HRESULT
 MediaSource_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength, void* EventData, ULONG DataLength, ULONG* BytesReturned)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (BytesReturned == 0) result = E_POINTER;
@@ -708,6 +768,7 @@ MediaSource_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength
 HRESULT
 MediaSource_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLength, void* MethodData, ULONG DataLength, ULONG* BytesReturned)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (Method == 0 || BytesReturned == 0) result = E_POINTER;
@@ -719,6 +780,7 @@ MediaSource_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLe
 HRESULT
 MediaSource_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG PropertyLength, void* PropertyData, ULONG DataLength, ULONG* BytesReturned)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	if (Property == 0 || BytesReturned == 0) result = E_POINTER;
@@ -774,6 +836,7 @@ static MediaSource_KsControlVtbl MediaSource_KsControl_Vtbl = {
 HRESULT
 MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 {
+	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
 	IMFSensorProfileCollection* sensor_collection = 0;
@@ -782,8 +845,26 @@ MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 	IMFStreamDescriptor* stream_descriptors[ARRAY_LEN(this->streams)] = {0};
 	do
 	{
+		BREAK_IF_FAILED(result, MFCreateEventQueue(&this->event_queue));
+
 		BREAK_IF_FAILED(result, MFCreateAttributes(&this->attributes, 0));
 		BREAK_IF_FAILED(result, IMFAttributes_CopyAllItems(parent_attributes, this->attributes));
+
+		// TODO: This might need to change for multiple streams
+		{ /// Sensor profile
+			BREAK_IF_FAILED(result, MFCreateSensorProfileCollection(&sensor_collection));
+
+			u32 stream_id = 0;
+			BREAK_IF_FAILED(result, MFCreateSensorProfile(&KSCAMERAPROFILE_Legacy, 0, 0, &legacy_profile));
+			BREAK_IF_FAILED(result, IMFSensorProfile_AddProfileFilter(legacy_profile, stream_id, L"((RES==;FRT<=30,1;SUT==))"));
+			BREAK_IF_FAILED(result, IMFSensorProfileCollection_AddProfile(sensor_collection, legacy_profile));
+
+			BREAK_IF_FAILED(result, MFCreateSensorProfile(&KSCAMERAPROFILE_HighFrameRate, 0, 0, &profile));
+			BREAK_IF_FAILED(result, IMFSensorProfile_AddProfileFilter(profile, stream_id, L"((RES==;FRT>=60,1;SUT==))"));
+			BREAK_IF_FAILED(result, IMFSensorProfileCollection_AddProfile(sensor_collection, profile));
+
+			BREAK_IF_FAILED(result, IMFAttributes_SetUnknown(this->attributes, &MF_DEVICEMFT_SENSORPROFILE_COLLECTION, (IUnknown*)sensor_collection));
+		}
 
 		{ /// Stream init
 			this->streams_len = 1; // TODO
@@ -808,36 +889,13 @@ MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 
 			for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
 			{
-				result = MediaStream__Init(this->streams[i], i, this);
+				BREAK_IF_FAILED(result, MediaStream__Init(this->streams[i], i, this));
+				BREAK_IF_FAILED(result, this->streams[i]->lpVtbl->GetStreamDescriptor(this->streams[i], &stream_descriptors[i]));
 			}
-
-			if (!SUCCEEDED(result)) break;
-		}
-
-		// TODO: This might need to change for multiple streams
-		{ /// Sensor profile
-			BREAK_IF_FAILED(result, MFCreateSensorProfileCollection(&sensor_collection));
-
-			u32 stream_id = 0;
-			BREAK_IF_FAILED(result, MFCreateSensorProfile(&KSCAMERAPROFILE_Legacy, 0, 0, &legacy_profile));
-			BREAK_IF_FAILED(result, IMFSensorProfile_AddProfileFilter(legacy_profile, stream_id, L"((RES==;FRT<=30,1;SUT==))"));
-			BREAK_IF_FAILED(result, IMFSensorProfileCollection_AddProfile(sensor_collection, legacy_profile));
-
-			BREAK_IF_FAILED(result, MFCreateSensorProfile(&KSCAMERAPROFILE_HighFrameRate, 0, 0, &profile));
-			BREAK_IF_FAILED(result, IMFSensorProfile_AddProfileFilter(profile, stream_id, L"((RES==;FRT>=60,1;SUT==))"));
-			BREAK_IF_FAILED(result, IMFSensorProfileCollection_AddProfile(sensor_collection, profile));
-
-			BREAK_IF_FAILED(result, IMFAttributes_SetUnknown(this->attributes, &MF_DEVICEMFT_SENSORPROFILE_COLLECTION, (IUnknown*)sensor_collection));
-		}
-
-		for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
-		{
-			result = this->streams[i]->lpVtbl->GetStreamDescriptor(this->streams[i], &stream_descriptors[i]);
 		}
 		if (!SUCCEEDED(result)) break;
 
 		BREAK_IF_FAILED(result, MFCreatePresentationDescriptor(this->streams_len, &stream_descriptors[0], &this->presentation_descriptor));
-		BREAK_IF_FAILED(result, MFCreateEventQueue(&this->event_queue));
 	} while (0);
 
 	if (sensor_collection != 0) IMFSensorProfileCollection_Release(sensor_collection);

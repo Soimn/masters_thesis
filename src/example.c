@@ -39,6 +39,9 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 
 			result = IMFVirtualCamera_Start(cam, 0);
 
+			MessageBoxA(0, "Camera has started, press OK to shut it down", "HoloCam", MB_OK);
+
+			IMFVirtualCamera_Shutdown(cam);
 			IMFVirtualCamera_Release(cam);
 
 			MFShutdown();
