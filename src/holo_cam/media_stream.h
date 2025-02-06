@@ -581,7 +581,7 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent)
 		BREAK_IF_FAILED(result, MFCreateStreamDescriptor(index, ARRAY_LEN(media_types), &media_types[0], &this->stream_descriptor));
 
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_GetMediaTypeHandler(this->stream_descriptor, &handler));
-		BREAK_IF_FAILED(result, IMFMediaTypeHandler_SetCurrentMediaType(handler, media_types[1]));
+		BREAK_IF_FAILED(result, IMFMediaTypeHandler_SetCurrentMediaType(handler, media_types[0]));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetGUID(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_ID, index));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_FRAMESERVER_SHARED, 1));

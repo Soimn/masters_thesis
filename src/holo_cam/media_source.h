@@ -178,11 +178,8 @@ ULONG
 MediaSource__AddRef(Media_Source* this)
 {
 	LOG_FUNCTION_ENTRY();
-	AcquireSRWLockExclusive(&this->lock);
-	this->ref_count += 1;
-	u32 ref_count = this->ref_count;
-	ReleaseSRWLockExclusive(&this->lock);
-
+	u32 ref_count = InterlockedIncrement(&this->ref_count);
+	if (ref_count == 1) Log("[Holo] --- MediaSource was ressurected");
 	return ref_count;
 }
 
@@ -244,13 +241,11 @@ ULONG
 MediaSource__Release(Media_Source* this)
 {
 	LOG_FUNCTION_ENTRY();
-	AcquireSRWLockExclusive(&this->lock);
+	u32 ref_count = InterlockedDecrement(&this->ref_count);
 
-	if (this->ref_count > 0)
+	if (ref_count == 0)
 	{
-		this->ref_count -= 1;
-
-		if (this->ref_count == 0)
+		AcquireSRWLockExclusive(&this->lock);
 		{
 			MediaSource__ReleaseChildren(this);
 
@@ -262,10 +257,8 @@ MediaSource__Release(Media_Source* this)
 			}
 			ReleaseSRWLockExclusive(&MediaSourcePoolFreeListLock);
 		}
+		ReleaseSRWLockExclusive(&this->lock);
 	}
-
-	u32 ref_count = this->ref_count;
-	ReleaseSRWLockExclusive(&this->lock);
 
 	return ref_count;
 }
@@ -306,6 +299,8 @@ MediaSource__BeginGetEvent(Media_Source* this, IMFAsyncCallback* pCallback, IUnk
 	else                        result = IMFMediaEventQueue_BeginGetEvent(this->event_queue, pCallback, punkState);
 
 	ReleaseSRWLockExclusive(&this->lock);
+
+	Log("[Holo] --- MediaSource__BeginGetEvent result: %d", result);
 
 	return result;
 }
