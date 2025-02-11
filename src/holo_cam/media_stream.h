@@ -130,10 +130,9 @@ ULONG
 MediaStream__AddRef(Media_Stream* this)
 {
 	LOG_FUNCTION_ENTRY();
-	AcquireSRWLockExclusive(&this->lock);
-	this->ref_count += 1;
-	u32 ref_count = this->ref_count;
-	ReleaseSRWLockExclusive(&this->lock);
+
+	u32 ref_count = InterlockedIncrement(&this->ref_count);
+	if (ref_count == 1) Log("[Holo] --- MediaStream was ressurected");
 
 	return ref_count;
 }
@@ -180,13 +179,12 @@ ULONG
 MediaStream__Release(Media_Stream* this)
 {
 	LOG_FUNCTION_ENTRY();
-	AcquireSRWLockExclusive(&this->lock);
 
-	if (this->ref_count > 0)
+	u32 ref_count = InterlockedDecrement(&this->ref_count);
+
+	if (this->ref_count == 0)
 	{
-		this->ref_count -= 1;
-
-		if (this->ref_count == 0)
+		AcquireSRWLockExclusive(&this->lock);
 		{
 			MediaStream__ReleaseChildren(this);
 
@@ -198,10 +196,8 @@ MediaStream__Release(Media_Stream* this)
 			}
 			ReleaseSRWLockExclusive(&MediaStreamPoolFreeListLock);
 		}
+		ReleaseSRWLockExclusive(&this->lock);
 	}
-
-	u32 ref_count = this->ref_count;
-	ReleaseSRWLockExclusive(&this->lock);
 
 	return ref_count;
 }
@@ -402,7 +398,7 @@ MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 				BREAK_IF_FAILED(result, IMFSample_SetUnknown(sample, &MFSampleExtension_Token, pToken));
 			}
 
-			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamUnk(this->event_queue, MEMediaSample, 0, S_OK, (IUnknown*)sample));
+			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamUnk(this->event_queue, MEMediaSample, &GUID_NULL, S_OK, (IUnknown*)sample));
 		} while (0);
 
 		if (buffer       != 0) IMF2DBuffer2_Release(buffer);
@@ -623,7 +619,9 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
-	if (this->event_queue || this->sample_allocator == 0) result = MF_E_SHUTDOWN;
+	Log(media_type == 0 ? "media type is 0" : "not 0");
+
+	if (this->event_queue == 0 || this->sample_allocator == 0) result = MF_E_SHUTDOWN;
 	else
 	{
 		do
@@ -633,8 +631,16 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 				GUID format;
 				BREAK_IF_FAILED(result, IMFMediaType_GetGUID(media_type, &MF_MT_SUBTYPE, &format));
 
+				LogGUID("", &format);
+				LogGUID("", &MFVideoFormat_RGB32);
+				LogGUID("", &MFVideoFormat_NV12);
+
 				u64 frame_size;
 				BREAK_IF_FAILED(result, IMFMediaType_GetUINT64(media_type, &MF_MT_FRAME_SIZE, &frame_size));
+
+				Log("%ux%u", (u32)(frame_size >> 32), (u32)frame_size);
+
+				BREAK_IF_FAILED(result, IMFVideoSampleAllocatorEx_InitializeSampleAllocator(this->sample_allocator, 10, media_type));
 
 				if (!IsEqualGUID(&format, &MFVideoFormat_RGB32) && !IsEqualGUID(&format, &MFVideoFormat_NV12))
 				{
@@ -649,9 +655,7 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 				}
 			}
 
-			BREAK_IF_FAILED(result, IMFVideoSampleAllocatorEx_InitializeSampleAllocator(this->sample_allocator, 10, media_type));
-
-			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MEStreamStarted, 0, S_OK, 0));
+			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MEStreamStarted, &GUID_NULL, S_OK, 0));
 
 			this->stream_state = MF_STREAM_STATE_RUNNING;
 		} while (0);
@@ -697,7 +701,7 @@ MediaStream__StopInternal(Media_Stream* this, bool send_event)
 		
 	if (send_event)
 	{
-		result = IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MEStreamStopped, 0, S_OK, 0);
+		result = IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MEStreamStopped, &GUID_NULL, S_OK, 0);
 	}
 
 	return result;

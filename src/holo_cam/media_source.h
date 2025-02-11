@@ -178,8 +178,10 @@ ULONG
 MediaSource__AddRef(Media_Source* this)
 {
 	LOG_FUNCTION_ENTRY();
+
 	u32 ref_count = InterlockedIncrement(&this->ref_count);
 	if (ref_count == 1) Log("[Holo] --- MediaSource was ressurected");
+
 	return ref_count;
 }
 
@@ -489,8 +491,8 @@ MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationD
 	LOG_FUNCTION_ENTRY();
 	HRESULT result;
 
-	if      (pPresentationDescriptor == 0 || pvarStartPosition == 0)           result = E_POINTER;
-	else if (pguidTimeFormat != 0 && !IsEqualIID(pguidTimeFormat, &GUID_NULL)) result = E_INVALIDARG;
+	if      (pPresentationDescriptor == 0 || pvarStartPosition == 0)           result = E_INVALIDARG;
+	else if (pguidTimeFormat != 0 && !IsEqualIID(pguidTimeFormat, &GUID_NULL)) result = MF_E_UNSUPPORTED_TIME_FORMAT;
 	else
 	{
 		AcquireSRWLockExclusive(&this->lock);
@@ -533,10 +535,14 @@ MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationD
 
 							BREAK_IF_FAILED(result, IMFStreamDescriptor_GetMediaTypeHandler(descriptor, &type_handler));
 							BREAK_IF_FAILED(result, IMFMediaTypeHandler_GetCurrentMediaType(type_handler, &type));
-							BREAK_IF_FAILED(result, MediaStream__Start(this->streams[idx], type));
 
 							BREAK_IF_FAILED(result, this->streams[idx]->lpVtbl->QueryInterface(this->streams[idx], &IID_IUnknown, &stream_unknown));
-							BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamUnk(this->event_queue, (was_selected ? MEUpdatedStream : MENewStream), 0, S_OK, stream_unknown));
+							Log("[Holo] --- AAAAAAAAAAA");
+							result = IMFMediaEventQueue_QueueEventParamUnk(this->event_queue, (was_selected ? MEUpdatedStream : MENewStream), &GUID_NULL, S_OK, stream_unknown);
+							Log("[Holo] --- BBBBBBBBBBB %d", result);
+							if (!SUCCEEDED(result)) break;
+
+							BREAK_IF_FAILED(result, MediaStream__Start(this->streams[idx], type));
 						}
 						else if (was_selected)
 						{
@@ -553,13 +559,17 @@ MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationD
 				}
 				if (!SUCCEEDED(result)) break;
 				
-				BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MESourceStarted, 0, S_OK, &time));
+				BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MESourceStarted, &GUID_NULL, S_OK, &time));
 			} while (0);
 		}
 
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	if (!SUCCEEDED(result))
+	{
+		Log("Failed to start, %d", result);
+	}
 	return result;
 }
 
@@ -588,7 +598,7 @@ MediaSource__Stop(Media_Source* this)
 
 		if (SUCCEEDED(result))
 		{
-			result = IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MESourceStopped, 0, S_OK, &time);
+			result = IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MESourceStopped, &GUID_NULL, S_OK, &time);
 		}
 	}
 
