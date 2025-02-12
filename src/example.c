@@ -39,10 +39,34 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 
 			result = IMFVirtualCamera_Start(cam, 0);
 
-			MessageBoxA(0, "Camera has started, press OK to shut it down", "HoloCam", MB_OK);
+			result = IMFVirtualCamera_SendCameraProperty(cam, &PROPSETID_HOLOCAM, 0, 0, &(int){0}, sizeof(int), &(DWORD){0xFF00FF}, sizeof(DWORD), &(ULONG){0});
+
+			MessageBoxA(0, "Camera has started, press OK to continue", "HoloCam", MB_OK);
+
+			IMFVirtualCamera* cam2;
+			result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, L"Holo Cam", CLSID_HOLOCAM_STRING, 0, 0, &cam2);
+
+			result = IMFVirtualCamera_Start(cam2, 0);
+
+			result = IMFVirtualCamera_SendCameraProperty(cam2, &PROPSETID_HOLOCAM, 0, 0, &(int){0}, sizeof(int), &(DWORD){0x00FF00}, sizeof(DWORD), &(ULONG){0});
+
+			MessageBoxA(0, "Camera 2 has started, press OK to continue", "HoloCam", MB_OK);
+
+			IMFVirtualCamera* cam3;
+			result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, L"Holo Cam 3", CLSID_HOLOCAM_STRING, 0, 0, &cam3);
+
+			result = IMFVirtualCamera_Start(cam3, 0);
+
+			IMFVirtualCamera_SendCameraProperty(cam3, &PROPSETID_HOLOCAM, 0, 0, &(int){0}, sizeof(int), &(DWORD){0xFF0000}, sizeof(DWORD), &(ULONG){0});
+
+			MessageBoxA(0, "Camera 3 has started, press OK to continue", "HoloCam", MB_OK);
 
 			IMFVirtualCamera_Shutdown(cam);
 			IMFVirtualCamera_Release(cam);
+			IMFVirtualCamera_Shutdown(cam2);
+			IMFVirtualCamera_Release(cam2);
+			IMFVirtualCamera_Shutdown(cam3);
+			IMFVirtualCamera_Release(cam3);
 
 			MFShutdown();
 		}

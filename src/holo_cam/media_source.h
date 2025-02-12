@@ -235,7 +235,8 @@ MediaSource__ReleaseChildren(Media_Source* this)
 	for (umm i = 0; i < this->streams_len; ++i)
 	{
 		if (this->streams[i] != 0) this->streams[i]->lpVtbl->Release(this->streams[i]);
-		this->streams[i] = 0;
+		this->streams[i]  = 0;
+		this->streams_len = 0;
 	}
 }
 
@@ -786,10 +787,20 @@ HRESULT
 MediaSource_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG PropertyLength, void* PropertyData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
+	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, KsControl);
 	HRESULT result;
 
-	if (Property == 0 || BytesReturned == 0) result = E_POINTER;
-	else                                     result = ERROR_SET_NOT_FOUND;
+	if      (Property == 0 || BytesReturned == 0)              result = E_POINTER;
+	else if (!IsEqualGUID(&Property->Set, &PROPSETID_HOLOCAM)) result = ERROR_SET_NOT_FOUND;
+	else
+	{
+		if (DataLength != sizeof(u32)) result = E_POINTER;
+		else
+		{
+			this->streams[0]->color = *(u32*)PropertyData;
+			result = S_OK;
+		}
+	}
 
 	return result;
 }

@@ -54,6 +54,7 @@ typedef struct Media_Stream_Dynamic_State
 	GUID format;
 	u32 width;
 	u32 height;
+	u32 color;
 } Media_Stream_Dynamic_State;
 
 typedef struct Media_Stream
@@ -383,7 +384,7 @@ MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 					u32* line = (u32*)(data + j*pitch);
 					for (u32 i = 0; i < this->width; ++i)
 					{
-						line[i] = (i % 2 == 0 ? 0 : 0xFF00FF);
+						line[i] = (i % 2 == 0 ? 0 : this->color);
 					}
 				}
 			}
@@ -543,6 +544,7 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent)
 	do
 	{
 		this->parent = parent;
+		this->color = 0;
 
 		BREAK_IF_FAILED(result, MFCreateAttributes(&this->attributes, 0));
 		BREAK_IF_FAILED(result, IMFAttributes_SetGUID(this->attributes, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
@@ -695,7 +697,7 @@ HRESULT
 MediaStream__StopInternal(Media_Stream* this, bool send_event)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = S_OK;
 
 	this->stream_state = MF_STREAM_STATE_STOPPED;
 		
