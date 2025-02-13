@@ -98,10 +98,7 @@ typedef u8 bool;
 
 #define U64_HI_LO(HI, LO) (((u64)(HI) << 32) | (u64)(LO))
 
-
-// {8BD93F1F-23BF-4C2A-BE61-9F0B26FA7A95}
-DEFINE_GUID(GUID_HOLO_CAM_LOG, 0x8bd93f1f, 0x23bf, 0x4c2a, 0xbe, 0x61, 0x9f, 0xb, 0x26, 0xfa, 0x7a, 0x95);
-
+#ifdef HOLO_DEBUG
 void
 Log(char* format, ...)
 {
@@ -120,8 +117,23 @@ Log(char* format, ...)
 void
 LogGUID(char* prefix, const GUID* guid)
 {
-	Log("%s{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}", prefix, guid->Data1, guid->Data2, guid->Data3, guid->Data4[0], guid->Data4[1], guid->Data4[2], guid->Data4[3], guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7]);
+	Log("%s{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}", prefix, guid->Data1, guid->Data2, guid->Data3, guid->Data4[0],
+			                                                        guid->Data4[1], guid->Data4[2], guid->Data4[3], guid->Data4[4],
+																															guid->Data4[5], guid->Data4[6], guid->Data4[7]);
 }
+
+#else
+
+void
+Log(char* format, ...)
+{
+}
+
+void
+LogGUID(char* prefix, const GUID* guid)
+{
+}
+#endif
 
 #define LOG_FUNCTION_ENTRY() Log("[HOLO] -- " __FUNCTION__)
 

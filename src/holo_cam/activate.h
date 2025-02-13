@@ -552,6 +552,8 @@ ActivateFactory__CreateInstance(IClassFactory* this, IUnknown* outer, REFIID id,
 HRESULT
 ActivateFactory__LockServer(IClassFactory* this, BOOL flock)
 {
+	LOG_FUNCTION_ENTRY();
+
 	// TODO:
 	return E_NOTIMPL;
 }

@@ -91,7 +91,7 @@ HRESULT
 MediaStream__QueryInterface(Media_Stream* this, REFIID riid, void** handle)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (handle == 0) result = E_POINTER;
 	else
@@ -215,7 +215,7 @@ HRESULT
 MediaStream__GetEvent(Media_Stream* this, DWORD dwFlags, IMFMediaEvent** ppEvent)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (ppEvent == 0) result = E_POINTER;
 	else
@@ -249,7 +249,7 @@ HRESULT
 MediaStream__BeginGetEvent(Media_Stream* this, IMFAsyncCallback* pCallback, IUnknown* punkState)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	AcquireSRWLockExclusive(&this->lock);
 
@@ -265,7 +265,7 @@ HRESULT
 MediaStream__EndGetEvent(Media_Stream* this, IMFAsyncResult* pResult, IMFMediaEvent** ppEvent)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (ppEvent == 0) result = E_POINTER;
 	else
@@ -287,7 +287,7 @@ HRESULT
 MediaStream__QueueEvent(Media_Stream* this, MediaEventType met, REFGUID guidExtendedType, HRESULT hrStatus, const PROPVARIANT* pvValue)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	AcquireSRWLockExclusive(&this->lock);
 
@@ -303,7 +303,7 @@ HRESULT
 MediaStream__GetMediaSource(Media_Stream* this, IMFMediaSource** ppMediaSource)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (ppMediaSource == 0) result = E_POINTER;
 	else
@@ -321,7 +321,7 @@ HRESULT
 MediaStream__GetStreamDescriptor(Media_Stream* this, IMFStreamDescriptor** ppStreamDescriptor)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (ppStreamDescriptor == 0) result = E_POINTER;
 	else
@@ -341,7 +341,7 @@ HRESULT
 MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	AcquireSRWLockExclusive(&this->lock);
 
@@ -416,7 +416,7 @@ HRESULT
 MediaStream__SetStreamState(Media_Stream* this, MF_STREAM_STATE value)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	AcquireSRWLockExclusive(&this->lock);
 
@@ -452,7 +452,7 @@ HRESULT
 MediaStream__GetStreamState(Media_Stream* this, MF_STREAM_STATE* value)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (value == 0) result = E_POINTER;
 	else
@@ -471,7 +471,7 @@ HRESULT
 MediaStream_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength, void* EventData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (BytesReturned == 0) result = E_POINTER;
 	else                   	result = ERROR_SET_NOT_FOUND;
@@ -483,7 +483,7 @@ HRESULT
 MediaStream_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLength, void* MethodData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (Method == 0 || BytesReturned == 0) result = E_POINTER;
 	else                                   result = ERROR_SET_NOT_FOUND;
@@ -495,7 +495,7 @@ HRESULT
 MediaStream_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG PropertyLength, void* PropertyData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (Property == 0 || BytesReturned == 0) result = E_POINTER;
 	else                                     result = ERROR_SET_NOT_FOUND;
@@ -532,7 +532,7 @@ HRESULT
 MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	// TODO
 	u32 width     = TEMP_WIDTH;
@@ -600,7 +600,7 @@ HRESULT
 MediaStream__Start(Media_Stream* this, IMFMediaType* media_type)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (media_type == 0) result = E_POINTER;
 	else
@@ -619,9 +619,7 @@ HRESULT
 MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool send_event)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
-
-	Log(media_type == 0 ? "media type is 0" : "not 0");
+	HRESULT result = E_FAIL;
 
 	if (this->event_queue == 0 || this->sample_allocator == 0) result = MF_E_SHUTDOWN;
 	else
@@ -670,7 +668,7 @@ HRESULT
 MediaStream__Stop(Media_Stream* this, bool send_event)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	AcquireSRWLockExclusive(&this->lock);
 
@@ -723,7 +721,7 @@ HRESULT
 MediaStream__SetD3DManager(Media_Stream* this, IUnknown* manager)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (manager == 0) result = E_POINTER;
 	else
@@ -745,7 +743,7 @@ HRESULT
 MediaStream__SetAllocator(Media_Stream* this, IUnknown* allocator)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result;
+	HRESULT result = E_FAIL;
 
 	if (allocator == 0) result = E_POINTER;
 	else
