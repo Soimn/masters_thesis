@@ -769,12 +769,7 @@ MediaSource_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG Pr
 	else if (!IsEqualGUID(&Property->Set, &PROPSETID_HOLOCAM)) result = ERROR_SET_NOT_FOUND;
 	else
 	{
-		if (DataLength != sizeof(u32)) result = E_POINTER;
-		else
-		{
-			this->streams[0]->color = *(u32*)PropertyData;
-			result = S_OK;
-		}
+		result = E_NOTIMPL;
 	}
 
 	return result;
@@ -880,7 +875,7 @@ MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 
 			for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
 			{
-				BREAK_IF_FAILED(result, MediaStream__Init(this->streams[i], i, this));
+				BREAK_IF_FAILED(result, MediaStream__Init(this->streams[i], i, this, this->attributes));
 				BREAK_IF_FAILED(result, this->streams[i]->lpVtbl->GetStreamDescriptor(this->streams[i], &stream_descriptors[i]));
 			}
 		}
@@ -896,20 +891,6 @@ MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 	for (u32 i = 0; i < ARRAY_LEN(stream_descriptors); ++i)
 	{
 		if (stream_descriptors[i] != 0) IMFStreamDescriptor_Release(stream_descriptors[i]);
-	}
-
-	// TODO:
-	if (SUCCEEDED(result))
-	{
-		u32 port;
-		if (IMFAttributes_GetUINT32(this->attributes, &GUID_HOLOCAM_PORT, &port) == MF_E_ATTRIBUTENOTFOUND)
-		{
-			this->streams[0]->color = 0xFF00FF;
-		}
-		else
-		{
-			this->streams[0]->color = port;
-		}
 	}
 
 	return result;

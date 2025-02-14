@@ -54,7 +54,8 @@ typedef struct Media_Stream_Dynamic_State
 	GUID format;
 	u32 width;
 	u32 height;
-	u32 color;
+	SOCKET socket;
+	SOCKET listen_socket;
 } Media_Stream_Dynamic_State;
 
 typedef struct Media_Stream
@@ -372,19 +373,20 @@ MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 			}
 			else
 			{
-				u32 abs_pitch = (pitch < 0 ? -pitch : pitch);
-				if (abs_pitch < this->width || data_len < abs_pitch*this->height)
+				u32 dims[2] = { this->width, this->height };
+				if (send(this->listen_socket, (char*)&dims[0], sizeof(dims), 0) != SOCKET_ERROR)
 				{
-					result = ERROR_INSUFFICIENT_BUFFER;
-					break;
+					recv(this->listen_socket, data, data_len, 0);
 				}
-
-				for (u32 j = 0; j < this->height; ++j)
+				else
 				{
-					u32* line = (u32*)(data + j*pitch);
-					for (u32 i = 0; i < this->width; ++i)
+					for (u32 j = 0; j < this->height; ++j)
 					{
-						line[i] = (i % 2 == 0 ? 0 : this->color);
+						u32* line = (u32*)(data + j*pitch);
+						for (u32 i = 0; i < this->width; ++i)
+						{
+							line[i] = (j % 2 == 0 ? 0xFF0000 : 0);
+						}
 					}
 				}
 			}
@@ -529,7 +531,7 @@ static MediaStream_KsControlVtbl MediaStream_KsControl_Vtbl = {
 
 // NOTE: Must only be called from MediaSource__Init
 HRESULT
-MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent)
+MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttributes* attributes)
 {
 	LOG_FUNCTION_ENTRY();
 	HRESULT result = E_FAIL;
@@ -544,9 +546,9 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent)
 	do
 	{
 		this->parent = parent;
-		this->color = 0;
 
 		BREAK_IF_FAILED(result, MFCreateAttributes(&this->attributes, 0));
+		BREAK_IF_FAILED(result, IMFAttributes_CopyAllItems(attributes, this->attributes));
 		BREAK_IF_FAILED(result, IMFAttributes_SetGUID(this->attributes, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
 		BREAK_IF_FAILED(result, IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_STREAM_ID, index));
 		BREAK_IF_FAILED(result, IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_FRAMESERVER_SHARED, 1));
@@ -655,6 +657,41 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 				}
 			}
 
+			char port[7] = {0};
+			BREAK_IF_FAILED(result, IMFAttributes_GetBlob(this->attributes, &GUID_HOLOCAM_PORT, port, sizeof(port)-1, &(u32){0}));
+
+			struct addrinfo* info;
+			struct addrinfo hints = { .ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP, .ai_flags = AI_PASSIVE };
+			if (getaddrinfo(0, &port[0], &hints, &info) != 0) result = E_FAIL;
+			else
+			{
+				this->socket = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
+				if (this->socket == INVALID_SOCKET) result = E_FAIL;
+				else
+				{
+					if (bind(this->socket, info->ai_addr, (int)info->ai_addrlen) == SOCKET_ERROR) result = E_FAIL;
+					else
+					{
+						Log("bound");
+						if (listen(this->socket, 1) == SOCKET_ERROR) result = E_FAIL;
+						else
+						{
+							Log("listen");
+						}
+					}
+
+					if (!SUCCEEDED(result))
+					{
+						closesocket(this->socket);
+						this->socket = INVALID_SOCKET;
+					}
+				}
+
+				freeaddrinfo(info);
+			}
+			if (!SUCCEEDED(result)) break;
+			this->listen_socket = accept(this->socket, 0, 0);
+
 			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MEStreamStarted, &GUID_NULL, S_OK, 0));
 
 			this->stream_state = MF_STREAM_STATE_RUNNING;
@@ -698,6 +735,9 @@ MediaStream__StopInternal(Media_Stream* this, bool send_event)
 	HRESULT result = S_OK;
 
 	this->stream_state = MF_STREAM_STATE_STOPPED;
+
+	shutdown(this->listen_socket, SD_SEND);
+	closesocket(this->listen_socket);
 		
 	if (send_event)
 	{

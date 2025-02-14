@@ -40,6 +40,8 @@ struct IKsControl
 #include <ksguid.h>
 #include <ksmedia.h>
 #include <evntprov.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #undef COBJMACROS
 #undef UNICODE
 #undef NOMINMAX
@@ -147,6 +149,8 @@ HMODULE Module = 0;
 BOOL
 DllMain(HINSTANCE module, DWORD reason, LPVOID _)
 {
+	BOOL result = TRUE;
+
 	if (reason == DLL_PROCESS_ATTACH)
 	{
 		Module = module;
@@ -196,9 +200,13 @@ DllMain(HINSTANCE module, DWORD reason, LPVOID _)
 			};
 		}
 		ActivatePool[ARRAY_LEN(ActivatePool)-1].next_free = 0;
+
+
+		WSADATA wsa_data;
+		if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) result = FALSE;
 	}
 
-	return TRUE;
+	return result;
 }
 
 HRESULT __stdcall
