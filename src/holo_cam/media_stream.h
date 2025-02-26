@@ -367,12 +367,17 @@ MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 			DWORD data_len   = 0;
 			BREAK_IF_FAILED(result, IMF2DBuffer2_Lock2DSize(buffer, MF2DBuffer_LockFlags_Write, &data, &pitch, &data_start, &data_len));
 
+			Log("[--] %u %u", pitch, data_len);
+
 			if (IsEqualGUID(&this->format, &MFVideoFormat_NV12))
 			{
 				// TODO
+				Log("NV12");
 			}
 			else
 			{
+				Log("RGB");
+
 				u32 dims[2] = { this->width, this->height };
 				if (send(this->listen_socket, (char*)&dims[0], sizeof(dims), 0) != SOCKET_ERROR)
 				{
