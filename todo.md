@@ -4,3 +4,4 @@
 
 - how many sockets should be used?
 - when should the connection block?
+- make sure socket communication doesn't block sampling from other cameras

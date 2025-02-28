@@ -141,6 +141,7 @@ LogGUID(char* prefix, const GUID* guid)
 
 HMODULE Module = 0;
 
+#define HOLOCAM_IDS
 #include "../holo_cam.h"
 #include "media_stream.h"
 #include "media_source.h"

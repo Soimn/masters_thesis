@@ -26,9 +26,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#define HOLOCAM_IMPLEMENTATION
 #include "holo_cam.h"
-
-#define PORT "3003"
 
 IMFSourceReader*
 DEBUG_GetCameraReader()
@@ -174,67 +173,6 @@ NV12ToRGB(unsigned int width, unsigned int height, uint8_t* nv12, uint32_t* rgb)
 	}
 }
 
-#if 0
-
-					// NOTE: d3d11 code based on https://gist.github.com/d7samurai/261c69490cce0620d0bfc93003cd1052
-
-					ID3D11Device* device = 0;
-					ID3D11DeviceContext* context = 0;
-					if (!SUCCEEDED(D3D11CreateDevice(0, D3D_DRIVER_TYPE_HARDWARE, 0, 0, &(D3D_FEATURE_LEVEL){ D3D_FEATURE_LEVEL_11_0 }, 1, D3D11_SDK_VERSION, &device, 0, &context)))
-					{
-						D3D11_TEXTURE2D_DESC input_desc = {
-							.Width          = 1280,
-							.Height         = 960,
-							.MipLevels      = 1,
-							.ArraySize      = 1,
-							.Format         = DXGI_FORMAT_B8G8R8A8_UNORM,
-							.SampleDesc     = { .Count = 0, .Quality = 0 },
-							.Usage          = D3D11_USAGE_DEFAULT,
-							.BindFlags      = D3D11_BIND_SHADER_RESOURCE,
-							.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE,
-							.MiscFlags      = 0,
-						};
-
-						D3D11_TEXTURE2D_DESC output_desc = {
-							.Width          = 1280,
-							.Height         = 960,
-							.MipLevels      = 1,
-							.ArraySize      = 1,
-							.Format         = DXGI_FORMAT_B8G8R8A8_UNORM,
-							.SampleDesc     = { .Count = 0, .Quality = 0 },
-							.Usage          = D3D11_USAGE_DEFAULT,
-							.BindFlags      = D3D11_BIND_RENDER_TARGET,
-							.CPUAccessFlags = D3D11_CPU_ACCESS_READ,
-							.MiscFlags      = 0,
-						};
-
-						D3D11_RENDER_TARGET_VIEW_DESC view_desc = {
-							.Format        = DXGI_FORMAT_B8G8R8A8_UNORM,
-							.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
-						};
-
-						ID3D11Texture2D* input_texture = 0;
-						ID3D11Texture2D* output_texture = 0;
-						ID3D11RenderTargetView* render_target = 0;
-						if (!SUCCEEDED(ID3D11Device_CreateTexture2D(device, &input_desc, 0, &input_texture)) ||
-								!SUCCEEDED(ID3D11Device_CreateTexture2D(device, &output_desc, 0, &output_texture)) ||
-								!SUCCEEDED(ID3D11Device_CreateRenderTargetView(device, output_texture, &view_desc, &render_target)))
-						{
-							fprintf(stderr, "Failed to create textures\n");
-						}
-						else
-						{
-							
-						}
-
-						if (input_texture != 0) ID3D11Texture2D_Release(input_texture);
-						if (output_texture != 0) ID3D11Texture2D_Release(output_texture);
-
-						ID3D11DeviceContext_Release(context);
-						ID3D11Device_Release(device);
-					}
-#endif
-
 int
 wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_cmd)
 {
@@ -247,34 +185,22 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 		else
 		{
 			WSADATA wsa_data;
-			struct addrinfo* info;
-			struct addrinfo hints = { .ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP, .ai_flags = AI_PASSIVE };
-			if      (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0)         fprintf(stderr, "failed to startup winsock\n");
-			else if (getaddrinfo("localhost", PORT, &hints, &info) != 0) fprintf(stderr, "failed to get address info\n");
+			if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) fprintf(stderr, "failed to startup winsock\n");
 			else
 			{
-				SOCKET sock = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
+				IMFSourceReader* camera_sampler = DEBUG_GetCameraReader();
 
-				if (sock == INVALID_SOCKET) fprintf(stderr, "failed to create socket\n");
-				else
+				Holo_Cam cam;
+				if (HoloCam_Create(L"Holo Cam 0", 1920, 1080, 3009, &cam))
 				{
-					IMFSourceReader* camera_sampler = DEBUG_GetCameraReader();
-
-					IMFVirtualCamera* cam;
-					HRESULT result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, L"Holo Cam", CLSID_HOLOCAM_STRING, 0, 0, &cam);
-
-					IMFVirtualCamera_SetBlob(cam, &GUID_HOLOCAM_PORT, PORT, sizeof(PORT));
-					IMFVirtualCamera_SetUINT64(cam, &GUID_HOLOCAM_FRAME_SIZE, 1920ULL << 32 | 1080);
-					result = IMFVirtualCamera_Start(cam, 0);
-
-					while (connect(sock, info->ai_addr, (int)info->ai_addrlen) == SOCKET_ERROR) fprintf(stderr, "failed to connect\n");
-
 					for (;;)
 					{
 						static uint32_t rgb_frame[1920*1080];
 
 						for (;;)
 						{
+							HoloCam_Present(&cam, rgb_frame);
+
 							IMFSample* sample = 0;
 							UINT32 flags = 0;
 							HRESULT r = IMFSourceReader_ReadSample(camera_sampler, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &(UINT32){0}, &flags, &(UINT64){0}, &sample);
@@ -308,26 +234,19 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 								float g = ((color >>  8) & 0xFF) / 255.0f;
 								float b = ((color >>  0) & 0xFF) / 255.0f;
 
-								r = (int)(r*4)/4.0f;
-								g = (int)(g*4)/4.0f;
-								b = (int)(b*4)/4.0f;
+								r = (int)(r*2)/2.0f;
+								g = (int)(g*2)/2.0f;
+								b = (int)(b*2)/2.0f;
 
 								rgb_frame[j*1920 + i] = (uint32_t)Clamp(0, 255, (int)(r*255)) << 16 | (uint32_t)Clamp(0, 255, (int)(g*255)) << 8 | (uint32_t)Clamp(0, 255, (int)(b*255));
 							}
 						}
-
-						send(sock, (char*)&rgb_frame[0], sizeof(rgb_frame), 0);
-						if (recv(sock, &(char){0}, 1, MSG_WAITALL) <= 0) break;
 					}
 
-					shutdown(sock, SD_SEND);
-
-					closesocket(sock);
-
-					IMFVirtualCamera_Shutdown(cam);
-					IMFVirtualCamera_Release(cam);
-					IMFSourceReader_Release(camera_sampler);
+					HoloCam_Destroy(&cam);
 				}
+
+				IMFSourceReader_Release(camera_sampler);
 
 				WSACleanup();
 			}
