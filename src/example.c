@@ -264,13 +264,14 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 					HRESULT result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, L"Holo Cam", CLSID_HOLOCAM_STRING, 0, 0, &cam);
 
 					IMFVirtualCamera_SetBlob(cam, &GUID_HOLOCAM_PORT, PORT, sizeof(PORT));
+					IMFVirtualCamera_SetUINT64(cam, &GUID_HOLOCAM_FRAME_SIZE, 1920ULL << 32 | 1080);
 					result = IMFVirtualCamera_Start(cam, 0);
 
 					while (connect(sock, info->ai_addr, (int)info->ai_addrlen) == SOCKET_ERROR) fprintf(stderr, "failed to connect\n");
 
-					for (unsigned int request_dims[2]; recv(sock, (char*)request_dims, sizeof(request_dims), MSG_WAITALL) > 0; )
+					for (;;)
 					{
-						static uint32_t rgb_frame[1280*960];
+						static uint32_t rgb_frame[1920*1080];
 
 						for (;;)
 						{
@@ -287,17 +288,7 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 							UINT32 data_len = 0;
 							r = IMFMediaBuffer_Lock(buffer, &data, 0, &data_len);
 
-							static uint32_t rgb_sample[1920*1080];
-
-							NV12ToRGB(1920, 1080, data, rgb_sample);
-
-							for (unsigned int j = 0; j < 960; ++j)
-							{
-								for (unsigned int i = 0; i < 1280; ++i)
-								{
-									rgb_frame[j*1280 + i] = rgb_sample[j*1920 + i];
-								}
-							}
+							NV12ToRGB(1920, 1080, data, rgb_frame);
 
 							r = IMFMediaBuffer_Unlock(buffer);
 
@@ -307,11 +298,11 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 							break;
 						}
 
-						for (unsigned int j = 0; j < 960; ++j)
+						for (unsigned int j = 0; j < 1080; ++j)
 						{
-							for (unsigned int i = 0; i < 1280; ++i)
+							for (unsigned int i = 0; i < 1920; ++i)
 							{
-								uint32_t color = rgb_frame[j*1280 + i];
+								uint32_t color = rgb_frame[j*1920 + i];
 
 								float r = ((color >> 16) & 0xFF) / 255.0f;
 								float g = ((color >>  8) & 0xFF) / 255.0f;
@@ -321,11 +312,12 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 								g = (int)(g*4)/4.0f;
 								b = (int)(b*4)/4.0f;
 
-								rgb_frame[j*1280 + i] = (uint32_t)Clamp(0, 255, (int)(r*255)) << 16 | (uint32_t)Clamp(0, 255, (int)(g*255)) << 8 | (uint32_t)Clamp(0, 255, (int)(b*255));
+								rgb_frame[j*1920 + i] = (uint32_t)Clamp(0, 255, (int)(r*255)) << 16 | (uint32_t)Clamp(0, 255, (int)(g*255)) << 8 | (uint32_t)Clamp(0, 255, (int)(b*255));
 							}
 						}
 
 						send(sock, (char*)&rgb_frame[0], sizeof(rgb_frame), 0);
+						if (recv(sock, &(char){0}, 1, MSG_WAITALL) <= 0) break;
 					}
 
 					shutdown(sock, SD_SEND);

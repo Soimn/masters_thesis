@@ -1,5 +1,3 @@
-#define TEMP_WIDTH 1280
-#define TEMP_HEIGHT 960
 #define TEMP_FPS 30
 
 typedef struct Media_Stream Media_Stream;
@@ -51,7 +49,6 @@ typedef struct Media_Stream_Dynamic_State
 	MF_STREAM_STATE stream_state;
 	Media_Source* parent;
 	IMFVideoSampleAllocatorEx* sample_allocator;
-	GUID format;
 	u32 width;
 	u32 height;
 	SOCKET socket;
@@ -367,34 +364,8 @@ MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 			DWORD data_len   = 0;
 			BREAK_IF_FAILED(result, IMF2DBuffer2_Lock2DSize(buffer, MF2DBuffer_LockFlags_Write, &data, &pitch, &data_start, &data_len));
 
-			Log("[--] %u %u", pitch, data_len);
-
-			if (IsEqualGUID(&this->format, &MFVideoFormat_NV12))
-			{
-				// TODO
-				Log("NV12");
-			}
-			else
-			{
-				Log("RGB");
-
-				u32 dims[2] = { this->width, this->height };
-				if (send(this->listen_socket, (char*)&dims[0], sizeof(dims), 0) != SOCKET_ERROR)
-				{
-					recv(this->listen_socket, data, data_len, 0);
-				}
-				else
-				{
-					for (u32 j = 0; j < this->height; ++j)
-					{
-						u32* line = (u32*)(data + j*pitch);
-						for (u32 i = 0; i < this->width; ++i)
-						{
-							line[i] = (j % 2 == 0 ? 0xFF0000 : 0);
-						}
-					}
-				}
-			}
+			recv(this->listen_socket, data, data_len, 0);
+			send(this->listen_socket, &(char){0}, 1, 0);
 
 			BREAK_IF_FAILED(result, IMF2DBuffer2_Unlock2D(buffer));
 
@@ -541,12 +512,7 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttrib
 	LOG_FUNCTION_ENTRY();
 	HRESULT result = E_FAIL;
 
-	// TODO
-	u32 width     = TEMP_WIDTH;
-	u32 height    = TEMP_HEIGHT;
-	u32 framerate = TEMP_FPS;
-
-	IMFMediaType* media_types[2] = {0};
+	IMFMediaType* media_type     = 0;
 	IMFMediaTypeHandler* handler = 0;
 	do
 	{
@@ -559,44 +525,37 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttrib
 		BREAK_IF_FAILED(result, IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_FRAMESERVER_SHARED, 1));
 		BREAK_IF_FAILED(result, IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_ATTRIBUTE_FRAMESOURCE_TYPES, MFFrameSourceTypes_Color));
 
+		u64 frame_size = 0;
+		BREAK_IF_FAILED(result, IMFAttributes_GetUINT64(this->attributes, &GUID_HOLOCAM_FRAME_SIZE, &frame_size));
+
+		this->width  = (u32)(frame_size >> 32);
+		this->height = (u32)frame_size;
+		u32 framerate = TEMP_FPS;
+
 		BREAK_IF_FAILED(result, MFCreateEventQueue(&this->event_queue));
 
-		BREAK_IF_FAILED(result, MFCreateMediaType(&media_types[0]));
-		BREAK_IF_FAILED(result, IMFMediaType_SetGUID(media_types[0],   &MF_MT_MAJOR_TYPE,              &MFMediaType_Video));
-		BREAK_IF_FAILED(result, IMFMediaType_SetGUID(media_types[0],   &MF_MT_SUBTYPE,                 &MFVideoFormat_RGB32));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_types[0], &MF_MT_INTERLACE_MODE,	         MFVideoInterlace_Progressive));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_types[0], &MF_MT_ALL_SAMPLES_INDEPENDENT, TRUE));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_types[0], &MF_MT_FRAME_SIZE,              U64_HI_LO(width, height)));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_types[0], &MF_MT_DEFAULT_STRIDE,          width*4));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_types[0], &MF_MT_FRAME_RATE,              U64_HI_LO(framerate, 1)));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_types[0], &MF_MT_AVG_BITRATE,             width*height*4*8*framerate));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_types[0], &MF_MT_PIXEL_ASPECT_RATIO,      U64_HI_LO(1, 1)));
+		BREAK_IF_FAILED(result, MFCreateMediaType(&media_type));
+		BREAK_IF_FAILED(result, IMFMediaType_SetGUID(media_type,   &MF_MT_MAJOR_TYPE,              &MFMediaType_Video));
+		BREAK_IF_FAILED(result, IMFMediaType_SetGUID(media_type,   &MF_MT_SUBTYPE,                 &MFVideoFormat_RGB32));
+		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_type, &MF_MT_INTERLACE_MODE,	         MFVideoInterlace_Progressive));
+		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_type, &MF_MT_ALL_SAMPLES_INDEPENDENT, TRUE));
+		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_type, &MF_MT_FRAME_SIZE,              U64_HI_LO(this->width, this->height)));
+		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_type, &MF_MT_DEFAULT_STRIDE,          this->width*4));
+		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_type, &MF_MT_FRAME_RATE,              U64_HI_LO(framerate, 1)));
+		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_type, &MF_MT_AVG_BITRATE,             this->width*this->height*4*8*framerate));
+		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_type, &MF_MT_PIXEL_ASPECT_RATIO,      U64_HI_LO(1, 1)));
 
-		BREAK_IF_FAILED(result, MFCreateMediaType(&media_types[1]));
-		BREAK_IF_FAILED(result, IMFMediaType_SetGUID(media_types[1],   &MF_MT_MAJOR_TYPE,              &MFMediaType_Video));
-		BREAK_IF_FAILED(result, IMFMediaType_SetGUID(media_types[1],   &MF_MT_SUBTYPE,                 &MFVideoFormat_NV12));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_types[1], &MF_MT_INTERLACE_MODE,          MFVideoInterlace_Progressive));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_types[1], &MF_MT_ALL_SAMPLES_INDEPENDENT, TRUE));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_types[1], &MF_MT_FRAME_SIZE,              U64_HI_LO(width, height)));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_types[1], &MF_MT_DEFAULT_STRIDE,          (u32)(width*1.5)));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_types[1], &MF_MT_FRAME_RATE,              U64_HI_LO(framerate, 1)));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_types[1], &MF_MT_AVG_BITRATE,             width*height*12*framerate));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_types[1], &MF_MT_PIXEL_ASPECT_RATIO,      U64_HI_LO(1, 1)));
-
-		BREAK_IF_FAILED(result, MFCreateStreamDescriptor(index, ARRAY_LEN(media_types), &media_types[0], &this->stream_descriptor));
+		BREAK_IF_FAILED(result, MFCreateStreamDescriptor(index, 1, &media_type, &this->stream_descriptor));
 
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_GetMediaTypeHandler(this->stream_descriptor, &handler));
-		BREAK_IF_FAILED(result, IMFMediaTypeHandler_SetCurrentMediaType(handler, media_types[0]));
+		BREAK_IF_FAILED(result, IMFMediaTypeHandler_SetCurrentMediaType(handler, media_type));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetGUID(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_ID, index));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_FRAMESERVER_SHARED, 1));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_ATTRIBUTE_FRAMESOURCE_TYPES, MFFrameSourceTypes_Color));
 	} while (0);
 
-	for (umm i = 0; i < ARRAY_LEN(media_types); ++i)
-	{
-		if (media_types[i] != 0) IMFMediaType_Release(media_types[i]);
-	}
+	if (media_type != 0) IMFMediaType_Release(media_type);
 
 	if (handler != 0) IMFMediaTypeHandler_Release(handler);
 
@@ -649,16 +608,10 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 
 				BREAK_IF_FAILED(result, IMFVideoSampleAllocatorEx_InitializeSampleAllocator(this->sample_allocator, 10, media_type));
 
-				if (!IsEqualGUID(&format, &MFVideoFormat_RGB32) && !IsEqualGUID(&format, &MFVideoFormat_NV12))
+				if (!IsEqualGUID(&format, &MFVideoFormat_RGB32) || (u32)(frame_size >> 32) != this->width || (u32)frame_size != this->height)
 				{
 					result = MF_E_UNSUPPORTED_FORMAT;
 					break;
-				}
-				else
-				{
-					this->format = format;
-					this->width  = (u32)(frame_size >> 32);
-					this->height = (u32)frame_size;
 				}
 			}
 
