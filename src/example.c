@@ -1,5 +1,3 @@
-#include "holo_cam.h"
-
 #define COBJMACROS
 #define UNICODE
 #define NOMINMAX
@@ -16,6 +14,8 @@
 #include <mferror.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <d3d11.h>
+#include <d3dcompiler.h>
 #undef COBJMACROS
 #undef UNICODE
 #undef NOMINMAX
@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#define HOLOCAM_IMPLEMENTATION
+#include "holo_cam.h"
 
 IMFSourceReader*
 DEBUG_GetCameraReader()
@@ -174,71 +176,69 @@ NV12ToRGB(unsigned int width, unsigned int height, uint8_t* nv12, uint32_t* rgb)
 int
 wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_cmd)
 {
-	if (Holo_InitDependencies())
-	{
-		IMFSourceReader* camera_sampler = DEBUG_GetCameraReader();
+	Holo_InitDependencies();
 
-		Holo_Cam* cam = HoloCam_Create(L"Holo Cam 0", 1920, 1080, 3009);
-		if (cam != 0)
+	IMFSourceReader* camera_sampler = DEBUG_GetCameraReader();
+
+	Holo_Cam* cam = HoloCam_Create(L"Holo Cam 0", 1920, 1080, 3009);
+	if (cam != 0)
+	{
+		for (;;)
 		{
+			static uint32_t rgb_frame[1920*1080];
+
 			for (;;)
 			{
-				static uint32_t rgb_frame[1920*1080];
+				HoloCam_Present(cam, rgb_frame);
 
-				while (HoloCam_Present(cam, rgb_frame))
-				{
-					IMFSample* sample = 0;
-					UINT32 flags = 0;
-					HRESULT r = IMFSourceReader_ReadSample(camera_sampler, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &(UINT32){0}, &flags, &(UINT64){0}, &sample);
+				IMFSample* sample = 0;
+				UINT32 flags = 0;
+				HRESULT r = IMFSourceReader_ReadSample(camera_sampler, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &(UINT32){0}, &flags, &(UINT64){0}, &sample);
 
-					if (sample == 0) continue;
+				if (sample == 0) continue;
 
-					IMFMediaBuffer* buffer = 0;
-					r = IMFSample_ConvertToContiguousBuffer(sample, &buffer);
-					
-					BYTE* data      = 0;
-					UINT32 data_len = 0;
-					r = IMFMediaBuffer_Lock(buffer, &data, 0, &data_len);
+				IMFMediaBuffer* buffer = 0;
+				r = IMFSample_ConvertToContiguousBuffer(sample, &buffer);
+				
+				BYTE* data      = 0;
+				UINT32 data_len = 0;
+				r = IMFMediaBuffer_Lock(buffer, &data, 0, &data_len);
 
-					NV12ToRGB(1920, 1080, data, rgb_frame);
+				NV12ToRGB(1920, 1080, data, rgb_frame);
 
-					r = IMFMediaBuffer_Unlock(buffer);
+				r = IMFMediaBuffer_Unlock(buffer);
 
-					IMFMediaBuffer_Release(buffer);
-					IMFSample_Release(sample);
+				IMFMediaBuffer_Release(buffer);
+				IMFSample_Release(sample);
 
-					break;
-				}
-
-				for (unsigned int j = 0; j < 1080; ++j)
-				{
-					for (unsigned int i = 0; i < 1920; ++i)
-					{
-						uint32_t color = rgb_frame[j*1920 + i];
-
-						float r = ((color >> 16) & 0xFF) / 255.0f;
-						float g = ((color >>  8) & 0xFF) / 255.0f;
-						float b = ((color >>  0) & 0xFF) / 255.0f;
-
-						r = (int)(r*2)/2.0f;
-						g = (int)(g*2)/2.0f;
-						b = (int)(b*2)/2.0f;
-
-						rgb_frame[j*1920 + i] = (uint32_t)Clamp(0, 255, (int)(r*255)) << 16 | (uint32_t)Clamp(0, 255, (int)(g*255)) << 8 | (uint32_t)Clamp(0, 255, (int)(b*255));
-					}
-				}
+				break;
 			}
 
-			HoloCam_Destroy(&cam);
+			for (unsigned int j = 0; j < 1080; ++j)
+			{
+				for (unsigned int i = 0; i < 1920; ++i)
+				{
+					uint32_t color = rgb_frame[j*1920 + i];
+
+					float r = ((color >> 16) & 0xFF) / 255.0f;
+					float g = ((color >>  8) & 0xFF) / 255.0f;
+					float b = ((color >>  0) & 0xFF) / 255.0f;
+
+					r = (int)(r*2)/2.0f;
+					g = (int)(g*2)/2.0f;
+					b = (int)(b*2)/2.0f;
+
+					rgb_frame[j*1920 + i] = (uint32_t)Clamp(0, 255, (int)(r*255)) << 16 | (uint32_t)Clamp(0, 255, (int)(g*255)) << 8 | (uint32_t)Clamp(0, 255, (int)(b*255));
+				}
+			}
 		}
 
-		IMFSourceReader_Release(camera_sampler);
-
-		Holo_CleanupDepdencies();
+		HoloCam_Destroy(&cam);
 	}
+
+	IMFSourceReader_Release(camera_sampler);
+
+	Holo_CleanupDepdencies();
 
 	return 0;
 }
-
-#define HOLOCAM_IMPLEMENTATION
-#include "holo_cam.h"
