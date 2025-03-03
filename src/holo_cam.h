@@ -1,19 +1,17 @@
-#pragma once
-
 #include <stdint.h>
 #include <stdbool.h>
 
-// NOTE: preconditions: COM, MF and WSA init
+// NOTE: dependencies: COM, Media Founcation and WSA WINSOCK
 
-typedef struct Holo_Cam
-{
-	IMFVirtualCamera* cam_handle;
-	SOCKET sock;
-	uint16_t width;
-	uint16_t height;
-} Holo_Cam;
+bool Holo_InitDependencies(void);
+void Holo_CleanupDepdencies(void);
 
-bool HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint16_t port, Holo_Cam* cam);
+typedef struct Holo_Cam Holo_Cam;
+Holo_Cam* HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint16_t port);
+void HoloCam_Destroy(Holo_Cam** cam);
+bool HoloCam_Present(Holo_Cam* cam, uint32_t* image);
+
+
 
 #if defined(HOLOCAM_IMPLEMENTATION) && !defined(HOLOCAM_IDS)
 #define HOLOCAM_IDS
@@ -40,86 +38,125 @@ DEFINE_GUID(GUID_HOLOCAM_FRAME_SIZE, 0x4a7c1f91, 0xa83f, 0x425c, 0xaa, 0xdf, 0x8
 #endif
 
 #ifdef HOLOCAM_IMPLEMENTATION
+
+#define COBJMACROS
+#define UNICODE
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#define WIN32_MEAN_AND_LEAN
+#define VC_EXTRALEAN
+#include <mfvirtualcamera.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#undef COBJMACROS
+#undef UNICODE
+#undef NOMINMAX
+#undef WIN32_LEAN_AND_MEAN
+#undef WIN32_MEAN_AND_LEAN
+#undef VC_EXTRALEAN
+
 bool
-HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint16_t port, Holo_Cam* cam)
+Holo_InitDependencies()
 {
-	*cam = (Holo_Cam){0};
-
-	IMFVirtualCamera* cam_handle = 0;
-	HRESULT result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, unique_name, CLSID_HOLOCAM_STRING, 0, 0, &cam_handle);
-
-	char port_string[6] = {
-		'0' + (port/10000) % 10,
-		'0' + (port/1000) % 10,
-		'0' + (port/100) % 10,
-		'0' + (port/10) % 10,
-		'0' + (port/1) % 10,
-		0,
-	};
-
-	if (SUCCEEDED(result)) result = IMFVirtualCamera_SetBlob(cam_handle, &GUID_HOLOCAM_PORT, port_string, sizeof(port_string));
-	if (SUCCEEDED(result)) result = IMFVirtualCamera_SetUINT64(cam_handle, &GUID_HOLOCAM_FRAME_SIZE, (uint64_t)width << 32 | height);
-	if (SUCCEEDED(result)) result = IMFVirtualCamera_Start(cam_handle, 0);
-
-	SOCKET sock = 0;
-	if (SUCCEEDED(result))
-	{
-		struct addrinfo* info;
-		struct addrinfo hints = { .ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP, .ai_flags = AI_PASSIVE };
-		if (getaddrinfo("localhost", port_string, &hints, &info) != 0) result = E_FAIL;
-		else
-		{
-			sock = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
-
-			if (sock == INVALID_SOCKET) result = E_FAIL;
-			else
-			{
-				while (connect(sock, info->ai_addr, (int)info->ai_addrlen));
-			}
-		}
-	}
-
-	if (!SUCCEEDED(result) && cam_handle != 0) IMFVirtualCamera_Release(cam_handle);
-
-	if (SUCCEEDED(result))
-	{
-		*cam = (Holo_Cam){
-			.cam_handle = cam_handle,
-			.sock       = sock,
-			.width      = width,
-			.height     = height,
-		};
-	}
-
-	return SUCCEEDED(result);
+	return (SUCCEEDED(CoInitializeEx(0, COINIT_MULTITHREADED))   &&
+					SUCCEEDED(MFStartup(MF_VERSION, MFSTARTUP_NOSOCKET)) && // TODO: Fix version?
+					WSAStartup(MAKEWORD(2, 2), &(WSADATA){0}) == 0);
 }
 
 void
-HoloCam_Destroy(Holo_Cam* cam)
+Holo_CleanupDepdencies()
 {
-	if (cam != 0)
+	WSACleanup();
+	MFShutdown();
+	CoUninitialize();
+}
+
+typedef struct Holo_Cam
+{
+	struct IMFVirtualCamera* handle;
+	SOCKET socket;
+	uint16_t width;
+	uint16_t height;
+} Holo_Cam;
+
+Holo_Cam*
+HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint16_t port)
+{
+	HRESULT result = E_UNEXPECTED;
+
+	Holo_Cam* cam = CoTaskMemAlloc(sizeof(Holo_Cam));
+
+	if (cam == 0) result = E_FAIL;
+	else
 	{
-		if (cam->sock != 0)
+		result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, unique_name, CLSID_HOLOCAM_STRING, 0, 0, &cam->handle);
+
+		char port_string[6] = {
+			'0' + (port/10000) % 10,
+			'0' + (port/1000) % 10,
+			'0' + (port/100) % 10,
+			'0' + (port/10) % 10,
+			'0' + (port/1) % 10,
+			0,
+		};
+
+		if (SUCCEEDED(result)) result = IMFVirtualCamera_SetBlob(cam->handle, &GUID_HOLOCAM_PORT, port_string, sizeof(port_string));
+		if (SUCCEEDED(result)) result = IMFVirtualCamera_SetUINT64(cam->handle, &GUID_HOLOCAM_FRAME_SIZE, (uint64_t)width << 32 | height);
+		if (SUCCEEDED(result)) result = IMFVirtualCamera_Start(cam->handle, 0);
+
+		if (SUCCEEDED(result))
 		{
-			shutdown(cam->sock, SD_SEND);
-			closesocket(cam->sock);
+			struct addrinfo* info;
+			struct addrinfo hints = { .ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP, .ai_flags = AI_PASSIVE };
+			if (getaddrinfo("localhost", port_string, &hints, &info) != 0) result = E_FAIL;
+			else
+			{
+				cam->socket = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
+
+				if (cam->socket == INVALID_SOCKET) result = E_FAIL;
+				else
+				{
+					while (connect(cam->socket, info->ai_addr, (int)info->ai_addrlen));
+				}
+			}
 		}
 
-		if (cam->cam_handle != 0)
+		if (!SUCCEEDED(result))
 		{
-			IMFVirtualCamera_Shutdown(cam->cam_handle);
-			IMFVirtualCamera_Release(cam->cam_handle);
+			if (cam->handle != 0) IMFVirtualCamera_Release(cam->handle);
+			CoTaskMemFree(cam);
+		}
+	}
+
+	return (SUCCEEDED(result) ? cam : 0);
+}
+
+void
+HoloCam_Destroy(Holo_Cam** cam)
+{
+	if (*cam != 0)
+	{
+		if ((*cam)->socket != 0)
+		{
+			shutdown((*cam)->socket, SD_SEND);
+			closesocket((*cam)->socket);
 		}
 
-		*cam = (Holo_Cam){0};
+		if ((*cam)->handle != 0)
+		{
+			IMFVirtualCamera_Shutdown((*cam)->handle);
+			IMFVirtualCamera_Release((*cam)->handle);
+		}
+
+		CoTaskMemFree(*cam);
 	}
 }
 
 bool
 HoloCam_Present(Holo_Cam* cam, uint32_t* image)
 {
-	send(cam->sock, (char*)image, (uint32_t)cam->width*cam->height*4, 0);
-	return (recv(cam->sock, &(char){0}, 1, MSG_WAITALL) <= 0);
+	send(cam->socket, (char*)image, (uint32_t)cam->width*cam->height*4, 0);
+	return (recv(cam->socket, &(char){0}, 1, MSG_WAITALL) <= 0);
 }
 
 #endif

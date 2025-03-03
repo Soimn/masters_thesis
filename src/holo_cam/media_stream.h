@@ -172,6 +172,12 @@ MediaStream__ReleaseChildren(Media_Stream* this)
 		IMFVideoSampleAllocatorEx_Release(this->sample_allocator);
 		this->sample_allocator = 0;
 	}
+
+	closesocket(this->listen_socket);
+	this->listen_socket = INVALID_SOCKET;
+
+	closesocket(this->socket);
+	this->socket = INVALID_SOCKET;
 }
 
 ULONG
@@ -518,6 +524,9 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttrib
 	{
 		this->parent = parent;
 
+		this->socket        = INVALID_SOCKET;
+		this->listen_socket = INVALID_SOCKET;
+
 		BREAK_IF_FAILED(result, MFCreateAttributes(&this->attributes, 0));
 		BREAK_IF_FAILED(result, IMFAttributes_CopyAllItems(attributes, this->attributes));
 		BREAK_IF_FAILED(result, IMFAttributes_SetGUID(this->attributes, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
@@ -634,21 +643,30 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 						if (listen(this->socket, 1) == SOCKET_ERROR) result = E_FAIL;
 						else
 						{
-							Log("listen");
+							Log("listen %d", result);
 						}
 					}
+				}
 
-					if (!SUCCEEDED(result))
-					{
-						closesocket(this->socket);
-						this->socket = INVALID_SOCKET;
-					}
+				if (!SUCCEEDED(result))
+				{
+					closesocket(this->socket);
+					this->socket = INVALID_SOCKET;
 				}
 
 				freeaddrinfo(info);
 			}
 			if (!SUCCEEDED(result)) break;
+			Log("accepting");
 			this->listen_socket = accept(this->socket, 0, 0);
+			Log("accepted");
+
+			if (this->listen_socket == INVALID_SOCKET)
+			{
+				closesocket(this->socket);
+				result = E_FAIL;
+				break;
+			}
 
 			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MEStreamStarted, &GUID_NULL, S_OK, 0));
 
@@ -693,9 +711,6 @@ MediaStream__StopInternal(Media_Stream* this, bool send_event)
 	HRESULT result = S_OK;
 
 	this->stream_state = MF_STREAM_STATE_STOPPED;
-
-	shutdown(this->listen_socket, SD_SEND);
-	closesocket(this->listen_socket);
 		
 	if (send_event)
 	{
@@ -709,6 +724,7 @@ void
 MediaStream__Shutdown(Media_Stream* this)
 {
 	LOG_FUNCTION_ENTRY();
+
 	// NOTE: Consider logging result
 	if (this->event_queue != 0) IMFMediaEventQueue_Shutdown(this->event_queue);
 
