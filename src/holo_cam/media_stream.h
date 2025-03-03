@@ -172,6 +172,12 @@ MediaStream__ReleaseChildren(Media_Stream* this)
 		IMFVideoSampleAllocatorEx_Release(this->sample_allocator);
 		this->sample_allocator = 0;
 	}
+
+	closesocket(this->listen_socket);
+	this->listen_socket = INVALID_SOCKET;
+
+	closesocket(this->socket);
+	this->socket = INVALID_SOCKET;
 }
 
 ULONG
@@ -518,6 +524,9 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttrib
 	{
 		this->parent = parent;
 
+		this->socket        = INVALID_SOCKET;
+		this->listen_socket = INVALID_SOCKET;
+
 		BREAK_IF_FAILED(result, MFCreateAttributes(&this->attributes, 0));
 		BREAK_IF_FAILED(result, IMFAttributes_CopyAllItems(attributes, this->attributes));
 		BREAK_IF_FAILED(result, IMFAttributes_SetGUID(this->attributes, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
@@ -649,6 +658,13 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 			}
 			if (!SUCCEEDED(result)) break;
 			this->listen_socket = accept(this->socket, 0, 0);
+
+			if (this->listen_socket == INVALID_SOCKET)
+			{
+				closesocket(this->socket);
+				result = E_FAIL;
+				break;
+			}
 
 			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MEStreamStarted, &GUID_NULL, S_OK, 0));
 
