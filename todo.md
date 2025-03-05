@@ -5,3 +5,6 @@
 - how many sockets should be used?
 - when should the connection block?
 - make sure socket communication doesn't block sampling from other cameras
+
+- camera shutsdown when stopped
+- larger latency compared to direct stream from webcam (probably framerate difference, or not)
