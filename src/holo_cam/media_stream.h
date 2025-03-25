@@ -53,6 +53,7 @@ typedef struct Media_Stream_Dynamic_State
 	u32 height;
 	SOCKET socket;
 	SOCKET listen_socket;
+	char port[7];
 } Media_Stream_Dynamic_State;
 
 typedef struct Media_Stream
@@ -105,7 +106,7 @@ MediaStream__QueryInterface(Media_Stream* this, REFIID riid, void** handle)
 			this->lpVtbl->AddRef(this);
 			result = S_OK;
 		}
-		else if (IsEqualIID(riid, &IID_IKsControl))
+		else if (IsEqualIID(riid, &WHY_MICROSOFT_IID_IKsControl))
 		{
 			*handle = &this->lpKsControlVtbl;
 			this->lpVtbl->AddRef(this);
@@ -246,6 +247,7 @@ MediaStream__GetEvent(Media_Stream* this, DWORD dwFlags, IMFMediaEvent** ppEvent
 		if (event_queue != 0) IMFMediaEventQueue_Release(event_queue);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -262,6 +264,7 @@ MediaStream__BeginGetEvent(Media_Stream* this, IMFAsyncCallback* pCallback, IUnk
 
 	ReleaseSRWLockExclusive(&this->lock);
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -284,6 +287,7 @@ MediaStream__EndGetEvent(Media_Stream* this, IMFAsyncResult* pResult, IMFMediaEv
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -300,6 +304,7 @@ MediaStream__QueueEvent(Media_Stream* this, MediaEventType met, REFGUID guidExte
 
 	ReleaseSRWLockExclusive(&this->lock);
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -318,6 +323,7 @@ MediaStream__GetMediaSource(Media_Stream* this, IMFMediaSource** ppMediaSource)
 		else              		 result = MediaSource__QueryInterface(this->parent, &IID_IMFMediaSource, ppMediaSource);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -330,6 +336,8 @@ MediaStream__GetStreamDescriptor(Media_Stream* this, IMFStreamDescriptor** ppStr
 	if (ppStreamDescriptor == 0) result = E_POINTER;
 	else
 	{
+		*ppStreamDescriptor = 0;
+
 		AcquireSRWLockExclusive(&this->lock);
 		
 		if (this->stream_descriptor == 0) result = MF_E_SHUTDOWN;
@@ -338,6 +346,7 @@ MediaStream__GetStreamDescriptor(Media_Stream* this, IMFStreamDescriptor** ppStr
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -393,6 +402,7 @@ MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 
 	ReleaseSRWLockExclusive(&this->lock);
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -429,6 +439,7 @@ MediaStream__SetStreamState(Media_Stream* this, MF_STREAM_STATE value)
 
 	ReleaseSRWLockExclusive(&this->lock);
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -448,6 +459,7 @@ MediaStream__GetStreamState(Media_Stream* this, MF_STREAM_STATE* value)
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -455,36 +467,21 @@ HRESULT
 MediaStream_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength, void* EventData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result = E_FAIL;
-
-	if (BytesReturned == 0) result = E_POINTER;
-	else                   	result = ERROR_SET_NOT_FOUND;
-
-	return result;
+	return ERROR_SET_NOT_FOUND;
 }
 
 HRESULT
 MediaStream_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLength, void* MethodData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result = E_FAIL;
-
-	if (Method == 0 || BytesReturned == 0) result = E_POINTER;
-	else                                   result = ERROR_SET_NOT_FOUND;
-
-	return result;
+	return ERROR_SET_NOT_FOUND;
 }
 
 HRESULT
 MediaStream_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG PropertyLength, void* PropertyData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result = E_FAIL;
-
-	if (Property == 0 || BytesReturned == 0) result = E_POINTER;
-	else                                     result = ERROR_SET_NOT_FOUND;
-
-	return result;
+	return ERROR_SET_NOT_FOUND;
 }
 
 static MediaStreamVtbl MediaStream_Vtbl = {
@@ -513,7 +510,7 @@ static MediaStream_KsControlVtbl MediaStream_KsControl_Vtbl = {
 
 // NOTE: Must only be called from MediaSource__Init
 HRESULT
-MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttributes* attributes)
+MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttributes* parent_attributes)
 {
 	LOG_FUNCTION_ENTRY();
 	HRESULT result = E_FAIL;
@@ -527,15 +524,16 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttrib
 		this->socket        = INVALID_SOCKET;
 		this->listen_socket = INVALID_SOCKET;
 
-		BREAK_IF_FAILED(result, MFCreateAttributes(&this->attributes, 0));
-		BREAK_IF_FAILED(result, IMFAttributes_CopyAllItems(attributes, this->attributes));
+		BREAK_IF_FAILED(result, Attributes__CreateInstance(&this->attributes));
 		BREAK_IF_FAILED(result, IMFAttributes_SetGUID(this->attributes, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
 		BREAK_IF_FAILED(result, IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_STREAM_ID, index));
 		BREAK_IF_FAILED(result, IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_FRAMESERVER_SHARED, 1));
 		BREAK_IF_FAILED(result, IMFAttributes_SetUINT32(this->attributes, &MF_DEVICESTREAM_ATTRIBUTE_FRAMESOURCE_TYPES, MFFrameSourceTypes_Color));
 
 		u64 frame_size = 0;
-		BREAK_IF_FAILED(result, IMFAttributes_GetUINT64(this->attributes, &GUID_HOLOCAM_FRAME_SIZE, &frame_size));
+		BREAK_IF_FAILED(result, IMFAttributes_GetUINT64(parent_attributes, &GUID_HOLOCAM_FRAME_SIZE, &frame_size));
+
+		BREAK_IF_FAILED(result, IMFAttributes_GetBlob(parent_attributes, &GUID_HOLOCAM_PORT, &this->port[0], sizeof(this->port)-1, &(u32){0}));
 
 		this->width  = (u32)(frame_size >> 32);
 		this->height = (u32)frame_size;
@@ -558,14 +556,16 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttrib
 
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_GetMediaTypeHandler(this->stream_descriptor, &handler));
 		BREAK_IF_FAILED(result, IMFMediaTypeHandler_SetCurrentMediaType(handler, media_type));
+
+		/*
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetGUID(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_CATEGORY, &PINNAME_VIDEO_CAPTURE));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_STREAM_ID, index));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_FRAMESERVER_SHARED, 1));
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_SetUINT32(this->stream_descriptor, &MF_DEVICESTREAM_ATTRIBUTE_FRAMESOURCE_TYPES, MFFrameSourceTypes_Color));
+		*/
 	} while (0);
 
 	if (media_type != 0) IMFMediaType_Release(media_type);
-
 	if (handler != 0) IMFMediaTypeHandler_Release(handler);
 
 	return result;
@@ -587,6 +587,7 @@ MediaStream__Start(Media_Stream* this, IMFMediaType* media_type)
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -624,12 +625,9 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 				}
 			}
 
-			char port[7] = {0};
-			BREAK_IF_FAILED(result, IMFAttributes_GetBlob(this->attributes, &GUID_HOLOCAM_PORT, port, sizeof(port)-1, &(u32){0}));
-
 			struct addrinfo* info;
 			struct addrinfo hints = { .ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP, .ai_flags = AI_PASSIVE };
-			if (getaddrinfo(0, &port[0], &hints, &info) != 0) result = E_FAIL;
+			if (getaddrinfo(0, &this->port[0], &hints, &info) != 0) result = E_FAIL;
 			else
 			{
 				this->socket = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
@@ -672,6 +670,7 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 		} while (0);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -699,6 +698,7 @@ MediaStream__Stop(Media_Stream* this, bool send_event)
 
 	ReleaseSRWLockExclusive(&this->lock);
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -718,6 +718,7 @@ MediaStream__StopInternal(Media_Stream* this, bool send_event)
 		result = IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MEStreamStopped, &GUID_NULL, S_OK, 0);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -750,6 +751,7 @@ MediaStream__SetD3DManager(Media_Stream* this, IUnknown* manager)
 		result = E_NOTIMPL;
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -766,5 +768,6 @@ MediaStream__SetAllocator(Media_Stream* this, IUnknown* allocator)
 		result = IMFVideoSampleAllocatorEx_QueryInterface(allocator, &IID_IMFVideoSampleAllocatorEx, &this->sample_allocator);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }

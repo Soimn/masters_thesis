@@ -1,0 +1,1353 @@
+[HOLO] -- ActivateFactory__CreateInstance	
+[HOLO] -- Activate__QueryInterface	
+[HOLO] -- Activate__AddRef	
+[HOLO] -- Activate__Release	
+[HOLO] -- Activate__AddRef	
+[HOLO] -- Activate__Release	
+[HOLO] -- Activate__QueryInterface	
+[HOLO] -- Activate__AddRef	
+[HOLO] -- Activate__Release	
+[HOLO] -- Activate__GetItemType	
+[Holo] --- Activate__GetItemType guidKey is {22125DE7-D680-4FB3-A5DD-93A0315BBEC9}	
+[HOLO] :: Activate__GetItemType - -1072875802	
+[HOLO] -- Activate__SetItem	
+[Holo] --- Activate__SetItem guidKey is {22125DE7-D680-4FB3-A5DD-93A0315BBEC9}	
+[HOLO] :: Activate__SetItem - 0	
+[HOLO] -- Activate__GetItemType	
+[Holo] --- Activate__GetItemType guidKey is {2ACF1917-3743-41DF-A564-E727A80EA33D}	
+[HOLO] :: Activate__GetItemType - -1072875802	
+[HOLO] -- Activate__SetItem	
+[Holo] --- Activate__SetItem guidKey is {2ACF1917-3743-41DF-A564-E727A80EA33D}	
+[HOLO] :: Activate__SetItem - 0	
+[HOLO] -- Activate__GetItemType	
+[Holo] --- Activate__GetItemType guidKey is {44D1A9BC-2999-4238-AE43-0730CEB2AB1B}	
+[HOLO] :: Activate__GetItemType - -1072875802	
+[HOLO] -- Activate__SetItem	
+[Holo] --- Activate__SetItem guidKey is {44D1A9BC-2999-4238-AE43-0730CEB2AB1B}	
+[HOLO] :: Activate__SetItem - 0	
+[HOLO] -- Activate__GetItemType	
+[Holo] --- Activate__GetItemType guidKey is {58F0AAD8-22BF-4F8A-BB3D-D2C4978C6E2F}	
+[HOLO] :: Activate__GetItemType - -1072875802	
+[HOLO] -- Activate__SetItem	
+[Holo] --- Activate__SetItem guidKey is {58F0AAD8-22BF-4F8A-BB3D-D2C4978C6E2F}	
+[HOLO] :: Activate__SetItem - 0	
+[HOLO] -- Activate__GetItemType	
+[Holo] --- Activate__GetItemType guidKey is {5F8D322E-0FE4-43E4-9E50-D83ECD9FC2B8}	
+[HOLO] :: Activate__GetItemType - -1072875802	
+[HOLO] -- Activate__SetItem	
+[Holo] --- Activate__SetItem guidKey is {5F8D322E-0FE4-43E4-9E50-D83ECD9FC2B8}	
+[HOLO] :: Activate__SetItem - 0	
+[HOLO] -- Activate__GetItemType	
+[Holo] --- Activate__GetItemType guidKey is {C60AC5FE-252A-478F-A0EF-BC8FA5F7CAD3}	
+[HOLO] :: Activate__GetItemType - -1072875802	
+[HOLO] -- Activate__SetItem	
+[Holo] --- Activate__SetItem guidKey is {C60AC5FE-252A-478F-A0EF-BC8FA5F7CAD3}	
+[HOLO] :: Activate__SetItem - 0	
+[HOLO] -- Activate__GetItemType	
+[Holo] --- Activate__GetItemType guidKey is {4A7C1F91-A83F-425C-AADF-827682DDFADF}	
+[HOLO] :: Activate__GetItemType - -1072875802	
+[HOLO] -- Activate__SetItem	
+[Holo] --- Activate__SetItem guidKey is {4A7C1F91-A83F-425C-AADF-827682DDFADF}	
+[HOLO] :: Activate__SetItem - 0	
+[HOLO] -- Activate__GetItemType	
+[Holo] --- Activate__GetItemType guidKey is {60D0E559-52F8-4FA2-BBCE-ACDB34A8EC01}	
+[HOLO] :: Activate__GetItemType - -1072875802	
+[HOLO] -- Activate__SetItem	
+[Holo] --- Activate__SetItem guidKey is {60D0E559-52F8-4FA2-BBCE-ACDB34A8EC01}	
+[HOLO] :: Activate__SetItem - 0	
+[HOLO] -- Activate__GetItemType	
+[Holo] --- Activate__GetItemType guidKey is {79809298-5754-42D6-974A-EF1292A150FF}	
+[HOLO] :: Activate__GetItemType - -1072875802	
+[HOLO] -- Activate__SetItem	
+[Holo] --- Activate__SetItem guidKey is {79809298-5754-42D6-974A-EF1292A150FF}	
+[HOLO] :: Activate__SetItem - 0	
+[HOLO] -- Activate__SetUnknown	
+[Holo] --- Activate__SetUnknown guidKey is {1BB79E7C-5D83-438C-94D8-E5F0DF6D3279}	
+[HOLO] :: Activate__SetUnknown - 0	
+[HOLO] -- Activate__ActivateObject	
+[HOLO] -- MediaSource__Init	
+[HOLO] -- Attributes__SetUINT32	
+[HOLOO] --- Attributes__SetUINT32 guidKey is {F0273718-4A4D-4AC5-A15D-305EB5E90667}	
+[HOLO] :: Attributes__SetUINT32 - 0	
+[HOLO] -- Attributes__SetGUID	
+[HOLOO] --- Attributes__SetGUID guidKey is {6821C42B-65A4-4E82-99BC-9A88205ECD0C}	
+[HOLO] :: Attributes__SetGUID - 0	
+[HOLO] -- Attributes__SetUnknown	
+[HOLOO] --- Attributes__SetUnknown guidKey is {36EBDC44-B12C-441B-89F4-08B2F41A9CFC}	
+[Holo] --- Attributes__SetUnknown guidKey is {36EBDC44-B12C-441B-89F4-08B2F41A9CFC}	
+[HOLO] :: Attributes__SetUnknown - 0	
+[HOLO] -- MediaStream__Init	
+[HOLO] -- Attributes__SetGUID	
+[HOLOO] --- Attributes__SetGUID guidKey is {2939E7B8-A62E-4579-B674-D4073DFABBBA}	
+[HOLO] :: Attributes__SetGUID - 0	
+[HOLO] -- Attributes__SetUINT32	
+[HOLOO] --- Attributes__SetUINT32 guidKey is {11BD5120-D124-446B-88E6-17060257FFF9}	
+[HOLO] :: Attributes__SetUINT32 - 0	
+[HOLO] -- Attributes__SetUINT32	
+[HOLOO] --- Attributes__SetUINT32 guidKey is {1CB378E9-B279-41D4-AF97-34A243E68320}	
+[HOLO] :: Attributes__SetUINT32 - 0	
+[HOLO] -- Attributes__SetUINT32	
+[HOLOO] --- Attributes__SetUINT32 guidKey is {17145FD1-1B2B-423C-8001-2B6833ED3588}	
+[HOLO] :: Attributes__SetUINT32 - 0	
+[HOLO] -- MediaStream__GetStreamDescriptor	
+[HOLO] :: MediaStream__GetStreamDescriptor - 0	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {279A808D-AEC7-40C8-9C6B-A6B492C78A66}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- Activate__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {03910848-AB16-4611-B100-17B88AE2F248}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {77F0BACB-17A8-4A50-9A7D-A5CC09D39D44}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__CreatePresentationDescriptor	
+[HOLO] :: MediaSource__CreatePresentationDescriptor - 0	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {BF94C121-5B05-4E6F-8000-BA598961414D}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetStreamAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetStreamAttributes - 0	
+[HOLO] -- Attributes__GetGUID	
+[HOLOO] --- Attributes__GetGUID guidKey is {2939E7B8-A62E-4579-B674-D4073DFABBBA}	
+[HOLO] :: Attributes__GetGUID - 0	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {1CB378E9-B279-41D4-AF97-34A243E68320}	
+[HOLO] :: Attributes__GetUINT32 - 0	
+[HOLO] -- Attributes__GetUnknown	
+[HOLOO] --- Attributes__GetUnknown guidKey is {6EA542B0-281F-4231-A464-FE2F5022501C}	
+[HOLO] :: Attributes__GetUnknown - -1072875802	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {70212999-C449-4B9D-B1A4-B358E1490121}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {DA62B958-3A38-4A97-BD27-149C640C0771}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_SampleAllocatorControl__GetAllocatorUsage	
+[HOLO] -- MediaSource__GetStreamIndexFromIdentifier	
+[HOLO] -- MediaStream__GetStreamDescriptor	
+[HOLO] :: MediaStream__GetStreamDescriptor - 0	
+[HOLO] -:- MediaSource__GetStreamIndexFromIdentifier : 0	
+[HOLO] :: MediaSource__GetStreamIndexFromIdentifier - 0	
+[HOLO] -:- MediaSource_SampleAllocatorControl__GetAllocatorUsage . 0 0	
+[HOLO] :: MediaSource_SampleAllocatorControl__GetAllocatorUsage - 0	
+[HOLO] -- MediaSource_SampleAllocatorControl__SetDefaultAllocator	
+[HOLO] -- MediaSource__GetStreamIndexFromIdentifier	
+[HOLO] -- MediaStream__GetStreamDescriptor	
+[HOLO] :: MediaStream__GetStreamDescriptor - 0	
+[HOLO] -:- MediaSource__GetStreamIndexFromIdentifier : 0	
+[HOLO] :: MediaSource__GetStreamIndexFromIdentifier - 0	
+[HOLO] -- MediaStream__SetAllocator	
+[HOLO] :: MediaStream__SetAllocator - 0	
+[HOLO] -:- MediaSource_SampleAllocatorControl__SetDefaultAllocator : 0 000001886A85BC40	
+[HOLO] :: MediaSource_SampleAllocatorControl__SetDefaultAllocator - 0	
+[HOLO] -- MediaSource_SampleAllocatorControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetGUID	
+[HOLOO] --- Attributes__GetGUID guidKey is {2939E7B8-A62E-4579-B674-D4073DFABBBA}	
+[HOLO] :: Attributes__GetGUID - 0	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FBB03414-D13B-4786-8319-5AC51FC0A136}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {C47D95D5-9685-4BF6-B6FB-772DC58D8E3B}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__BeginGetEvent	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__BeginGetEvent - 0	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsEvent	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {C6E13370-30AC-11D0-A18C-00A0C9118956}	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetStreamAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetStreamAttributes - 0	
+[HOLO] -- Attributes__CopyAllItems	
+[HOLO] :: Attributes__CopyAllItems - 0	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {D57830E6-23D5-4DE7-BB45-A70F0417FEB8}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__AddRef	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__AddRef	
+[HOLO] -- Attributes__GetUINT32	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] -- MediaSource__Release	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__GetUINT32	
+[HOLO] -- Attributes__Release	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- MediaSource__Release	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- Attributes__AddRef	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__Release	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__Release	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- Attributes__GetUINT32	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__AddRef	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[HOLO] -- MediaSource__Release	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[HOLO] -- Attributes__QueryInterface	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- Attributes__AddRef	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- Attributes__GetUINT32	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] -- MediaSource__Release	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource_GetService__Release	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__Release	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] -- MediaSource__Release	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__QueryInterface	
+[HOLO] -- MediaSource_KsControl__Release	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {7F02A37E-4E81-11E0-8F3E-D057DFD72085}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {1CB79112-C0D2-4213-9CA6-CD4FDB927972}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {8C134960-51AD-11CF-878A-94F801C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {720D4AC0-7533-11D0-A5D6-28DB04C10000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {43937DC1-0BE6-4ADD-8A14-9EA68FF31252}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {2032C7EF-76F6-492A-94F3-4A81F69380CC}	
+[HOLO] :: MediaSource__QueryInterface - -2147467262	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {3C9B2EB9-86D5-4514-A394-F56664F9F0D8}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource__GetSourceAttributes	
+[HOLO] -- Attributes__QueryInterface	
+[HOLO] -- Attributes__AddRef	
+[HOLO] :: MediaSource__GetSourceAttributes - 0	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- Attributes__GetUINT32	
+[HOLOO] --- Attributes__GetUINT32 guidKey is {406DFEC3-DC02-418F-93C0-04102E2C9520}	
+[HOLO] :: Attributes__GetUINT32 - -1072875802	
+[HOLO] -- Attributes__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {FA993888-4383-415A-A930-DD472A8CF6F7}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_GetService__GetService	
+[HOLO] :: MediaSource_GetService__GetService - -1072875846	
+[HOLO] -- MediaSource_GetService__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__KsProperty	
+[Hooolo]--- {00000000-0000-0000-0000-000000000000}	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	
+[HOLO] -- MediaSource__QueryInterface	
+[Holo] --- MediaSource__QueryInterface riid is {28F54685-06FD-11D2-B27A-00A0C9223196}	
+[HOLO] -- MediaSource__AddRef	
+[HOLO] :: MediaSource__QueryInterface - 0	
+[HOLO] -- MediaSource_KsControl__Release	
+[HOLO] -- MediaSource__Release	

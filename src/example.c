@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #define HOLOCAM_IMPLEMENTATION
 #include "holo_cam.h"
 
@@ -7,7 +9,8 @@
 int
 wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_cmd)
 {
-	if (Holo_Init((Holo_Settings){0}))
+	Holo_Settings settings = {0};
+	if (Holo_Init(settings))
 	{
 		Holo_Camera_Reader* webcam_reader = 0;
 		unsigned int webcam_names_len = 0;
@@ -18,14 +21,15 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 			webcam_reader = HoloCameraReader_Create(webcam_names[0].symbolic_name, WIDTH, HEIGHT);
 		}
 
-		Holo_Cam* cam = HoloCam_Create(L"Holo Cam 0", WIDTH, HEIGHT, 3003);
+		Holo_Cam* cam = HoloCam_Create(L"Holo Cam 0", 1280, 960, 3003);
 
 		if (webcam_reader != 0 && cam != 0)
 		{
-			static uint32_t rgb_frame[WIDTH*HEIGHT];
 
-			while (HoloCam_Present(cam, rgb_frame))
+			while (true)
 			{
+				static uint32_t rgb_frame[WIDTH*HEIGHT];
+
 				HoloCameraReader_ReadFrame(webcam_reader, rgb_frame);
 
 				for (unsigned int j = 0; j < HEIGHT; ++j)
@@ -42,11 +46,13 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 						g = (int)(g*2)/2.0f;
 						b = (int)(b*2)/2.0f;
 
-						rgb_frame[j*WIDTH + i] = (uint32_t)Clamp(0, 255, (int)(r*255)) << 16 |
-							                       (uint32_t)Clamp(0, 255, (int)(g*255)) <<  8 |
-																		 (uint32_t)Clamp(0, 255, (int)(b*255));
+						rgb_frame[j*WIDTH + i] = (uint32_t)(uint8_t)(r*255) << 16 |
+							                       (uint32_t)(uint8_t)(g*255) <<  8 |
+																		 (uint32_t)(uint8_t)(b*255);
 					}
 				}
+
+				HoloCam_Present(cam, rgb_frame);
 			}
 		}
 

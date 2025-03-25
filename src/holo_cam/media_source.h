@@ -24,6 +24,9 @@ typedef struct MediaSourceVtbl
 	HRESULT (*GetSourceAttributes) (Media_Source* this, IMFAttributes** ppAttributes);
 	HRESULT (*GetStreamAttributes) (Media_Source* this, DWORD dwStreamIdentifier, IMFAttributes** ppAttributes);
 	HRESULT (*SetD3DManager)       (Media_Source* this, IUnknown* pManager);
+
+	// IMFMediaSource2
+	//HRESULT (*SetMediaType) (Media_Source* this, DWORD dwStreamID, IMFMediaType* pMediaType);
 } MediaSourceVtbl;
 
 typedef struct MediaSource_GetServiceVtbl
@@ -118,6 +121,7 @@ MediaSource__QueryInterface(Media_Source* this, REFIID riid, void** handle)
 				IsEqualIID(riid, &IID_IMFMediaEventGenerator) ||
 				IsEqualIID(riid, &IID_IMFMediaSource)         ||
 				IsEqualIID(riid, &IID_IMFMediaSourceEx))
+				//IsEqualIID(riid, &IID_IMFMediaSource2))
 		{
 			*handle = this;
 			this->lpVtbl->AddRef(this);
@@ -135,7 +139,7 @@ MediaSource__QueryInterface(Media_Source* this, REFIID riid, void** handle)
 			this->lpVtbl->AddRef(this);
 			result = S_OK;
 		}
-		else if (IsEqualIID(riid, &IID_IKsControl))
+		else if (IsEqualIID(riid, &WHY_MICROSOFT_IID_IKsControl))
 		{
 			*handle = &this->lpKsControlVtbl;
 			this->lpVtbl->AddRef(this);
@@ -144,6 +148,7 @@ MediaSource__QueryInterface(Media_Source* this, REFIID riid, void** handle)
 		else result = E_NOINTERFACE;
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -300,6 +305,7 @@ MediaSource__BeginGetEvent(Media_Source* this, IMFAsyncCallback* pCallback, IUnk
 
 	ReleaseSRWLockExclusive(&this->lock);
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -322,6 +328,7 @@ MediaSource__EndGetEvent(Media_Source* this, IMFAsyncResult* pResult, IMFMediaEv
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -356,6 +363,7 @@ MediaSource__GetEvent(Media_Source* this, DWORD dwFlags, IMFMediaEvent** ppEvent
 		if (event_queue != 0) IMFMediaEventQueue_Release(event_queue);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -372,6 +380,7 @@ MediaSource__QueueEvent(Media_Source* this, MediaEventType met, REFGUID guidExte
 
 	ReleaseSRWLockExclusive(&this->lock);
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -394,6 +403,7 @@ MediaSource__CreatePresentationDescriptor(Media_Source* this, IMFPresentationDes
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -411,6 +421,7 @@ MediaSource__GetCharacteristics(Media_Source* this, DWORD* pdwCharacteristics)
 		result = S_OK;
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -445,6 +456,7 @@ MediaSource__Shutdown(Media_Source* this)
 
 	ReleaseSRWLockExclusive(&this->lock);
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -472,10 +484,12 @@ MediaSource__GetStreamIndexFromIdentifier(Media_Source* this, DWORD identifier, 
 		if (SUCCEEDED(result) && id == identifier)
 		{
 			*index = i;
+			Log("[HOLO] -:- MediaSource__GetStreamIndexFromIdentifier : %d", i);
 			break;
 		}
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -557,6 +571,7 @@ MediaSource__Start(Media_Source* this, IMFPresentationDescriptor* pPresentationD
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -591,6 +606,7 @@ MediaSource__Stop(Media_Source* this)
 
 	ReleaseSRWLockExclusive(&this->lock);
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -612,6 +628,7 @@ MediaSource__GetSourceAttributes(Media_Source* this, IMFAttributes** ppAttribute
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -634,6 +651,7 @@ MediaSource__GetStreamAttributes(Media_Source* this, DWORD dwStreamIdentifier, I
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -664,8 +682,38 @@ MediaSource__SetD3DManager(Media_Source* this, IUnknown* pManager)
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
+
+/*
+HRESULT
+MediaSource__SetMediaType(Media_Source* this, DWORD dwStreamID, IMFMediaType* pMediaType)
+{
+	LOG_FUNCTION_ENTRY();
+	HRESULT result = E_FAIL;
+
+	if (pMediaType == 0) result = E_POINTER;
+	else
+	{
+		GUID format;
+		u64 frame_size;
+		if (SUCCEEDED(IMFMediaType_GetGUID(pMediaType, &MF_MT_SUBTYPE, &format)) &&
+				SUCCEEDED(IMFMediaType_GetUINT64(pMediaType, &MF_MT_FRAME_SIZE, &frame_size)))
+		{
+			LogGUID("[HoLLo] - - MediaSource__SetMediaType : ", &format);
+			Log("%ux%u", (u32)(frame_size >> 32), (u32)frame_size);
+		}
+
+		// TODO
+
+		result = S_OK;
+	}
+
+	LOG_FUNCTION_RESULT(result);
+	return result;
+}
+*/
 
 HRESULT
 MediaSource_GetService__GetService(void* raw_this, REFGUID guidService, REFIID riid, void** ppvObject)
@@ -673,13 +721,9 @@ MediaSource_GetService__GetService(void* raw_this, REFGUID guidService, REFIID r
 	LOG_FUNCTION_ENTRY();
 	HRESULT result = E_FAIL;
 
-	if (ppvObject == 0) result = E_POINTER;
-	else
-	{
-		*ppvObject = 0;
-		result = MF_E_UNSUPPORTED_SERVICE;
-	}
+	result = MF_E_UNSUPPORTED_SERVICE;
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -701,11 +745,14 @@ MediaSource_SampleAllocatorControl__GetAllocatorUsage(void* raw_this, DWORD dwOu
 		{
 			*pdwInputStreamID = dwOutputStreamID;
 			peUsage           = MFSampleAllocatorUsage_UsesProvidedAllocator;
+			
+			Log("[HOLO] -:- MediaSource_SampleAllocatorControl__GetAllocatorUsage . %d %d", dwOutputStreamID, idx);
 		}
 
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -726,11 +773,13 @@ MediaSource_SampleAllocatorControl__SetDefaultAllocator(void* raw_this, DWORD dw
 		if (SUCCEEDED(result))
 		{
 			result = MediaStream__SetAllocator(this->streams[idx], pAllocator);
+			Log("[HOLO] -:- MediaSource_SampleAllocatorControl__SetDefaultAllocator : %d %p", idx, pAllocator);
 		}
 
 		ReleaseSRWLockExclusive(&this->lock);
 	}
 
+	LOG_FUNCTION_RESULT(result);
 	return result;
 }
 
@@ -738,41 +787,24 @@ HRESULT
 MediaSource_KsControl__KsEvent(void* raw_this, KSEVENT* Event, ULONG EventLength, void* EventData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result = E_FAIL;
-
-	if (BytesReturned == 0) result = E_POINTER;
-	else                   	result = ERROR_SET_NOT_FOUND;
-
-	return result;
+	return ERROR_SET_NOT_FOUND;
 }
 
 HRESULT
 MediaSource_KsControl__KsMethod(void* raw_this, KSMETHOD* Method, ULONG MethodLength, void* MethodData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result = E_FAIL;
-
-	if (Method == 0 || BytesReturned == 0) result = E_POINTER;
-	else                                   result = ERROR_SET_NOT_FOUND;
-
-	return result;
+	return ERROR_SET_NOT_FOUND;
 }
 
 HRESULT
 MediaSource_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG PropertyLength, void* PropertyData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
-	Media_Source* this = MEDIASOURCE_ADJ_THIS(raw_this, KsControl);
-	HRESULT result = E_FAIL;
 
-	if      (Property == 0 || BytesReturned == 0)              result = E_POINTER;
-	else if (!IsEqualGUID(&Property->Set, &PROPSETID_HOLOCAM)) result = ERROR_SET_NOT_FOUND;
-	else
-	{
-		result = E_NOTIMPL;
-	}
+	if (Property != 0) LogGUID("[Hooolo]--- ", &Property->Set);
 
-	return result;
+	return ERROR_SET_NOT_FOUND;
 }
 
 static MediaSourceVtbl MediaSource_Vtbl = {
@@ -792,6 +824,7 @@ static MediaSourceVtbl MediaSource_Vtbl = {
 	.GetSourceAttributes          = MediaSource__GetSourceAttributes,
 	.GetStreamAttributes          = MediaSource__GetStreamAttributes,
 	.SetD3DManager                = MediaSource__SetD3DManager,
+	//.SetMediaType                 = MediaSource__SetMediaType,
 };
 
 static MediaSource_GetServiceVtbl MediaSource_GetService_Vtbl = {
@@ -825,16 +858,17 @@ MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 	LOG_FUNCTION_ENTRY();
 	HRESULT result = E_FAIL;
 
-	IMFSensorProfileCollection* sensor_collection = 0;
-	IMFSensorProfile* legacy_profile              = 0;
-	IMFSensorProfile* profile                     = 0;
+	IMFSensorProfileCollection* sensor_collection                     = 0;
+	IMFSensorProfile* legacy_profile                                  = 0;
+	IMFSensorProfile* profile                                         = 0;
 	IMFStreamDescriptor* stream_descriptors[ARRAY_LEN(this->streams)] = {0};
 	do
 	{
 		BREAK_IF_FAILED(result, MFCreateEventQueue(&this->event_queue));
 
-		BREAK_IF_FAILED(result, MFCreateAttributes(&this->attributes, 0));
-		BREAK_IF_FAILED(result, IMFAttributes_CopyAllItems(parent_attributes, this->attributes));
+		BREAK_IF_FAILED(result, Attributes__CreateInstance(&this->attributes));
+		BREAK_IF_FAILED(result, IMFAttributes_SetUINT32(this->attributes, &MF_VIRTUALCAMERA_PROVIDE_ASSOCIATED_CAMERA_SOURCES, 1));
+		BREAK_IF_FAILED(result, IMFAttributes_SetGUID(this->attributes, &MFT_TRANSFORM_CLSID_Attribute, &CLSID_HOLOCAM));
 
 		// TODO: This might need to change for multiple streams
 		{ /// Sensor profile
@@ -851,6 +885,8 @@ MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 
 			BREAK_IF_FAILED(result, IMFAttributes_SetUnknown(this->attributes, &MF_DEVICEMFT_SENSORPROFILE_COLLECTION, (IUnknown*)sensor_collection));
 		}
+
+		//BREAK_IF_FAILED(result, IMFAttributes_SetString(this->attributes, &MF_VIRTUALCAMERA_CONFIGURATION_APP_PACKAGE_FAMILY_NAME, L"HoloConfigAppPackageFamily"));
 
 		{ /// Stream init
 			this->streams_len = 1; // TODO
@@ -875,7 +911,7 @@ MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 
 			for (u32 i = 0; i < this->streams_len && SUCCEEDED(result); ++i)
 			{
-				BREAK_IF_FAILED(result, MediaStream__Init(this->streams[i], i, this, this->attributes));
+				BREAK_IF_FAILED(result, MediaStream__Init(this->streams[i], i, this, parent_attributes));
 				BREAK_IF_FAILED(result, this->streams[i]->lpVtbl->GetStreamDescriptor(this->streams[i], &stream_descriptors[i]));
 			}
 		}

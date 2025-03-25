@@ -8,3 +8,5 @@
 
 - camera shutsdown when stopped
 - larger latency compared to direct stream from webcam (probably framerate difference, or not)
+- camera doesn't work on discord
+- python bindings

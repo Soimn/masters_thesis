@@ -89,7 +89,7 @@ Activate__QueryInterface(Activate* this, REFIID riid, void** handle)
 	{
 		*handle = 0;
 
-		if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IMFActivate) && !IsEqualIID(riid, &IID_Activate)) result = E_NOINTERFACE;
+		if (!IsEqualIID(riid, &IID_IUnknown) && !IsEqualIID(riid, &IID_IMFActivate) && !IsEqualIID(riid, &IID_Activate) && !IsEqualIID(riid, &CLSID_HOLOCAM)) result = E_NOINTERFACE;
 		else
 		{
 			*handle = this;
@@ -148,7 +148,9 @@ HRESULT
 Activate__GetItem(Activate* this, REFGUID guidKey, PROPVARIANT* pValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetItem(this->attributes, guidKey, pValue);
+	HRESULT result = IMFAttributes_GetItem(this->attributes, guidKey, pValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
@@ -156,98 +158,126 @@ Activate__GetItemType(Activate* this, REFGUID guidKey, MF_ATTRIBUTE_TYPE* pType)
 {
 	LOG_FUNCTION_ENTRY();
 	LogGUID("[Holo] --- Activate__GetItemType guidKey is ", guidKey);
-	return IMFAttributes_GetItemType(this->attributes, guidKey, pType);
+	HRESULT result = IMFAttributes_GetItemType(this->attributes, guidKey, pType);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__CompareItem(Activate* this, REFGUID guidKey, REFPROPVARIANT Value, BOOL* pbResult)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_CompareItem(this->attributes, guidKey, Value, pbResult);
+	HRESULT result = IMFAttributes_CompareItem(this->attributes, guidKey, Value, pbResult);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__Compare(Activate* this, IMFAttributes* pTheirs, MF_ATTRIBUTES_MATCH_TYPE MatchType, BOOL* pbResult)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_Compare(this->attributes, pTheirs, MatchType, pbResult);
+	HRESULT result = IMFAttributes_Compare(this->attributes, pTheirs, MatchType, pbResult);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetUINT32(Activate* this, REFGUID guidKey, UINT32* punValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetUINT32(this->attributes, guidKey, punValue);
+	HRESULT result = IMFAttributes_GetUINT32(this->attributes, guidKey, punValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetUINT64(Activate* this, REFGUID guidKey, UINT64* punValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetUINT64(this->attributes, guidKey, punValue);
+	HRESULT result = IMFAttributes_GetUINT64(this->attributes, guidKey, punValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetDouble(Activate* this, REFGUID guidKey, double* pfValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetDouble(this->attributes, guidKey, pfValue);
+	HRESULT result = IMFAttributes_GetDouble(this->attributes, guidKey, pfValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetGUID(Activate* this, REFGUID guidKey, GUID* pguidValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetGUID(this->attributes, guidKey, pguidValue);
+	HRESULT result = IMFAttributes_GetGUID(this->attributes, guidKey, pguidValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetStringLength(Activate* this, REFGUID guidKey, UINT32* pcchLength)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetStringLength(this->attributes, guidKey, pcchLength);
+	HRESULT result = IMFAttributes_GetStringLength(this->attributes, guidKey, pcchLength);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetString(Activate* this, REFGUID guidKey, LPWSTR pwszValue, UINT32 cchBufSize, UINT32* pcchLength)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetString(this->attributes, guidKey, pwszValue, cchBufSize, pcchLength);
+	HRESULT result = IMFAttributes_GetString(this->attributes, guidKey, pwszValue, cchBufSize, pcchLength);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetAllocatedString(Activate* this, REFGUID guidKey, LPWSTR* ppwszValue, UINT32* pcchLength)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetAllocatedString(this->attributes, guidKey, ppwszValue, pcchLength);
+	HRESULT result = IMFAttributes_GetAllocatedString(this->attributes, guidKey, ppwszValue, pcchLength);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetBlobSize(Activate* this, REFGUID guidKey, UINT32* pcbBlobSize)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetBlobSize(this->attributes, guidKey, pcbBlobSize);
+	HRESULT result = IMFAttributes_GetBlobSize(this->attributes, guidKey, pcbBlobSize);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetBlob(Activate* this, REFGUID guidKey, UINT8* pBuf, UINT32 cbBufSize, UINT32* pcbBlobSize)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetBlob(this->attributes, guidKey, pBuf, cbBufSize, pcbBlobSize);
+	HRESULT result = IMFAttributes_GetBlob(this->attributes, guidKey, pBuf, cbBufSize, pcbBlobSize);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetAllocatedBlob(Activate* this, REFGUID guidKey, UINT8** ppBuf, UINT32* pcbSize)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetAllocatedBlob(this->attributes, guidKey, ppBuf, pcbSize);
+	HRESULT result = IMFAttributes_GetAllocatedBlob(this->attributes, guidKey, ppBuf, pcbSize);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetUnknown(Activate* this, REFGUID guidKey, REFIID riid, LPVOID* ppv)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetUnknown(this->attributes, guidKey, riid, ppv);
+	HRESULT result = IMFAttributes_GetUnknown(this->attributes, guidKey, riid, ppv);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
@@ -255,63 +285,81 @@ Activate__SetItem(Activate* this, REFGUID guidKey, REFPROPVARIANT Value)
 {
 	LOG_FUNCTION_ENTRY();
 	LogGUID("[Holo] --- Activate__SetItem guidKey is ", guidKey);
-	return IMFAttributes_SetItem(this->attributes, guidKey, Value);
+	HRESULT result = IMFAttributes_SetItem(this->attributes, guidKey, Value);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__DeleteItem(Activate* this, REFGUID guidKey)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_DeleteItem(this->attributes, guidKey);
+	HRESULT result = IMFAttributes_DeleteItem(this->attributes, guidKey);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__DeleteAllItems(Activate* this)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_DeleteAllItems(this->attributes);
+	HRESULT result = IMFAttributes_DeleteAllItems(this->attributes);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__SetUINT32(Activate* this, REFGUID guidKey, UINT32  unValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_SetUINT32(this->attributes, guidKey, unValue);
+	HRESULT result = IMFAttributes_SetUINT32(this->attributes, guidKey, unValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__SetUINT64(Activate* this, REFGUID guidKey, UINT64  unValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_SetUINT64(this->attributes, guidKey, unValue);
+	HRESULT result = IMFAttributes_SetUINT64(this->attributes, guidKey, unValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__SetDouble(Activate* this, REFGUID guidKey, double  fValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_SetDouble(this->attributes, guidKey, fValue);
+	HRESULT result = IMFAttributes_SetDouble(this->attributes, guidKey, fValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__SetGUID(Activate* this, REFGUID guidKey, REFGUID guidValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_SetGUID(this->attributes, guidKey, guidValue);
+	HRESULT result = IMFAttributes_SetGUID(this->attributes, guidKey, guidValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__SetString(Activate* this, REFGUID guidKey, LPCWSTR wszValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_SetString(this->attributes, guidKey, wszValue);
+	HRESULT result = IMFAttributes_SetString(this->attributes, guidKey, wszValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__SetBlob(Activate* this, REFGUID guidKey, const UINT8* pBuf, UINT32 cbBufSize)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_SetBlob(this->attributes, guidKey, pBuf, cbBufSize);
+	HRESULT result = IMFAttributes_SetBlob(this->attributes, guidKey, pBuf, cbBufSize);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
@@ -319,42 +367,54 @@ Activate__SetUnknown(Activate* this, REFGUID guidKey, IUnknown* pUnknown)
 {
 	LOG_FUNCTION_ENTRY();
 	LogGUID("[Holo] --- Activate__SetUnknown guidKey is ", guidKey);
-	return IMFAttributes_SetUnknown(this->attributes, guidKey, pUnknown);
+	HRESULT result = IMFAttributes_SetUnknown(this->attributes, guidKey, pUnknown);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__LockStore(Activate* this)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_LockStore(this->attributes);
+	HRESULT result = IMFAttributes_LockStore(this->attributes);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__UnlockStore(Activate* this)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_UnlockStore(this->attributes);
+	HRESULT result = IMFAttributes_UnlockStore(this->attributes);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetCount(Activate* this, UINT32* pcItems)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetCount(this->attributes, pcItems);
+	HRESULT result = IMFAttributes_GetCount(this->attributes, pcItems);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__GetItemByIndex(Activate* this, INT32 unIndex, GUID* pguidKey, PROPVARIANT* pValue)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_GetItemByIndex(this->attributes, unIndex, pguidKey, pValue);
+	HRESULT result = IMFAttributes_GetItemByIndex(this->attributes, unIndex, pguidKey, pValue);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
 Activate__CopyAllItems(Activate* this, IMFAttributes* pDest)
 {
 	LOG_FUNCTION_ENTRY();
-	return IMFAttributes_CopyAllItems(this->attributes, pDest);
+	HRESULT result = IMFAttributes_CopyAllItems(this->attributes, pDest);
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 HRESULT
