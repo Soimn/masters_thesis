@@ -127,6 +127,9 @@ HMODULE Module = 0;
 #define HOLOCAM_IDS
 #include "../holo_cam.h"
 #include "attributes.h"
+#include "presentation_descriptor.h"
+#include "media_type_handler.h"
+#include "stream_descriptor.h"
 #include "media_stream.h"
 #include "media_source.h"
 #include "activate.h"

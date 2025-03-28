@@ -80,6 +80,15 @@ DEFINE_GUID(GUID_HOLOCAM_FRAME_SIZE, 0x4a7c1f91, 0xa83f, 0x425c, 0xaa, 0xdf, 0x8
 #undef WIN32_MEAN_AND_LEAN
 #undef VC_EXTRALEAN
 
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "mf.lib")
+#pragma comment(lib, "mfplat.lib")
+#pragma comment(lib, "mfuuid.lib")
+#pragma comment(lib, "mfreadwrite.lib")
+#pragma comment(lib, "mfsensorgroup.lib")
+#pragma comment(lib, "Ws2_32.lib")
+
 static Holo_Settings HoloSettings = {0};
 
 bool
@@ -227,8 +236,7 @@ HoloCam_Destroy(Holo_Cam** cam)
 bool
 HoloCam_Present(Holo_Cam* cam, uint32_t* image)
 {
-	//send(cam->socket, (char*)image, (uint32_t)cam->width*cam->height*4, 0);
-	send(cam->socket, (char*)image, 1280*960*4, 0);
+	send(cam->socket, (char*)image, (uint32_t)cam->width*cam->height*4, 0);
 	return (recv(cam->socket, &(char){0}, 1, MSG_WAITALL) == 1);
 }
 

@@ -24,9 +24,6 @@ typedef struct MediaSourceVtbl
 	HRESULT (*GetSourceAttributes) (Media_Source* this, IMFAttributes** ppAttributes);
 	HRESULT (*GetStreamAttributes) (Media_Source* this, DWORD dwStreamIdentifier, IMFAttributes** ppAttributes);
 	HRESULT (*SetD3DManager)       (Media_Source* this, IUnknown* pManager);
-
-	// IMFMediaSource2
-	//HRESULT (*SetMediaType) (Media_Source* this, DWORD dwStreamID, IMFMediaType* pMediaType);
 } MediaSourceVtbl;
 
 typedef struct MediaSource_GetServiceVtbl
@@ -121,7 +118,6 @@ MediaSource__QueryInterface(Media_Source* this, REFIID riid, void** handle)
 				IsEqualIID(riid, &IID_IMFMediaEventGenerator) ||
 				IsEqualIID(riid, &IID_IMFMediaSource)         ||
 				IsEqualIID(riid, &IID_IMFMediaSourceEx))
-				//IsEqualIID(riid, &IID_IMFMediaSource2))
 		{
 			*handle = this;
 			this->lpVtbl->AddRef(this);
@@ -686,45 +682,11 @@ MediaSource__SetD3DManager(Media_Source* this, IUnknown* pManager)
 	return result;
 }
 
-/*
-HRESULT
-MediaSource__SetMediaType(Media_Source* this, DWORD dwStreamID, IMFMediaType* pMediaType)
-{
-	LOG_FUNCTION_ENTRY();
-	HRESULT result = E_FAIL;
-
-	if (pMediaType == 0) result = E_POINTER;
-	else
-	{
-		GUID format;
-		u64 frame_size;
-		if (SUCCEEDED(IMFMediaType_GetGUID(pMediaType, &MF_MT_SUBTYPE, &format)) &&
-				SUCCEEDED(IMFMediaType_GetUINT64(pMediaType, &MF_MT_FRAME_SIZE, &frame_size)))
-		{
-			LogGUID("[HoLLo] - - MediaSource__SetMediaType : ", &format);
-			Log("%ux%u", (u32)(frame_size >> 32), (u32)frame_size);
-		}
-
-		// TODO
-
-		result = S_OK;
-	}
-
-	LOG_FUNCTION_RESULT(result);
-	return result;
-}
-*/
-
 HRESULT
 MediaSource_GetService__GetService(void* raw_this, REFGUID guidService, REFIID riid, void** ppvObject)
 {
 	LOG_FUNCTION_ENTRY();
-	HRESULT result = E_FAIL;
-
-	result = MF_E_UNSUPPORTED_SERVICE;
-
-	LOG_FUNCTION_RESULT(result);
-	return result;
+	return MF_E_UNSUPPORTED_SERVICE;
 }
 
 HRESULT
@@ -801,10 +763,17 @@ HRESULT
 MediaSource_KsControl__KsProperty(void* raw_this, KSPROPERTY* Property, ULONG PropertyLength, void* PropertyData, ULONG DataLength, ULONG* BytesReturned)
 {
 	LOG_FUNCTION_ENTRY();
+	HRESULT result = E_FAIL;
 
-	if (Property != 0) LogGUID("[Hooolo]--- ", &Property->Set);
+	if (Property == 0 || BytesReturned == 0) result = E_POINTER;
+	else
+	{
+		if (Property != 0) LogGUID("[Hooolo]--- ", &Property->Set);
+		result = ERROR_SET_NOT_FOUND;
+	}
 
-	return ERROR_SET_NOT_FOUND;
+	LOG_FUNCTION_RESULT(result);
+	return result;
 }
 
 static MediaSourceVtbl MediaSource_Vtbl = {
@@ -824,7 +793,6 @@ static MediaSourceVtbl MediaSource_Vtbl = {
 	.GetSourceAttributes          = MediaSource__GetSourceAttributes,
 	.GetStreamAttributes          = MediaSource__GetStreamAttributes,
 	.SetD3DManager                = MediaSource__SetD3DManager,
-	//.SetMediaType                 = MediaSource__SetMediaType,
 };
 
 static MediaSource_GetServiceVtbl MediaSource_GetService_Vtbl = {
@@ -917,7 +885,8 @@ MediaSource__Init(Media_Source* this, IMFAttributes* parent_attributes)
 		}
 		if (!SUCCEEDED(result)) break;
 
-		BREAK_IF_FAILED(result, MFCreatePresentationDescriptor(this->streams_len, &stream_descriptors[0], &this->presentation_descriptor));
+		//BREAK_IF_FAILED(result, MFCreatePresentationDescriptor(this->streams_len, &stream_descriptors[0], &this->presentation_descriptor));
+		BREAK_IF_FAILED(result, PresentationDescriptor__CreateInstance(this->streams_len, &stream_descriptors[0], &this->presentation_descriptor));
 	} while (0);
 
 	if (sensor_collection != 0) IMFSensorProfileCollection_Release(sensor_collection);

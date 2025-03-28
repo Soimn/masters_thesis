@@ -552,7 +552,8 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttrib
 		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_type, &MF_MT_AVG_BITRATE,             this->width*this->height*4*8*framerate));
 		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_type, &MF_MT_PIXEL_ASPECT_RATIO,      U64_HI_LO(1, 1)));
 
-		BREAK_IF_FAILED(result, MFCreateStreamDescriptor(index, 1, &media_type, &this->stream_descriptor));
+		//BREAK_IF_FAILED(result, MFCreateStreamDescriptor(index, 1, &media_type, &this->stream_descriptor));
+		BREAK_IF_FAILED(result, StreamDescriptor__CreateInstance(index, 1, &media_type, &this->stream_descriptor));
 
 		BREAK_IF_FAILED(result, IMFStreamDescriptor_GetMediaTypeHandler(this->stream_descriptor, &handler));
 		BREAK_IF_FAILED(result, IMFMediaTypeHandler_SetCurrentMediaType(handler, media_type));

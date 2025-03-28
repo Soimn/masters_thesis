@@ -24,7 +24,7 @@ if "%1"=="debug" (
 
 if "%2" neq "" goto invalid_arguments
 
-set "holo_example_dependencies=user32.lib ole32.lib mf.lib mfplat.lib mfuuid.lib mfreadwrite.lib mfsensorgroup.lib Ws2_32.lib d3d11.lib d3dcompiler.lib"
+set "holo_example_dependencies=user32.lib ole32.lib mf.lib mfplat.lib mfuuid.lib mfreadwrite.lib mfsensorgroup.lib Ws2_32.lib"
 cl %compile_options% ..\src\example.c /link /incremental:no /opt:ref /pdb:holo_example.pdb /out:holo_example.exe %holo_example_dependencies%
 
 set "holo_cam_dependencies=libucrtd.lib libvcruntimed.lib user32.lib ole32.lib mf.lib mfplat.lib mfuuid.lib mfreadwrite.lib mfsensorgroup.lib advapi32.lib d2d1.lib Ws2_32.lib"

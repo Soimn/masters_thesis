@@ -1,1 +1,3 @@
 /build
+/src/holo_cam_python/build/
+/src/holo_cam_python/holocam.egg-info/
