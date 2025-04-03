@@ -18,10 +18,10 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 
 		if (webcam_names != 0)
 		{
-			webcam_reader = HoloCameraReader_Create(webcam_names[0].symbolic_name, WIDTH, HEIGHT);
+			webcam_reader = HoloCameraReader_Create(webcam_names[0].symbolic_name, WIDTH, HEIGHT, 60);
 		}
 
-		Holo_Cam* cam = HoloCam_Create(L"Holo Cam 0", 1920, 1080, 3009);
+		Holo_Cam* cam = HoloCam_Create(L"Holo Cam 0", 1920, 1080, 60, 3009);
 
 		if (webcam_reader != 0 && cam != 0)
 		{

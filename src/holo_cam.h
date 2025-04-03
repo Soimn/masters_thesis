@@ -15,7 +15,7 @@ bool Holo_Init(Holo_Settings settings);
 void Holo_Cleanup(void);
 
 typedef struct Holo_Cam Holo_Cam;
-Holo_Cam* HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint16_t port);
+Holo_Cam* HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint8_t fps, uint16_t port);
 void HoloCam_Destroy(Holo_Cam** cam);
 bool HoloCam_Present(Holo_Cam* cam, uint32_t* image);
 
@@ -31,8 +31,9 @@ Holo_Camera_Name* Holo_GetCameraNames(unsigned int* names_len);
 void Holo_FreeCameraNames(Holo_Camera_Name* names);
 
 typedef struct Holo_Camera_Reader Holo_Camera_Reader;
-Holo_Camera_Reader* HoloCameraReader_Create(wchar_t* symbolic_namem, uint16_t width, uint16_t height);
+Holo_Camera_Reader* HoloCameraReader_Create(wchar_t* symbolic_name, uint16_t width, uint16_t height, uint8_t fps);
 void HoloCameraReader_Destroy(Holo_Camera_Reader** reader);
+void HoloCameraReader_ReadFrame(Holo_Camera_Reader* reader, uint32_t* frame);
 
 #if defined(HOLOCAM_IMPLEMENTATION) && !defined(HOLOCAM_IDS)
 #define HOLOCAM_IDS
@@ -53,6 +54,9 @@ DEFINE_GUID(GUID_HOLOCAM_PORT, 0x79809298, 0x5754, 0x42d6, 0x97, 0x4a, 0xef, 0x1
 
 // {4A7C1F91-A83F-425C-AADF-827682DDFADF}
 DEFINE_GUID(GUID_HOLOCAM_FRAME_SIZE, 0x4a7c1f91, 0xa83f, 0x425c, 0xaa, 0xdf, 0x82, 0x76, 0x82, 0xdd, 0xfa, 0xdf);
+
+// {B4DA981F-618B-4715-A732-9E80D21416CB}
+DEFINE_GUID(GUID_HOLOCAM_FPS, 0xb4da981f, 0x618b, 0x4715, 0xa7, 0x32, 0x9e, 0x80, 0xd2, 0x14, 0x16, 0xcb);
 #endif
 
 #ifdef HOLOCAM_IMPLEMENTATION
@@ -146,29 +150,30 @@ typedef struct Holo_Cam
 } Holo_Cam;
 
 Holo_Cam*
-HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint16_t port)
+HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint8_t fps, uint16_t port)
 {
 	Holo_Cam* cam = 0;
 
 	IMFVirtualCamera* cam_handle = 0;
 	HRESULT result = MFCreateVirtualCamera(MFVirtualCameraType_SoftwareCameraSource, MFVirtualCameraLifetime_Session, MFVirtualCameraAccess_CurrentUser, unique_name, CLSID_HOLOCAM_STRING, 0, 0, &cam_handle);
 
-	char port_string[6] = {
-		'0' + (port/10000) % 10,
-		'0' + (port/1000) % 10,
-		'0' + (port/100) % 10,
-		'0' + (port/10) % 10,
-		'0' + (port/1) % 10,
-		0,
-	};
-
-	if (SUCCEEDED(result)) result = IMFVirtualCamera_SetBlob(cam_handle, &GUID_HOLOCAM_PORT, port_string, sizeof(port_string));
+	if (SUCCEEDED(result)) result = IMFVirtualCamera_SetUINT32(cam_handle, &GUID_HOLOCAM_PORT, port);
 	if (SUCCEEDED(result)) result = IMFVirtualCamera_SetUINT64(cam_handle, &GUID_HOLOCAM_FRAME_SIZE, (uint64_t)width << 32 | height);
+	if (SUCCEEDED(result)) result = IMFVirtualCamera_SetUINT32(cam_handle, &GUID_HOLOCAM_FPS, fps);
 	if (SUCCEEDED(result)) result = IMFVirtualCamera_Start(cam_handle, 0);
 
 	SOCKET sock = 0;
 	if (SUCCEEDED(result))
 	{
+		char port_string[6] = {
+			'0' + (port/10000) % 10,
+			'0' + (port/1000) % 10,
+			'0' + (port/100) % 10,
+			'0' + (port/10) % 10,
+			'0' + (port/1) % 10,
+			0,
+		};
+
 		struct addrinfo* info;
 		struct addrinfo hints = { .ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP, .ai_flags = AI_PASSIVE };
 		if (getaddrinfo("localhost", port_string, &hints, &info) != 0) result = E_FAIL;
@@ -367,7 +372,7 @@ typedef struct Holo_Camera_Reader
 } Holo_Camera_Reader;
 
 Holo_Camera_Reader*
-HoloCameraReader_Create(wchar_t* symbolic_name, uint16_t width, uint16_t height)
+HoloCameraReader_Create(wchar_t* symbolic_name, uint16_t width, uint16_t height, uint8_t fps)
 {
 	bool encountered_errors = false;
 
@@ -387,7 +392,7 @@ HoloCameraReader_Create(wchar_t* symbolic_name, uint16_t width, uint16_t height)
 			!SUCCEEDED(IMFMediaType_SetGUID(media_type, &MF_MT_MAJOR_TYPE, &MFMediaType_Video))                                                  ||
 			!SUCCEEDED(IMFMediaType_SetGUID(media_type, &MF_MT_SUBTYPE, &MFVideoFormat_NV12))                                                    ||
 			!SUCCEEDED(IMFMediaType_SetUINT64(media_type, &MF_MT_FRAME_SIZE, (uint64_t)width << 32 | height))                                    ||
-			!SUCCEEDED(IMFMediaType_SetUINT64(media_type, &MF_MT_FRAME_RATE, 30ULL << 32 | 1))                                                   ||
+			!SUCCEEDED(IMFMediaType_SetUINT64(media_type, &MF_MT_FRAME_RATE, (uint64_t)fps << 32 | 1))                                           ||
 			!SUCCEEDED(IMFSourceReader_SetCurrentMediaType(source_reader, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, media_type)))
 	{
 		encountered_errors = true;
@@ -436,29 +441,58 @@ static void NV12ToRGB(unsigned int width, unsigned int height, uint8_t* nv12, ui
 void
 HoloCameraReader_ReadFrame(Holo_Camera_Reader* reader, uint32_t* frame)
 {
+	UINT32 drain = MF_SOURCE_READER_CONTROLF_DRAIN;
+	IMFSample* sample = 0;
+
 	for (;;)
 	{
-		IMFSample* sample = 0;
-		HRESULT r = IMFSourceReader_ReadSample(reader->source_reader, MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &(UINT32){0}, &(UINT32){0}, &(UINT64){0}, &sample);
+		IMFSample* s = 0;
+		UINT32 flags = 0;
+		HRESULT r = IMFSourceReader_ReadSample(reader->source_reader, MF_SOURCE_READER_FIRST_VIDEO_STREAM, drain, &(UINT32){0}, &flags, &(UINT64){0}, &s);
 
-		if (sample == 0) continue;
-
-		IMFMediaBuffer* buffer = 0;
-		r = IMFSample_ConvertToContiguousBuffer(sample, &buffer);
-		
-		BYTE* data      = 0;
-		UINT32 data_len = 0;
-		r = IMFMediaBuffer_Lock(buffer, &data, 0, &data_len);
-
-		NV12ToRGB(1920, 1080, data, frame);
-
-		r = IMFMediaBuffer_Unlock(buffer);
-
-		IMFMediaBuffer_Release(buffer);
-		IMFSample_Release(sample);
-
-		break;
+		if (flags & MF_SOURCE_READERF_ERROR)
+		{
+			// TODO
+			//// ERROR
+			break;
+		}
+		else if (flags & MF_SOURCE_READERF_CURRENTMEDIATYPECHANGED)
+		{
+			// TODO
+			//// ERROR
+			break;
+		}
+		else if (flags & MF_SOURCE_READERF_STREAMTICK) continue;
+		else
+		{
+			if (s == 0)
+			{
+				drain = 0;
+				continue;
+			}
+			else
+			{
+				if (sample != 0) IMFSample_Release(sample);
+				sample = s;
+				if (drain != 0) continue;
+				else            break;
+			}
+		}
 	}
+
+	IMFMediaBuffer* buffer = 0;
+	HRESULT r = IMFSample_ConvertToContiguousBuffer(sample, &buffer);
+	
+	BYTE* data      = 0;
+	UINT32 data_len = 0;
+	r = IMFMediaBuffer_Lock(buffer, &data, 0, &data_len);
+
+	NV12ToRGB(1920, 1080, data, frame);
+
+	r = IMFMediaBuffer_Unlock(buffer);
+
+	IMFMediaBuffer_Release(buffer);
+	IMFSample_Release(sample);
 }
 
 // TODO

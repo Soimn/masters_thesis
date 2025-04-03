@@ -23,14 +23,15 @@ py__HoloCam_Init(py__Holo_Cam* self, PyObject* args, PyObject* kwds)
 {
 	int result = -1;
 
-	static char* kwlist[] = { "unique_name", "width", "height", "port", 0	};
+	static char* kwlist[] = { "unique_name", "width", "height", "fps", "port", 0	};
 
 	PyObject* uname = 0;
 	int width       = 0;
 	int height      = 0;
+	int fps         = 0;
 	int port        = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwds, "Uiii", kwlist, &uname, &width, &height, &port))
+	if (!PyArg_ParseTupleAndKeywords(args, kwds, "Uiiii", kwlist, &uname, &width, &height, &fps, &port))
 	{
 		//// ERROR
 		result = -1;
@@ -49,6 +50,12 @@ py__HoloCam_Init(py__Holo_Cam* self, PyObject* args, PyObject* kwds)
 			PyErr_SetString(PyExc_ValueError, "height must be in range(0, 65536)");
 			result = -1;
 		}
+		else if (fps < 0 || fps >= (1 << 8))
+		{
+			//// ERROR
+			PyErr_SetString(PyExc_ValueError, "fps must be in range(0, 256)");
+			result = -1;
+		}
 		else if (port < 0 || port >= (1 << 16))
 		{
 			//// ERROR
@@ -65,7 +72,7 @@ py__HoloCam_Init(py__Holo_Cam* self, PyObject* args, PyObject* kwds)
 			}
 			else
 			{
-				Holo_Cam* cam = HoloCam_Create(name, (uint16_t)width, (uint16_t)height, (uint16_t)port);
+				Holo_Cam* cam = HoloCam_Create(name, (uint16_t)width, (uint16_t)height, (uint8_t)fps, (uint16_t)port);
 
 				if (cam == 0)
 				{
@@ -150,13 +157,14 @@ py__HoloCameraReader_Init(py__Holo_Camera_Reader* self, PyObject* args, PyObject
 {
 	int result = -1;
 
-	static char* kwlist[] = { "symbolic_name", "width", "height", 0 };
+	static char* kwlist[] = { "symbolic_name", "width", "height", "fps", 0 };
 
 	PyObject* uname = 0;
 	int width       = 0;
 	int height      = 0;
+	int fps         = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwds, "Uii", kwlist, &uname, &width, &height))
+	if (!PyArg_ParseTupleAndKeywords(args, kwds, "Uiii", kwlist, &uname, &width, &height, &fps))
 	{
 		//// ERROR
 		result = -1;
@@ -175,6 +183,12 @@ py__HoloCameraReader_Init(py__Holo_Camera_Reader* self, PyObject* args, PyObject
 			PyErr_SetString(PyExc_ValueError, "height must be in range(0, 65536)");
 			result = -1;
 		}
+		else if (fps < 0 || fps >= (1 << 8))
+		{
+			//// ERROR
+			PyErr_SetString(PyExc_ValueError, "fps must be in range(0, 256)");
+			result = -1;
+		}
 		else
 		{
 			wchar_t* name = PyUnicode_AsWideCharString(uname, 0);
@@ -185,7 +199,7 @@ py__HoloCameraReader_Init(py__Holo_Camera_Reader* self, PyObject* args, PyObject
 			}
 			else
 			{
-				Holo_Camera_Reader* reader = HoloCameraReader_Create(name, (uint16_t)width, (uint16_t)height);
+				Holo_Camera_Reader* reader = HoloCameraReader_Create(name, (uint16_t)width, (uint16_t)height, (uint8_t)fps);
 
 				if (reader == 0)
 				{
@@ -214,8 +228,8 @@ py__HoloCameraReader_ReadFrame(py__Holo_Camera_Reader* self, PyObject* args)
 {
 	PyObject* result = 0;
 
-	npy_intp dims[2] = { self->reader->width, self->reader->height };
-	PyObject* array = PyArray_SimpleNew(2, dims, NPY_UINT32);
+	npy_intp dims[1] = { self->reader->width*self->reader->height };
+	PyObject* array = PyArray_SimpleNew(1, dims, NPY_UINT32);
 	if (array != 0)
 	{
 		uint32_t* data = PyArray_DATA(array);

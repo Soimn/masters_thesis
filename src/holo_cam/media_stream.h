@@ -1,5 +1,3 @@
-#define TEMP_FPS 30
-
 typedef struct Media_Stream Media_Stream;
 typedef struct MediaStreamVtbl
 {
@@ -51,9 +49,10 @@ typedef struct Media_Stream_Dynamic_State
 	IMFVideoSampleAllocatorEx* sample_allocator;
 	u32 width;
 	u32 height;
+	u32 fps;
+	u32 port;
 	SOCKET socket;
 	SOCKET listen_socket;
-	char port[7];
 } Media_Stream_Dynamic_State;
 
 typedef struct Media_Stream
@@ -174,6 +173,7 @@ MediaStream__ReleaseChildren(Media_Stream* this)
 		this->sample_allocator = 0;
 	}
 
+	shutdown(this->listen_socket, SD_SEND);
 	closesocket(this->listen_socket);
 	this->listen_socket = INVALID_SOCKET;
 
@@ -385,7 +385,7 @@ MediaStream__RequestSample(Media_Stream* this, IUnknown* pToken)
 			BREAK_IF_FAILED(result, IMF2DBuffer2_Unlock2D(buffer));
 
 			BREAK_IF_FAILED(result, IMFSample_SetSampleTime(sample, MFGetSystemTime()));
-			BREAK_IF_FAILED(result, IMFSample_SetSampleDuration(sample, 10000000LL/TEMP_FPS));
+			BREAK_IF_FAILED(result, IMFSample_SetSampleDuration(sample, 10000000LL/this->fps));
 
 			if (pToken != 0)
 			{
@@ -533,11 +533,11 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttrib
 		u64 frame_size = 0;
 		BREAK_IF_FAILED(result, IMFAttributes_GetUINT64(parent_attributes, &GUID_HOLOCAM_FRAME_SIZE, &frame_size));
 
-		BREAK_IF_FAILED(result, IMFAttributes_GetBlob(parent_attributes, &GUID_HOLOCAM_PORT, &this->port[0], sizeof(this->port)-1, &(u32){0}));
-
 		this->width  = (u32)(frame_size >> 32);
 		this->height = (u32)frame_size;
-		u32 framerate = TEMP_FPS;
+
+		BREAK_IF_FAILED(result, IMFAttributes_GetUINT32(parent_attributes, &GUID_HOLOCAM_FPS, &this->fps));
+		BREAK_IF_FAILED(result, IMFAttributes_GetUINT32(parent_attributes, &GUID_HOLOCAM_PORT, &this->port));
 
 		BREAK_IF_FAILED(result, MFCreateEventQueue(&this->event_queue));
 
@@ -548,8 +548,8 @@ MediaStream__Init(Media_Stream* this, u32 index, Media_Source* parent, IMFAttrib
 		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_type, &MF_MT_ALL_SAMPLES_INDEPENDENT, TRUE));
 		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_type, &MF_MT_FRAME_SIZE,              U64_HI_LO(this->width, this->height)));
 		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_type, &MF_MT_DEFAULT_STRIDE,          this->width*4));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_type, &MF_MT_FRAME_RATE,              U64_HI_LO(framerate, 1)));
-		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_type, &MF_MT_AVG_BITRATE,             this->width*this->height*4*8*framerate));
+		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_type, &MF_MT_FRAME_RATE,              U64_HI_LO(this->fps, 1)));
+		BREAK_IF_FAILED(result, IMFMediaType_SetUINT32(media_type, &MF_MT_AVG_BITRATE,             this->width*this->height*4*8*this->fps));
 		BREAK_IF_FAILED(result, IMFMediaType_SetUINT64(media_type, &MF_MT_PIXEL_ASPECT_RATIO,      U64_HI_LO(1, 1)));
 
 		//BREAK_IF_FAILED(result, MFCreateStreamDescriptor(index, 1, &media_type, &this->stream_descriptor));
@@ -608,14 +608,8 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 				GUID format;
 				BREAK_IF_FAILED(result, IMFMediaType_GetGUID(media_type, &MF_MT_SUBTYPE, &format));
 
-				LogGUID("", &format);
-				LogGUID("", &MFVideoFormat_RGB32);
-				LogGUID("", &MFVideoFormat_NV12);
-
 				u64 frame_size;
 				BREAK_IF_FAILED(result, IMFMediaType_GetUINT64(media_type, &MF_MT_FRAME_SIZE, &frame_size));
-
-				Log("%ux%u", (u32)(frame_size >> 32), (u32)frame_size);
 
 				BREAK_IF_FAILED(result, IMFVideoSampleAllocatorEx_InitializeSampleAllocator(this->sample_allocator, 10, media_type));
 
@@ -626,43 +620,55 @@ MediaStream__StartInternal(Media_Stream* this, IMFMediaType* media_type, bool se
 				}
 			}
 
-			struct addrinfo* info;
-			struct addrinfo hints = { .ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP, .ai_flags = AI_PASSIVE };
-			if (getaddrinfo(0, &this->port[0], &hints, &info) != 0) result = E_FAIL;
-			else
+			if (this->listen_socket == INVALID_SOCKET)
 			{
-				this->socket = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
-				if (this->socket == INVALID_SOCKET) result = E_FAIL;
+				char port_string[6] = {
+					'0' + (this->port/10000) % 10,
+					'0' + (this->port/1000) % 10,
+					'0' + (this->port/100) % 10,
+					'0' + (this->port/10) % 10,
+					'0' + (this->port/1) % 10,
+					0,
+				};
+
+				struct addrinfo* info;
+				struct addrinfo hints = { .ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP, .ai_flags = AI_PASSIVE };
+				if (getaddrinfo(0, port_string, &hints, &info) != 0) result = E_FAIL;
 				else
 				{
-					if (bind(this->socket, info->ai_addr, (int)info->ai_addrlen) == SOCKET_ERROR) result = E_FAIL;
+					this->socket = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
+					if (this->socket == INVALID_SOCKET) result = E_FAIL;
 					else
 					{
-						Log("bound");
-						if (listen(this->socket, 1) == SOCKET_ERROR) result = E_FAIL;
+						if (bind(this->socket, info->ai_addr, (int)info->ai_addrlen) == SOCKET_ERROR) result = E_FAIL;
 						else
 						{
-							Log("listen");
+							Log("bound");
+							if (listen(this->socket, 1) == SOCKET_ERROR) result = E_FAIL;
+							else
+							{
+								Log("listen");
+							}
+						}
+
+						if (!SUCCEEDED(result))
+						{
+							closesocket(this->socket);
+							this->socket = INVALID_SOCKET;
 						}
 					}
 
-					if (!SUCCEEDED(result))
-					{
-						closesocket(this->socket);
-						this->socket = INVALID_SOCKET;
-					}
+					freeaddrinfo(info);
 				}
+				if (!SUCCEEDED(result)) break;
+				this->listen_socket = accept(this->socket, 0, 0);
 
-				freeaddrinfo(info);
-			}
-			if (!SUCCEEDED(result)) break;
-			this->listen_socket = accept(this->socket, 0, 0);
-
-			if (this->listen_socket == INVALID_SOCKET)
-			{
-				closesocket(this->socket);
-				result = E_FAIL;
-				break;
+				if (this->listen_socket == INVALID_SOCKET)
+				{
+					closesocket(this->socket);
+					result = E_FAIL;
+					break;
+				}
 			}
 
 			BREAK_IF_FAILED(result, IMFMediaEventQueue_QueueEventParamVar(this->event_queue, MEStreamStarted, &GUID_NULL, S_OK, 0));
@@ -710,9 +716,6 @@ MediaStream__StopInternal(Media_Stream* this, bool send_event)
 	HRESULT result = S_OK;
 
 	this->stream_state = MF_STREAM_STATE_STOPPED;
-
-	shutdown(this->listen_socket, SD_SEND);
-	closesocket(this->listen_socket);
 		
 	if (send_event)
 	{
