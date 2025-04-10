@@ -23,7 +23,7 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 
 		Holo_Cam* cam = HoloCam_Create(L"Holo Cam 0", 1920, 1080, 60, 3009);
 
-		if (webcam_reader != 0 && cam != 0)
+		if (webcam_reader != 0 && cam != 0 && HoloCam_Start(cam))
 		{
 
 			while (true)

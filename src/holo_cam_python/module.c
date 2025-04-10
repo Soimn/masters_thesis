@@ -113,15 +113,43 @@ py__HoloCam_Present(py__Holo_Cam* self, PyObject* args)
 			PyErr_SetString(PyExc_TypeError, "frame must be a numpy array");
 		}
 
-		npy_intp dims[1] = { self->cam->width * self->cam->height };
-		uint32_t* data = 0;
-		int i = PyArray_AsCArray(&frame, &data, dims, 1, PyArray_DescrFromType(NPY_UINT32));
+		uint8_t* data = PyArray_DATA((PyArrayObject*)frame);
 
-		if (HoloCam_Present(self->cam, data)) Py_RETURN_TRUE;
-		else                                  Py_RETURN_FALSE;
+		uint32_t* raw_image = malloc(self->cam->width*self->cam->height*sizeof(uint32_t));
+
+		if (raw_image == 0)
+		{
+			//// ERROR
+			PyErr_SetString(PyExc_RuntimeError, "failed to allocate memory");
+		}
+		else
+		{
+			for (uint32_t j = 0; j < self->cam->height; ++j)
+			{
+				for (uint32_t i = 0; i < self->cam->width; ++i)
+				{
+					uint8_t* px = &data[(j*self->cam->width + i)*3];
+					raw_image[j*self->cam->width + i] = ((uint32_t)px[0] << 16) | ((uint32_t)px[1] << 8) | px[2];
+				}
+			}
+
+			bool succeeded = HoloCam_Present(self->cam, raw_image);
+
+			free(raw_image);
+
+			if (succeeded) Py_RETURN_TRUE;
+			else           Py_RETURN_FALSE;
+		}
 	}
 
 	return 0;
+}
+
+static PyObject*
+py__HoloCam_Start(py__Holo_Cam* self, PyObject* args)
+{
+	if (HoloCam_Start(self->cam)) Py_RETURN_TRUE;
+	else                          Py_RETURN_FALSE;
 }
 
 static PyTypeObject py__HoloCamType = {
@@ -135,6 +163,7 @@ static PyTypeObject py__HoloCamType = {
 	.tp_init      = (initproc)py__HoloCam_Init,
 	.tp_methods   = (PyMethodDef[]){
 		{ "present", (PyCFunction)py__HoloCam_Present, METH_VARARGS, "send provided frame to the camera when it is ready to recieve the next frame" },
+		{ "start", (PyCFunction)py__HoloCam_Start, METH_NOARGS, "signal the camera to start and block until startup has finished" },
 		{0}
 	},
 };
@@ -228,14 +257,39 @@ py__HoloCameraReader_ReadFrame(py__Holo_Camera_Reader* self, PyObject* args)
 {
 	PyObject* result = 0;
 
-	npy_intp dims[1] = { self->reader->width*self->reader->height };
-	PyObject* array = PyArray_SimpleNew(1, dims, NPY_UINT32);
+	npy_intp dims[3] = { self->reader->height, self->reader->width, 3 };
+	PyObject* array = PyArray_SimpleNew(sizeof(dims)/sizeof(dims[0]), dims, NPY_UINT8);
+
 	if (array != 0)
 	{
-		uint32_t* data = PyArray_DATA(array);
-		HoloCameraReader_ReadFrame(self->reader, data);
+		uint32_t* raw_image = malloc(self->reader->width*self->reader->height*sizeof(uint32_t));
 
-		result = array;
+		if (raw_image == 0)
+		{
+			//// ERROR
+			PyErr_SetString(PyExc_RuntimeError, "failed to allocate memory");
+		}
+		else
+		{
+			HoloCameraReader_ReadFrame(self->reader, raw_image);
+
+			uint8_t* data = PyArray_DATA(array);
+
+			for (uint32_t j = 0; j < self->reader->height; ++j)
+			{
+				for (uint32_t i = 0; i < self->reader->width; ++i)
+				{
+					uint32_t hex = raw_image[j*self->reader->width + i];
+					data[(j*self->reader->width + i)*3 + 0] = (uint8_t)(hex >> 16);
+					data[(j*self->reader->width + i)*3 + 1] = (uint8_t)(hex >> 8);
+					data[(j*self->reader->width + i)*3 + 2] = (uint8_t)hex;
+				}
+			}
+
+			free(raw_image);
+
+			result = array;
+		}
 	}
 
 	return result;
