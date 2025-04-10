@@ -1,3 +1,5 @@
 /build
-/src/holo_cam_python/build/
-/src/holo_cam_python/holocam.egg-info/
+/src/holo_cam_python/holocam/build/
+/src/holo_cam_python/holocam/dist/
+/src/holo_cam_python/holocam/holocam.egg-info/
+/src/holo_cam_python/holocam/holocam/__pycache__

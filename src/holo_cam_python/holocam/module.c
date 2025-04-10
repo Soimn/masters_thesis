@@ -3,7 +3,7 @@
 #include <numpy/arrayobject.h>
 
 #define HOLOCAM_IMPLEMENTATION
-#include "..\holo_cam.h"
+#include "holo_cam.h"
 
 typedef struct py__Holo_Cam
 {
@@ -373,7 +373,7 @@ py__Holo_GetCameraNames(PyObject* self, PyObject* args)
 
 static PyModuleDef HoloCamModule = {
 	.m_base    = PyModuleDef_HEAD_INIT,
-	.m_name    = "holocam",
+	.m_name    = "holocam._c",
 	.m_doc     = "Python wrapper for the Holo Cam virtual camera for windows 11",
 	.m_size    = -1,
 	.m_free    = py__Holo_Destroy,
@@ -384,7 +384,7 @@ static PyModuleDef HoloCamModule = {
 };
 
 PyMODINIT_FUNC
-PyInit_holocam(void)
+PyInit__c(void)
 {
 	import_array();
 
