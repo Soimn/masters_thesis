@@ -17,6 +17,7 @@ void Holo_Cleanup(void);
 typedef struct Holo_Cam Holo_Cam;
 Holo_Cam* HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint8_t fps, uint16_t port);
 void HoloCam_Destroy(Holo_Cam** cam);
+bool HoloCam_Start(Holo_Cam* cam);
 bool HoloCam_Present(Holo_Cam* cam, uint32_t* image);
 
 // Convencience
@@ -514,7 +515,7 @@ HoloCameraReader_ReadFrame(Holo_Camera_Reader* reader, uint32_t* frame)
 	IMFSample_Release(sample);
 }
 
-// TODO
+// TODO: Either remove the utility functions or make them part of the API
 
 static int
 Clamp(int min, int max, int n)

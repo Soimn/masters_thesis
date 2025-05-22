@@ -105,43 +105,41 @@ ULONG
 Activate__AddRef(Activate* this)
 {
 	LOG_FUNCTION_ENTRY();
-	this->ref_count += 1;
-	return this->ref_count;
+	u32 ref_count = InterlockedIncrement(&this->ref_count);
+	return ref_count;
 }
 
 ULONG
 Activate__Release(Activate* this)
 {
 	LOG_FUNCTION_ENTRY();
-	if (this->ref_count > 0)
+
+	u32 ref_count = InterlockedDecrement(&this->ref_count);
+
+	if (ref_count == 0)
 	{
-		this->ref_count -= 1;
-
-		if (this->ref_count == 0)
+		if (this->attributes != 0)
 		{
-			if (this->attributes != 0)
-			{
-				IMFAttributes_Release(this->attributes);
-				this->attributes = 0;
-			}
-
-			if (this->media_source != 0)
-			{
-				this->media_source->lpVtbl->Release(this->media_source);
-				this->media_source = 0;
-			}
-
-			AcquireSRWLockExclusive(&ActivatePoolFreeListLock);
-			{
-				this->next_free = ActivatePoolFreeList;
-				ActivatePoolFreeList = this;
-				ActivatePoolOccupancy -= 1;
-			}
-			ReleaseSRWLockExclusive(&ActivatePoolFreeListLock);
+			IMFAttributes_Release(this->attributes);
+			this->attributes = 0;
 		}
+
+		if (this->media_source != 0)
+		{
+			this->media_source->lpVtbl->Release(this->media_source);
+			this->media_source = 0;
+		}
+
+		AcquireSRWLockExclusive(&ActivatePoolFreeListLock);
+		{
+			this->next_free = ActivatePoolFreeList;
+			ActivatePoolFreeList = this;
+			ActivatePoolOccupancy -= 1;
+		}
+		ReleaseSRWLockExclusive(&ActivatePoolFreeListLock);
 	}
 
-	return this->ref_count;
+	return ref_count;
 }
 
 HRESULT

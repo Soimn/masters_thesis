@@ -235,6 +235,7 @@ DllCanUnloadNow()
 
 #define REGISTRY_PATH L"Software\\Classes\\CLSID\\" CLSID_HOLOCAM_STRING
 
+// TODO: Clean up registry entries on failure
 HRESULT
 DllRegisterServer()
 {
@@ -243,15 +244,13 @@ DllRegisterServer()
 	WCHAR dll_path[2*MAX_PATH];
 	u32 dll_path_len = GetModuleFileNameW((HMODULE)Module, dll_path, ARRAY_LEN(dll_path));
 
-	if (dll_path_len != 0)
-	{
 		HKEY key;
-		if (RegCreateKeyExW(HKEY_LOCAL_MACHINE, REGISTRY_PATH L"\\InProcServer32", 0, 0, 0, KEY_WRITE, 0, &key, 0) == ERROR_SUCCESS &&
-				RegSetValueExW(key, 0, 0, REG_SZ, (BYTE*)dll_path, (dll_path_len + 1)*sizeof(WCHAR))                   == ERROR_SUCCESS &&
-				RegSetValueExW(key, L"ThreadingModel", 0, REG_SZ, (BYTE*)L"Both", sizeof(L"Both"))                     == ERROR_SUCCESS)
-		{
-			result = S_OK;
-		}
+	if (dll_path_len == 0) result = E_FAIL;
+	else if (SUCCEEDED(RegCreateKeyExW(HKEY_LOCAL_MACHINE, REGISTRY_PATH L"\\InProcServer32", 0, 0, 0, KEY_WRITE, 0, &key, 0)) &&
+				   SUCCEEDED(RegSetValueExW(key, 0, 0, REG_SZ, (BYTE*)dll_path, (dll_path_len + 1)*sizeof(WCHAR)))                   &&
+				   SUCCEEDED(RegSetValueExW(key, L"ThreadingModel", 0, REG_SZ, (BYTE*)L"Both", sizeof(L"Both"))))
+	{
+		result = S_OK;
 	}
 
 	return result;
