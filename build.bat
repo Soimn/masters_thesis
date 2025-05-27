@@ -30,8 +30,8 @@ cl %compile_options% ..\src\example.c /link /incremental:no /opt:ref /pdb:holo_e
 set "holo_cam_dependencies=libucrtd.lib libvcruntimed.lib user32.lib ole32.lib mf.lib mfplat.lib mfuuid.lib mfreadwrite.lib mfsensorgroup.lib advapi32.lib d2d1.lib Ws2_32.lib"
 cl /LD /nologo /W3 ..\src\holo_cam\dllmain.c /Od /Zo /Z7 /RTC1 /MTd /DHOLO_DEBUG#1 /link /DEF:..\src\holo_cam\holo_cam.def /incremental:no /opt:ref  /pdb:holo_cam.pdb /out:holo_cam.dll %holo_cam_dependencies%
 
-copy holo_cam.dll ..\src\holo_cam_python\holocam\.
-copy ..\src\holo_cam.h ..\src\holo_cam_python\holocam\.
+copy holo_cam.dll ..\python_package\holocam\.
+copy ..\src\holo_cam.h ..\python_package\holocam\.
 
 goto end
 
