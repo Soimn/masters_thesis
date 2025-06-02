@@ -7,7 +7,7 @@
 #define HEIGHT 1080
 
 int
-wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_cmd)
+main(int argc, char** argv)
 {
 	Holo_Settings settings = {0};
 	if (Holo_Init(settings))
@@ -18,10 +18,10 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 
 		if (webcam_names != 0)
 		{
-			webcam_reader = HoloCameraReader_Create(webcam_names[0].symbolic_name, WIDTH, HEIGHT, 60);
+			webcam_reader = HoloCameraReader_Create(webcam_names[0].symbolic_name, WIDTH, HEIGHT, 30);
 		}
 
-		Holo_Cam* cam = HoloCam_Create(L"Holo Cam 0", 1920, 1080, 60, 3009);
+		Holo_Cam* cam = HoloCam_Create(L"Holo Cam 0", 1920, 1080, 30, 3009);
 
 		if (webcam_reader != 0 && cam != 0 && HoloCam_Start(cam))
 		{
@@ -32,6 +32,7 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 
 				HoloCameraReader_ReadFrame(webcam_reader, rgb_frame);
 
+				/*
 				for (unsigned int j = 0; j < HEIGHT; ++j)
 				{
 					for (unsigned int i = 0; i < WIDTH; ++i)
@@ -50,7 +51,7 @@ wWinMain(HINSTANCE instance, HINSTANCE prev_instance, LPWSTR cmd_line, int show_
 							                       (uint32_t)(uint8_t)(g*255) <<  8 |
 																		 (uint32_t)(uint8_t)(b*255);
 					}
-				}
+				}*/
 
 				HoloCam_Present(cam, rgb_frame);
 			}
