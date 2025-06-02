@@ -5,6 +5,11 @@
 
 // Core
 
+// Holo_Init and Holo_Cleanup initialize and cleanup resources used by HoloCam and the HoloCameraReader.
+// Holo_Init must be called before any use of any other part of the API.
+// Holo_Cleanup should ideally be called when an application is done using the API, but doing so in the event
+// of a crash should not cause any harm.
+
 typedef struct Holo_Settings
 {
 	bool dont_init_media_foundation;
@@ -14,14 +19,34 @@ typedef struct Holo_Settings
 bool Holo_Init(Holo_Settings settings);
 void Holo_Cleanup(void);
 
+// The HoloCam virtual camera API
+// HoloCam_Create and HoloCam_Destroy create and destroy the virtual camera.
+// HoloCam_Create will return a valid pointer to a Holo_Cam handle on success and NULL on failure.
+// When creating a camera using HoloCam_Create, it needs to be assigned a unique name which will
+// be used by Windows to identify the virtual camera. If this name is equal to a device that already
+// exists, then this function will fail. The width, height and fps will be used to create the frame
+// server media source, which should fail if the width, height and fps are invalid. The passed port
+// is used to communicate with the newly created virtual camera and must be an open port on the
+// system which doesn't require elevated priviliges.
+
 typedef struct Holo_Cam Holo_Cam;
 Holo_Cam* HoloCam_Create(wchar_t* unique_name, uint16_t width, uint16_t height, uint8_t fps, uint16_t port);
 void HoloCam_Destroy(Holo_Cam** cam);
+
+// HoloCam_Start blocks until it can establish a socket connection with the virtual camera.
+// This is not part of HoloCam_Create to allow the application control over when the block happens.
 bool HoloCam_Start(Holo_Cam* cam);
+
+// HoloCam_Present presents the provided image and blocks until the next frame is requested.
+// The provided image should be a contiguous array of uint32_t RGBA pixels with the same
+// dimensions as those provided to HoloCam_Create
 bool HoloCam_Present(Holo_Cam* cam, uint32_t* image);
 
 // Convencience
 
+// Holo_GetCameraNames and Holo_FreeCameraNames is provided to make it easier to list all the
+// available cameras on the system. Holo_GetCameraNames returns NULL on failure and an array
+// of Holo_Camera_Name entries names_len (pure output parameter) long on success.
 typedef struct Holo_Camera_Name
 {
 	wchar_t* friendly_name;
@@ -30,6 +55,11 @@ typedef struct Holo_Camera_Name
 
 Holo_Camera_Name* Holo_GetCameraNames(unsigned int* names_len);
 void Holo_FreeCameraNames(Holo_Camera_Name* names);
+
+// HoloCameraReader_Create and HoloCameraReader_Destroy create and destroy a camera reader, which
+// can be used to read individual frames from a camera device.
+// HoloCameraReader_ReadFrame reads a single frame into provided 'frame' buffer. Each frame is
+// a contiguous array of uint32_t RGBA pixels with the same dimensions provided in HoloCameraReader_Create
 
 typedef struct Holo_Camera_Reader Holo_Camera_Reader;
 Holo_Camera_Reader* HoloCameraReader_Create(wchar_t* symbolic_name, uint16_t width, uint16_t height, uint8_t fps);
