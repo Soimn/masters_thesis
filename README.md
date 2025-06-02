@@ -5,9 +5,15 @@ This script can be found in the holocam repository root directory. Running this 
 Due to the windows frame server locking the dll after running the camera, the machine has to be rebooted before rebuilding the camera to overwrite the dll successfully.
 
 # Installation Instructions
-The first time `holo_cam.dll` is built it needs to be registered on the system, to do this run the command `regsvr32 build\holo_cam.dll` (assuming the command is ran from the root directory of the repository) from a command prompt with administrator priviliges
+The first time `holo_cam.dll` is built it needs to be registered on the system, to do this run the command
+
+`regsvr32 build\holo_cam.dll`
+
+from a command prompt with administrator priviliges (assuming the command is ran from the root directory of the repository, replace `build\holo_cam.dll` with the path to `holo_cam.dll` otherwise).
 
 # Python Package Installation
 To build the Python package first follow the general build and install instructions above to build and install the virtual camera.
 This will also build and copy the required dependencies into the `python_package` directory.
-Installing the python package can then be done by navigating to the `python_package` directory and running `pip install ./holocam`
+Installing the python package can then be done by navigating to the `python_package` directory and running
+
+`pip install ./holocam`
