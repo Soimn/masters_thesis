@@ -33,6 +33,9 @@ cl /LD /nologo /W3 ..\src\holo_cam\dllmain.c /Od /Zo /Z7 /RTC1 /MTd /DHOLO_DEBUG
 copy holo_cam.dll ..\python_package\holocam\.
 copy ..\src\holo_cam.h ..\python_package\holocam\.
 
+del dllmain.*
+del example.obj
+
 goto end
 
 :invalid_arguments

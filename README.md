@@ -17,3 +17,6 @@ This will also build and copy the required dependencies into the `python_package
 Installing the python package can then be done by navigating to the `python_package` directory and running
 
 `pip install ./holocam`
+
+# Examples
+There are 3 examples provided, one in C and two in Python. The C example is located in `src\example.c` and is built alongside the virtual camera using the `build.bat` script. The run the example, navigate to the `build` directory and run the `holo_example.exe`. To view the result requires either a conference application such as Teams or the "Manage Cameras" page in the Windows camera utilities. The Python examples are located in the `python_package` directory and can be run once the Python package has been installed. Viewing the output of the camera is done in the same was as the C example.
